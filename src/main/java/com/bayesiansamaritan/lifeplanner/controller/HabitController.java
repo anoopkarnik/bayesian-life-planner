@@ -5,6 +5,9 @@ import com.bayesiansamaritan.lifeplanner.model.Habit;
 import com.bayesiansamaritan.lifeplanner.repository.HabitRepository;
 import com.bayesiansamaritan.lifeplanner.repository.HabitRepository;
 import com.bayesiansamaritan.lifeplanner.request.HabitCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.HabitDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.request.TaskDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.response.HabitResponse;
 import com.bayesiansamaritan.lifeplanner.service.HabitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +31,9 @@ public class HabitController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<Habit>> getAllHabits(@RequestParam("userId") Long userId, @RequestParam("habitTypeName") String habitTypeName) {
+    public ResponseEntity<List<HabitResponse>> getAllHabits(@RequestParam("userId") Long userId, @RequestParam("habitTypeName") String habitTypeName) {
         try {
-            List<Habit> habits = habitService.getAllActiveHabits(userId,true,habitTypeName);
+            List<HabitResponse> habits = habitService.getAllActiveHabits(userId,true,habitTypeName);
             if (habits.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -84,6 +87,14 @@ public class HabitController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PatchMapping("/description")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void addDescription(@RequestBody HabitDescriptionRequest habitDescriptionRequest)
+    {
+        habitRepository.addDescription(habitDescriptionRequest.getId(),habitDescriptionRequest.getDescription());
+    }
+
 
     @DeleteMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

@@ -8,18 +8,27 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 
 @Repository
 public interface HabitTypeRepository extends JpaRepository<HabitType, Long> {
 
-    HabitType findByName(String name);
+    HabitType findByNameAndUserId(String name,Long userId);
     Optional<HabitType> findById(Long Id);
+
+    @Query(value = "Select h from HabitType h where userId=:userId order by h.count desc")
+    List<HabitType> findByUserId(@Param("userId") Long userId);
 
     @Transactional
     @Modifying
     @Query("update HabitType set name = :name,updated_at=now() where id=:id")
     public void modifyName(@Param("id") Long id, @Param("name") String name);
+
+    @Transactional
+    @Modifying
+    @Query("update HabitType h set h.count =:count where h.id=:id")
+    public void updateCount(@Param("id") Long id, @Param("count") Long count);
 
 }

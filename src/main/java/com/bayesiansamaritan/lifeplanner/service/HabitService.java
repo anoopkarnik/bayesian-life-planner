@@ -4,12 +4,14 @@ import com.bayesiansamaritan.lifeplanner.model.Habit;
 import com.bayesiansamaritan.lifeplanner.model.Task;
 
 import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
+import com.bayesiansamaritan.lifeplanner.response.HabitResponse;
+
 import java.util.Date;
 import java.util.List;
 
 public interface HabitService {
 
-    public List<Habit> getAllActiveHabits(Long userId, Boolean active, String habitTypeName);
+    public List<HabitResponse> getAllActiveHabits(Long userId, Boolean active, String habitTypeName);
     public Habit createDailyHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate, Long every, String scheduleType,
                            String habitTypeName);
 

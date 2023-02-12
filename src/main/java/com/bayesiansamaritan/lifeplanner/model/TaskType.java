@@ -28,12 +28,18 @@ public class TaskType {
     @Column(name="name")
     private String name;
 
+    @Column(name="user_id")
+    private Long userId;
+
+    @Column(name="count")
+    private Long count=0L;
 
     public TaskType() {
     }
 
-    public TaskType(String name) {
+    public TaskType(String name, Long userId) {
         this.name = name;
+        this.userId = userId;
     }
 
     public long getId() {
@@ -54,5 +60,21 @@ public class TaskType {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getCount() {
+        return count;
+    }
+
+    public void setCount(Long count) {
+        this.count = count;
     }
 }

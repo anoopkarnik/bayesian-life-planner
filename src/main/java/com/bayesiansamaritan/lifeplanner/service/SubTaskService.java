@@ -4,12 +4,14 @@ import com.bayesiansamaritan.lifeplanner.model.SubTask;
 import com.bayesiansamaritan.lifeplanner.model.Task;
 
 import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
+import com.bayesiansamaritan.lifeplanner.response.SubTaskResponse;
+
 import java.util.Date;
 import java.util.List;
 
 public interface SubTaskService {
 
-    public List<SubTask> getAllActiveSubTasks(Long userId, Boolean active, Long taskId);
+    public List<SubTaskResponse> getAllActiveSubTasks(Long userId, Boolean active, Long taskId);
 
     public SubTask createOneTimeSubTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
                                       Long taskId);

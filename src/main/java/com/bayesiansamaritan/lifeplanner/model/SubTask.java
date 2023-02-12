@@ -49,6 +49,9 @@ public class SubTask {
     @Column(name="user_id")
     private Long userId;
 
+    @Column(name="description")
+    private String description;
+
     public SubTask(){};
 
     public SubTask(String name, Long timeTaken, Date startDate, Date dueDate, Long taskId, Boolean active, Long userId, String scheduleType) {
@@ -128,5 +131,29 @@ public class SubTask {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

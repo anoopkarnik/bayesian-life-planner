@@ -19,7 +19,7 @@ public interface HabitRepository extends JpaRepository<Habit, Long> {
 
    @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.habitTypeId=:habitTypeId  and t.startDate<=now() order by t.dueDate asc")
    List<Habit> findByUserIdAndActiveAndHabitTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
-                                                 @Param("habitTypeId") Long taskTypeId);
+                                                 @Param("habitTypeId") Long habitTypeId);
 
    void deleteById(Long id);
 
@@ -39,4 +39,9 @@ public interface HabitRepository extends JpaRepository<Habit, Long> {
    @Modifying
    @Query("update Habit set dueDate=:dueDate,updated_at=now() where id=:id")
    public void modifyDueDate(@Param("id") Long id, @Param("dueDate") Date dueDate);
+
+   @Transactional
+   @Modifying
+   @Query("update Habit set description=:description,updated_at=now() where id=:id")
+   public void addDescription(@Param("id") Long id, @Param("description") String description);
 }

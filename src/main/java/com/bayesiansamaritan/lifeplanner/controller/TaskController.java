@@ -4,6 +4,8 @@ package com.bayesiansamaritan.lifeplanner.controller;
 import com.bayesiansamaritan.lifeplanner.model.Task;
 import com.bayesiansamaritan.lifeplanner.repository.TaskRepository;
 import com.bayesiansamaritan.lifeplanner.request.TaskCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.TaskDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.response.TaskResponse;
 import com.bayesiansamaritan.lifeplanner.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +29,14 @@ public class TaskController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<Task>> getAllTasks(@RequestParam("userId") Long userId, @RequestParam("taskTypeName") String taskTypeName) {
+    public ResponseEntity<List<TaskResponse>> getAllTasks(@RequestParam("userId") Long userId, @RequestParam("taskTypeName") String taskTypeName) {
         try {
-            List<Task> tasks = taskService.getAllActiveTasks(userId,true,taskTypeName);
-            if (tasks.isEmpty()) {
+            List<TaskResponse> taskResponses = taskService.getAllActiveTasks(userId,true,taskTypeName);
+            if (taskResponses.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
-            return new ResponseEntity<>(tasks , HttpStatus.OK);
+            return new ResponseEntity<>(taskResponses , HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -87,6 +89,13 @@ public class TaskController {
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PatchMapping("/description")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void addDescription(@RequestBody TaskDescriptionRequest taskDescriptionRequest)
+    {
+        taskRepository.addDescription(taskDescriptionRequest.getId(),taskDescriptionRequest.getDescription());
     }
 
     @DeleteMapping

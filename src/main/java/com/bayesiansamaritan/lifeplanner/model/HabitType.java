@@ -27,12 +27,19 @@ public class HabitType {
     @Column(name="name")
     private String name;
 
+    @Column(name="user_id")
+    private Long userId;
+
+    @Column(name="count")
+    private Long count=0L;
 
     public HabitType() {
     }
 
-    public HabitType(String name) {
+    public HabitType(String name, Long userId) {
+
         this.name = name;
+        this.userId = userId;
     }
 
     public long getId() {
@@ -53,5 +60,21 @@ public class HabitType {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getCount() {
+        return count;
+    }
+
+    public void setCount(Long count) {
+        this.count = count;
     }
 }

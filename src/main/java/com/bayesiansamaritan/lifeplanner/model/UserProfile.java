@@ -51,6 +51,12 @@ public class UserProfile {
         this.password = password;
     }
 
+    public UserProfile(String name, String email, long id) {
+        this.name = name;
+        this.email = email;
+        this.id = id;
+    }
+
     public String getEmail() {
         return email;
     }

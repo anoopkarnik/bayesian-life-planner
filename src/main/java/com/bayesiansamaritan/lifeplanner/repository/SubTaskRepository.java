@@ -27,4 +27,9 @@ public interface SubTaskRepository extends JpaRepository<SubTask, Long> {
    @Modifying
    @Query("update SubTask set active=:active,updated_at=now() where id=:id")
    public void completeSubTask(@Param("id") Long id, @Param("active") Boolean active);
+
+   @Transactional
+   @Modifying
+   @Query("update SubTask set description=:description,updated_at=now() where id=:id")
+   public void addDescription(@Param("id") Long id, @Param("description") String description);
 }

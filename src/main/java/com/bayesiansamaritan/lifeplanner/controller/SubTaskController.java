@@ -6,7 +6,9 @@ import com.bayesiansamaritan.lifeplanner.model.Task;
 import com.bayesiansamaritan.lifeplanner.repository.SubTaskRepository;
 import com.bayesiansamaritan.lifeplanner.repository.TaskRepository;
 import com.bayesiansamaritan.lifeplanner.request.SubTaskCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.SubTaskDescriptionRequest;
 import com.bayesiansamaritan.lifeplanner.request.TaskCreateRequest;
+import com.bayesiansamaritan.lifeplanner.response.SubTaskResponse;
 import com.bayesiansamaritan.lifeplanner.service.SubTaskService;
 import com.bayesiansamaritan.lifeplanner.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +33,9 @@ public class SubTaskController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<SubTask>> getAllSubTasks(@RequestParam("userId") Long userId, @RequestParam("taskId") Long taskId) {
+    public ResponseEntity<List<SubTaskResponse>> getAllSubTasks(@RequestParam("userId") Long userId, @RequestParam("taskId") Long taskId) {
         try {
-            List<SubTask> subTasks = subTaskService.getAllActiveSubTasks(userId,true,taskId);
+            List<SubTaskResponse> subTasks = subTaskService.getAllActiveSubTasks(userId,true,taskId);
             if (subTasks.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -91,6 +93,14 @@ public class SubTaskController {
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    @PatchMapping("/description")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void addDescription(@RequestBody SubTaskDescriptionRequest subTaskDescriptionRequest)
+    {
+        subTaskRepository.addDescription(subTaskDescriptionRequest.getId(),subTaskDescriptionRequest.getDescription());
     }
 
     @DeleteMapping

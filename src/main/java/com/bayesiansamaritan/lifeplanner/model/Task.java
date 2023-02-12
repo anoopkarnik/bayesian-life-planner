@@ -50,6 +50,9 @@ public class Task {
     @Column(name="user_id")
     private Long userId;
 
+    @Column(name="description",length = 10240)
+    private String description;
+
     public Task(){};
 
     public Task(String name, Long timeTaken, Date startDate, Date dueDate, Long taskTypeId, Boolean active, Long userId,String scheduleType) {
@@ -63,7 +66,18 @@ public class Task {
         this.scheduleType = scheduleType;
     }
 
-
+    public Task(Date createdAt, Date updatedAt, String name, String scheduleType, Long timeTaken, Date startDate, Date dueDate, Long taskTypeId, Boolean active, Long userId) {
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.name = name;
+        this.scheduleType = scheduleType;
+        this.timeTaken = timeTaken;
+        this.startDate = startDate;
+        this.dueDate = dueDate;
+        this.taskTypeId = taskTypeId;
+        this.active = active;
+        this.userId = userId;
+    }
 
     public long getId() {
         return id;
@@ -131,5 +145,29 @@ public class Task {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

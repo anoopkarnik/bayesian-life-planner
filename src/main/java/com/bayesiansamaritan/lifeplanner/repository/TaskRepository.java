@@ -31,4 +31,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
    @Modifying
    @Query("update Task set active=:active,updated_at=now() where id=:id")
    public void completeTask(@Param("id") Long id, @Param("active") Boolean active);
+
+   @Transactional
+   @Modifying
+   @Query("update Task set description=:description,updated_at=now() where id=:id")
+   public void addDescription(@Param("id") Long id, @Param("description") String description);
+
+
 }

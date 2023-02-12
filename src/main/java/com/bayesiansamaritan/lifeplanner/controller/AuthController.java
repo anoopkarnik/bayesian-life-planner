@@ -1,9 +1,13 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 import com.bayesiansamaritan.lifeplanner.enums.RoleEnum;
+import com.bayesiansamaritan.lifeplanner.model.HabitType;
 import com.bayesiansamaritan.lifeplanner.model.Role;
+import com.bayesiansamaritan.lifeplanner.model.TaskType;
 import com.bayesiansamaritan.lifeplanner.model.UserProfile;
+import com.bayesiansamaritan.lifeplanner.repository.HabitTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.RoleRepository;
+import com.bayesiansamaritan.lifeplanner.repository.TaskTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.LoginRequest;
 import com.bayesiansamaritan.lifeplanner.request.SignupRequest;
@@ -41,6 +45,12 @@ public class AuthController {
     PasswordEncoder encoder;
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    HabitTypeRepository habitTypeRepository;
+
+    @Autowired
+    TaskTypeRepository taskTypeRepository;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -115,8 +125,13 @@ public class AuthController {
         user.setRoles(roles);
         UserProfile userProfile = userRepository.save(user);
         Long userId = userProfile.getId();
+        habitTypeRepository.save(new HabitType("Important",userId));
+        habitTypeRepository.save(new HabitType("Delight",userId));
+        taskTypeRepository.save(new TaskType("Important",userId));
+        taskTypeRepository.save(new TaskType("Delight",userId));
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+
+        return ResponseEntity.ok(new MessageResponse("User registered"));
     }
 
 }

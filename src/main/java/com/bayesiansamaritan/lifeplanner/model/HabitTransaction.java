@@ -54,6 +54,9 @@ public class HabitTransaction {
     @Column(name="schedule_type")
     private String scheduleType;
 
+    @Column(name="description",length = 10240)
+    private String description;
+
     public HabitTransaction(){};
 
     public HabitTransaction(String name,  Long timeTaken, Date startDate, Date dueDate, Long habitTypeId,  Long userId,
@@ -147,5 +150,29 @@ public class HabitTransaction {
 
     public void setScheduleType(String scheduleType) {
         this.scheduleType = scheduleType;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

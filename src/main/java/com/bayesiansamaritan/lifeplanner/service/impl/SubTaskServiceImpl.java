@@ -2,6 +2,7 @@ package com.bayesiansamaritan.lifeplanner.service.impl;
 
 import com.bayesiansamaritan.lifeplanner.model.*;
 import com.bayesiansamaritan.lifeplanner.repository.*;
+import com.bayesiansamaritan.lifeplanner.response.SubTaskResponse;
 import com.bayesiansamaritan.lifeplanner.service.SubTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -33,13 +35,23 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     @Autowired
     private YearlyRepository yearlyRepository;
-    
+    @Autowired
+    private TaskRepository taskRepository;
+
 
     @Override
-    public List<SubTask> getAllActiveSubTasks(Long userId, Boolean active, Long taskId){
+    public List<SubTaskResponse> getAllActiveSubTasks(Long userId, Boolean active, Long taskId){
 
+        Task task = taskRepository.findByUserIdAndId(userId, taskId);
         List<SubTask> subTasks = subTaskRepository.findByUserIdAndActiveAndTaskId(userId,true,taskId);
-        return subTasks;
+        List<SubTaskResponse> subTaskResponses = new ArrayList<>();
+        for (SubTask subTask : subTasks){
+            SubTaskResponse subTaskResponse = new SubTaskResponse(subTask.getId(),subTask.getCreatedAt(),subTask.getUpdatedAt(),
+                    subTask.getName(),subTask.getScheduleType(),subTask.getTimeTaken(),subTask.getStartDate(),subTask.getDueDate(),
+                    task.getName(),subTask.getDescription());
+            subTaskResponses.add(subTaskResponse);
+        }
+        return subTaskResponses;
     };
 
     @Override
@@ -97,11 +109,23 @@ public class SubTaskServiceImpl implements SubTaskService {
             String referenceId = "subTask/"+subTask.getId();
             Daily daily = dailyRepository.findByReferenceId(referenceId);
             Date newDueDate = new Date(dueDate.getTime() + (1000*60*60*24*daily.getEvery()));
-            SubTask newSubTask = subTaskRepository.save(new SubTask(subTask.getName(),subTask.getTimeTaken(), subTask.getStartDate(), newDueDate,
-                    subTask.getTaskId(),
-                    active, userId, subTask.getScheduleType()));
-            dailyRepository.save(new Daily(daily.getEvery(),"task/"+newSubTask.getId()));
-            return newSubTask;
+            Date currentDate = new Date();
+            if (newDueDate.compareTo(currentDate)<0){
+                Date newDueDate2 = new Date(currentDate.getTime() + 1000*60*60*18 - currentDate.getTime()%(24*60*60*1000) + (1000*60*60*24*daily.getEvery()));
+                SubTask newSubTask = subTaskRepository.save(new SubTask(subTask.getName(),subTask.getTimeTaken(), subTask.getStartDate(), newDueDate2,
+                        subTask.getTaskId(),
+                        active, userId, subTask.getScheduleType()));
+                dailyRepository.save(new Daily(daily.getEvery(),"task/"+newSubTask.getId()));
+                return newSubTask;
+            }
+            else{
+                SubTask newSubTask = subTaskRepository.save(new SubTask(subTask.getName(),subTask.getTimeTaken(), subTask.getStartDate(), newDueDate,
+                        subTask.getTaskId(),
+                        active, userId, subTask.getScheduleType()));
+                dailyRepository.save(new Daily(daily.getEvery(),"task/"+newSubTask.getId()));
+                return newSubTask;
+            }
+
         }
         else if(scheduleTypeName.equals("weekly")){
             String referenceId = "subTask/"+subTask.getId();

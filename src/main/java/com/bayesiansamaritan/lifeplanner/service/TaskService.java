@@ -3,12 +3,14 @@ package com.bayesiansamaritan.lifeplanner.service;
 import com.bayesiansamaritan.lifeplanner.model.Task;
 
 import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
+import com.bayesiansamaritan.lifeplanner.response.TaskResponse;
+
 import java.util.Date;
 import java.util.List;
 
 public interface TaskService {
 
-    public List<Task> getAllActiveTasks(Long userId, Boolean active, String taskTypeName);
+    public List<TaskResponse> getAllActiveTasks(Long userId, Boolean active, String taskTypeName);
 
     public Task createOneTimeTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
                                   String taskTypeName);
