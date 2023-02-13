@@ -16,9 +16,13 @@ import java.util.List;
 public interface SkillRepository extends JpaRepository<Skill, Long> {
 
 
-   @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.skillTypeId=:skillTypeId")
-   List<Skill> findByUserIdAndActiveAndSkillTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
+   @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.skillTypeId=:skillTypeId and t.parentId=null")
+   List<Skill> findRootSkillsByUserIdAndActiveAndSkillTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                  @Param("skillTypeId") Long skillTypeId);
+
+   @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.parentId=:parentSkillId")
+   List<Skill> findSkillsByUserIdAndActiveAndParentSkillId(@Param("userId") Long userId, @Param("active") Boolean active,
+                                                             @Param("parentSkillId") Long parentSkillId);
 
    void deleteById(Long id);
 

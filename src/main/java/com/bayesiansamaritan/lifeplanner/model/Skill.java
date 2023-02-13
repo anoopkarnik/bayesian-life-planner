@@ -1,18 +1,35 @@
 package com.bayesiansamaritan.lifeplanner.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 
 @Entity
 @Table(name = "skill",schema = "life_schema")
+@JsonNaming(value= PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties({"hibernate_lazy_initializer","handler"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Skill {
 
     @Id
+    @Getter
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @EqualsAndHashCode.Include
     private long id;
 
     @CreationTimestamp
@@ -40,11 +57,10 @@ public class Skill {
     @Column(name="description",length = 10240)
     private String description;
 
-    @Column(name="sub_skill_type_id")
-    private Long subSkillTypeId;
-
     @Column(name="completed")
     private Boolean completed;
+
+    private long parentId;
 
     public Skill(){};
 
@@ -57,9 +73,20 @@ public class Skill {
         this.completed = completed;
     }
 
+    public Skill(String name, Long timeTaken, Long skillTypeId, Boolean active, Long userId, Boolean completed,long parentId) {
+        this.name = name;
+        this.timeTaken = timeTaken;
+        this.skillTypeId = skillTypeId;
+        this.active = active;
+        this.userId = userId;
+        this.completed = completed;
+        this.parentId = parentId;
+    }
+
     public long getId() {
         return id;
     }
+
 
     public Date getCreatedAt() {
         return createdAt;
@@ -125,11 +152,19 @@ public class Skill {
         this.description = description;
     }
 
-    public Long getSubSkillTypeId() {
-        return subSkillTypeId;
+    public Boolean getCompleted() {
+        return completed;
     }
 
-    public void setSubSkillTypeId(Long subSkillTypeId) {
-        this.subSkillTypeId = subSkillTypeId;
+    public void setCompleted(Boolean completed) {
+        this.completed = completed;
+    }
+
+    public long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(long parentId) {
+        this.parentId = parentId;
     }
 }
