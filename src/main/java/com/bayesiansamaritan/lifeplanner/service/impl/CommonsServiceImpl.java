@@ -4,6 +4,7 @@ import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
 import com.bayesiansamaritan.lifeplanner.model.*;
 import com.bayesiansamaritan.lifeplanner.repository.*;
 import com.bayesiansamaritan.lifeplanner.response.HabitResponse;
+import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
 import com.bayesiansamaritan.lifeplanner.service.CommonsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,10 @@ public class CommonsServiceImpl implements CommonsService {
     private StatsRepository statsRepository;
     @Autowired
     private StatsTypeRepository statsTypeRepository;
+    @Autowired
+    private SkillRepository skillRepository;
+    @Autowired
+    private SkillTypeRepository skillTypeRepository;
     @Override
     public List<HabitType> findHabitTypeByUserId(Long userId){
 
@@ -68,5 +73,25 @@ public class CommonsServiceImpl implements CommonsService {
             statsTypeRepository.updateCount(statsType.getId(), (long) statsList.size());
         }
         return statsTypeRepository.findByUserId(userId);
+    };
+
+    @Override
+    public List<SkillType> findSkillTypeByUserId(Long userId){
+        List<SkillType> skillTypes = skillTypeRepository.findByUserId(userId);
+        for(SkillType skillType:skillTypes){
+            List<Skill> skillList = skillRepository.findRootSkillsByUserIdAndActiveAndSkillTypeId(userId,true,skillType.getId());
+            skillTypeRepository.updateCount(skillType.getId(), (long) skillList.size());
+        }
+        return skillTypeRepository.findByUserId(userId);
+    };
+
+    @Override
+    public List<GoalType> findGoalTypeByUserId(Long userId){
+        List<GoalType> goalTypes = goalTypeRepository.findByUserId(userId);
+        for(GoalType goalType:skillTypes){
+            List<Goal> skillList = skillRepository.findRootGoalsByUserIdAndActiveAndGoalTypeId(userId,true,goalType.getId());
+            goalTypeRepository.updateCount(goalType.getId(), (long) goalList.size());
+        }
+        return goalTypeRepository.findByUserId(userId);
     };
 }

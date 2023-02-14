@@ -10,27 +10,31 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
 public interface SkillRepository extends JpaRepository<Skill, Long> {
 
 
-   @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.skillTypeId=:skillTypeId and t.parentId=null")
+   @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.skillTypeId=:skillTypeId and t.parentId=0")
    List<Skill> findRootSkillsByUserIdAndActiveAndSkillTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                  @Param("skillTypeId") Long skillTypeId);
 
    @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.parentId=:parentSkillId")
-   List<Skill> findSkillsByUserIdAndActiveAndParentSkillId(@Param("userId") Long userId, @Param("active") Boolean active,
-                                                             @Param("parentSkillId") Long parentSkillId);
+   Optional<List<Skill>> findSkillsByUserIdAndActiveAndParentSkillId(@Param("userId") Long userId, @Param("active") Boolean active,
+                                                                     @Param("parentSkillId") Long parentSkillId);
 
    void deleteById(Long id);
 
    Skill findByUserIdAndId(@Param("userId") Long userId, @Param("id") Long id);
 
+   @Query("Select t from Skill t where t.userId=:userId and t.name=:name")
+   Skill findByUserIdAndName(@Param("userId") Long userId, @Param("name") String name);
+
    @Transactional
    @Modifying
-   @Query("update Skill set complete=true,updated_at=now() where id=:id")
+   @Query("update Skill set completed=true,updated_at=now() where id=:id")
    public void completeSkill(@Param("id") Long id);
 
    @Transactional

@@ -15,4 +15,7 @@ public interface CommonsService {
     public List<JournalType> findJournalTypeByUserId(Long userId);
 
     public List<StatsType> findStatsTypeByUserId(Long userId);
+
+    public List<SkillType> findSkillTypeByUserId(Long userId);
+    public List<GoalType> findGoalTypeByUserId(Long userId);
 }

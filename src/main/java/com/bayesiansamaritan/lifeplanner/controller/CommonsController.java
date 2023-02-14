@@ -1,13 +1,7 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
-import com.bayesiansamaritan.lifeplanner.model.HabitType;
-import com.bayesiansamaritan.lifeplanner.model.JournalType;
-import com.bayesiansamaritan.lifeplanner.model.StatsType;
-import com.bayesiansamaritan.lifeplanner.model.TaskType;
-import com.bayesiansamaritan.lifeplanner.repository.HabitTypeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.JournalTypeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.StatsTypeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.TaskTypeRepository;
+import com.bayesiansamaritan.lifeplanner.model.*;
+import com.bayesiansamaritan.lifeplanner.repository.*;
 import com.bayesiansamaritan.lifeplanner.service.CommonsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +29,9 @@ public class CommonsController {
 
 	@Autowired
 	StatsTypeRepository statsTypeRepository;
+
+	@Autowired
+	SkillTypeRepository skillTypeRepository;
 
 	@Autowired
 	CommonsService commonsService;
@@ -210,6 +207,50 @@ public class CommonsController {
 	public void modifyStatsType(@RequestParam Long id,@RequestParam String name) {
 		try {
 			statsTypeRepository.modifyName(id,name);
+		} catch (Exception e) {
+
+		}
+	}
+
+	@GetMapping("/skill")
+	public ResponseEntity<List<SkillType>> getAllSkill(@RequestParam Long userId) {
+		try {
+			List<SkillType> skillTypes = commonsService.findSkillTypeByUserId(userId);
+			if (skillTypes.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			return new ResponseEntity<>(skillTypes , HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	@PostMapping("/skill")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public ResponseEntity<SkillType> createSkillType(@RequestBody SkillType skillType) {
+		try {
+			SkillType _skillType= skillTypeRepository.save(new SkillType(skillType.getName(),skillType.getUserId()));
+			return new ResponseEntity<>(_skillType , HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@DeleteMapping("/skill")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public void deleteSkillType(@RequestParam Long id) {
+		try {
+			skillTypeRepository.deleteById(id);
+		} catch (Exception e) {
+
+		}
+	}
+	@PatchMapping("/skill")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public void modifySkillType(@RequestParam Long id,@RequestParam String name) {
+		try {
+			skillTypeRepository.modifyName(id,name);
 		} catch (Exception e) {
 
 		}

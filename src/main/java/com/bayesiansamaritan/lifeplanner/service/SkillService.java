@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface SkillService {
 
-    public List<SkillResponse> getAllRootSkills(Long userId, String skillTypeName);
-    public List<SkillResponse> getSkillsByParentSkillId(Long userId, String parentSkillTypeName);
-    public Skill createSkill(Long userId, String name, String statsTypeName, Float value, String description);
+    public List<SkillResponse> getAllSkills(Long userId, String skillTypeName);
+    public Skill createRootSkill(Long userId, String name, String skillTypeName, Long timeTaken);
+    public Skill createChildSkill(Long userId, String name, String skillTypeName, Long timeTaken,String parentName);
 }
