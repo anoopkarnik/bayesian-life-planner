@@ -1,29 +1,32 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 import com.bayesiansamaritan.lifeplanner.enums.RoleEnum;
-import com.bayesiansamaritan.lifeplanner.model.HabitType;
-import com.bayesiansamaritan.lifeplanner.model.Role;
-import com.bayesiansamaritan.lifeplanner.model.TaskType;
-import com.bayesiansamaritan.lifeplanner.model.UserProfile;
-import com.bayesiansamaritan.lifeplanner.repository.HabitTypeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.RoleRepository;
-import com.bayesiansamaritan.lifeplanner.repository.TaskTypeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.UserProfileRepository;
-import com.bayesiansamaritan.lifeplanner.request.LoginRequest;
-import com.bayesiansamaritan.lifeplanner.request.SignupRequest;
+import com.bayesiansamaritan.lifeplanner.model.Habit.HabitType;
+import com.bayesiansamaritan.lifeplanner.model.User.Role;
+import com.bayesiansamaritan.lifeplanner.model.Task.TaskType;
+import com.bayesiansamaritan.lifeplanner.model.User.UserProfile;
+import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.User.RoleRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Task.TaskTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
+import com.bayesiansamaritan.lifeplanner.request.User.LoginRequest;
+import com.bayesiansamaritan.lifeplanner.request.User.SignupRequest;
 import com.bayesiansamaritan.lifeplanner.response.JwtResponse;
 import com.bayesiansamaritan.lifeplanner.response.MessageResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import io.jsonwebtoken.Jwts;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +54,8 @@ public class AuthController {
 
     @Autowired
     TaskTypeRepository taskTypeRepository;
+
+
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {

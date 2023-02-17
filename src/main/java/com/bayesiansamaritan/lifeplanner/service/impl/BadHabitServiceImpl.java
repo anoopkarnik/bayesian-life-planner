@@ -1,64 +1,89 @@
 package com.bayesiansamaritan.lifeplanner.service.impl;
 
-import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
-import com.bayesiansamaritan.lifeplanner.model.*;
-import com.bayesiansamaritan.lifeplanner.repository.*;
+import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabit;
+import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitTransaction;
+import com.bayesiansamaritan.lifeplanner.model.Habit.HabitType;
+import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabit;
+import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
+import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitRepository;
+import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTransactionRepository;
+import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitTypeRepository;
 import com.bayesiansamaritan.lifeplanner.response.BadHabitResponse;
-import com.bayesiansamaritan.lifeplanner.response.HabitResponse;
+import com.bayesiansamaritan.lifeplanner.response.BadHabitResponse;
 import com.bayesiansamaritan.lifeplanner.service.BadHabitService;
-import com.bayesiansamaritan.lifeplanner.service.HabitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BadHabitServiceImpl implements BadHabitService {
 
     @Autowired
-    BadHabitRepository habitRepository;
+    BadHabitRepository badHabitRepository;
 
     @Autowired
-    HabitTypeRepository habitTypeRepository;
+    BadHabitTypeRepository badHabitTypeRepository;
     @Autowired
     private BadHabitTransactionRepository habitTransactionRepository;
 
     @Override
-    public List<BadHabitResponse> getAllActiveBadHabits(Long userId, Boolean active, String habitTypeName){
+    public List<BadHabitResponse> getAllActiveBadHabits(Long userId, Boolean active, String badHabitTypeName){
 
-        HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
-        List<BadHabit> oldHabits = habitRepository.findByUserIdAndActiveAndHabitTypeId(userId,active,habitType.getId());
-        Date date = new Date();
-        List<BadHabit> habits = habitRepository.findByUserIdAndActiveAndHabitTypeId(userId,active,habitType.getId());
-        List<BadHabitResponse> habitResponses = new ArrayList<>();
-        for (BadHabit habit: habits){
-            BadHabitResponse habitResponse = new BadHabitResponse(habit.getId(),habit.getCreatedAt(),habit.getUpdatedAt(),habit.getName(),
-                    habit.getStartDate(),habitTypeName,habit.getTotalTimes(),habit.getDescription());
-            habitResponses.add(habitResponse);
+        BadHabitType badHabitType = badHabitTypeRepository.findByNameAndUserId(badHabitTypeName,userId);
+        List<BadHabit> badHabits = badHabitRepository.findRootBadHabitsByUserIdAndActiveAndHabitTypeId(userId,true,badHabitType.getId());
+        List<BadHabitResponse> badHabitResponses = new ArrayList<>();
+        for (BadHabit badHabit: badHabits){
+            Optional<List<BadHabit>> childBadHabits1 =  badHabitRepository.findChildBadHabitsByUserIdAndActiveAndParentBadHabitId(userId,
+                    true,badHabit.getId());
+            BadHabitResponse badHabitResponse = new BadHabitResponse(badHabit.getId(),badHabit.getCreatedAt(),
+                    badHabit.getUpdatedAt(),badHabit.getName(),badHabit.getStartDate(),badHabitType.getName(),badHabit.getTotalTimes(),
+                    badHabit.getDescription());
+            if (childBadHabits1.isPresent()){
+                List<BadHabitResponse> childBadHabitResponses1 = new ArrayList<>();
+                for(BadHabit childBadHabit1 : childBadHabits1.get()) {
+                    Optional<BadHabitType> childBadHabitType1 = badHabitTypeRepository.findById(childBadHabit1.getBadHabitTypeId());
+                    BadHabitResponse childBadHabitResponse1 = new BadHabitResponse(childBadHabit1.getId(),childBadHabit1.getCreatedAt(),
+                            childBadHabit1.getUpdatedAt(),childBadHabit1.getName(),childBadHabit1.getStartDate(),childBadHabitType1.get().getName(),
+                            childBadHabit1.getTotalTimes(),childBadHabit1.getDescription());
+                    childBadHabitResponses1.add(childBadHabitResponse1);
+                }
+                badHabitResponse.setBadHabitResponses(childBadHabitResponses1);
+            }
+            badHabitResponses.add(badHabitResponse);
         }
-        return habitResponses;
+        return badHabitResponses;
     };
 
     @Override
-    public BadHabit createBadHabit(Long userId, String name,Date startDate, String habitTypeName){
-        HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
+    public BadHabit createRootBadHabit(Long userId, String name,Date startDate, String habitTypeName){
+        BadHabitType badHabitType = badHabitTypeRepository.findByNameAndUserId(habitTypeName,userId);
         Boolean active = true;
         Long totalTimes = 0L;
-        BadHabit habit = habitRepository.save(new BadHabit(name, startDate, habitType.getId(), active, userId, totalTimes));
+        BadHabit habit = badHabitRepository.save(new BadHabit(name, startDate, badHabitType.getId(), active, userId, totalTimes));
+        return habit;
+    };
+
+    @Override
+    public BadHabit createChildBadHabit(Long userId, String name,Date startDate, String habitTypeName, String parentName){
+        BadHabitType badHabitType = badHabitTypeRepository.findByNameAndUserId(habitTypeName,userId);
+        Boolean active = true;
+        Long totalTimes = 0L;
+        BadHabit parentHabit = badHabitRepository.findByUserIdAndName(userId,parentName);
+        BadHabit habit = badHabitRepository.save(new BadHabit(name, startDate, badHabitType.getId(), active, userId, totalTimes,parentHabit.getId()));
         return habit;
     };
 
     @Override
     public BadHabit carriedOutBadHabit(Long userId, Long id){
-        BadHabit oldHabit = habitRepository.findByUserIdAndId(userId,id);
-        habitRepository.carriedOutBadHabit(oldHabit.getId());
-        BadHabit habit = habitRepository.findByUserIdAndId(userId,id);
-        habitTransactionRepository.save(new BadHabitTransaction(habit.getName(),habit.getStartDate(), habit.getHabitTypeId(),
+        BadHabit oldHabit = badHabitRepository.findByUserIdAndId(userId,id);
+        badHabitRepository.carriedOutBadHabit(oldHabit.getId());
+        BadHabit habit = badHabitRepository.findByUserIdAndId(userId,id);
+        habitTransactionRepository.save(new BadHabitTransaction(habit.getName(),habit.getStartDate(), habit.getBadHabitTypeId(),
                 userId,habit.getTotalTimes(),habit.getDescription()));
         return habit;
     };

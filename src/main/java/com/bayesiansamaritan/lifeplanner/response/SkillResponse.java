@@ -23,19 +23,6 @@ public class SkillResponse {
     private List<SkillResponse> skillResponses;
 
 
-    public SkillResponse(Long id, Date createdAt, Date updatedAt, String name, Long timeTaken, String skillTypeName, Boolean completed, String description,
-                         List<SkillResponse> skillResponses) {
-        this.id = id;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.name = name;
-        this.timeTaken = timeTaken;
-        this.skillTypeName = skillTypeName;
-        this.completed = completed;
-        this.description = description;
-        this.skillResponses = skillResponses;
-    }
-
     public SkillResponse(Long id, Date createdAt, Date updatedAt, String name, Long timeTaken, String skillTypeName, Boolean completed, String description) {
         this.id = id;
         this.createdAt = createdAt;

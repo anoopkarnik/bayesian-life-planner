@@ -1,7 +1,9 @@
 package com.bayesiansamaritan.lifeplanner.service.impl;
 
-import com.bayesiansamaritan.lifeplanner.model.*;
-import com.bayesiansamaritan.lifeplanner.repository.*;
+import com.bayesiansamaritan.lifeplanner.model.Journal.Journal;
+import com.bayesiansamaritan.lifeplanner.model.Journal.JournalType;
+import com.bayesiansamaritan.lifeplanner.repository.Journal.JournalRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Journal.JournalTypeRepository;
 import com.bayesiansamaritan.lifeplanner.response.JournalResponse;
 import com.bayesiansamaritan.lifeplanner.service.JournalService;
 import org.springframework.beans.factory.annotation.Autowired;

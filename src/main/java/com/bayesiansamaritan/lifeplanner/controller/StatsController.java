@@ -1,14 +1,17 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 
-import com.bayesiansamaritan.lifeplanner.model.Stats;
-import com.bayesiansamaritan.lifeplanner.model.StatsTranscription;
-import com.bayesiansamaritan.lifeplanner.repository.StatsRepository;
-import com.bayesiansamaritan.lifeplanner.repository.StatsTranscriptionRepository;
-import com.bayesiansamaritan.lifeplanner.request.StatsCreateRequest;
-import com.bayesiansamaritan.lifeplanner.request.StatsDescriptionRequest;
-import com.bayesiansamaritan.lifeplanner.request.StatsValueRequest;
+import com.bayesiansamaritan.lifeplanner.model.Stats.Stats;
+import com.bayesiansamaritan.lifeplanner.model.Stats.StatsTransaction;
+import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsTransactionRepository;
+import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
+import com.bayesiansamaritan.lifeplanner.request.Stats.StatsCreateChildRequest;
+import com.bayesiansamaritan.lifeplanner.request.Stats.StatsCreateRootRequest;
+import com.bayesiansamaritan.lifeplanner.request.Stats.StatsDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.request.Stats.StatsValueRequest;
 import com.bayesiansamaritan.lifeplanner.response.StatsResponse;
+import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.StatsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,17 +30,25 @@ import java.util.Optional;
 @RequestMapping("/api/stats")
 public class StatsController {
     @Autowired
-    private StatsTranscriptionRepository statsTranscriptionRepository;
+    private StatsTransactionRepository statsTransactionRepository;
     @Autowired
     private StatsRepository statsRepository;
 
     @Autowired
     private StatsService statsService;
+    @Autowired
+    private UserProfileRepository userProfileRepository;
+    @Autowired
+    JwtUtils jwtUtils;
+    static final String HEADER_STRING = "Authorization";
+    static final String TOKEN_PREFIX = "Bearer";
 
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<StatsResponse>> getAllStats(@RequestParam("userId") Long userId, @RequestParam("statsTypeName") String statsTypeName) {
+    public ResponseEntity<List<StatsResponse>> getAllStats(HttpServletRequest request, @RequestParam("statsTypeName") String statsTypeName) {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             List<StatsResponse> stats= statsService.getAllStats(userId,statsTypeName);
             if (stats.isEmpty()) {
@@ -49,14 +61,33 @@ public class StatsController {
         }
     }
 
-    @PostMapping
+    @PostMapping("/root")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<Stats> createStats(@RequestBody StatsCreateRequest statsCreateRequest)
+    public ResponseEntity<Stats> createRootStats(HttpServletRequest request,@RequestBody StatsCreateRootRequest statsCreateRootRequest)
     {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
         try {
-            Stats stats = statsService.createStats(statsCreateRequest.getUserId(),statsCreateRequest.getName(),statsCreateRequest.getStatsTypeName(),
-                    statsCreateRequest.getValue(),statsCreateRequest.getDescription());
-            statsTranscriptionRepository.save(new StatsTranscription(stats.getName(),stats.getStatsTypeId(),stats.getUserId(),
+            Stats stats = statsService.createRootStats(userId,statsCreateRootRequest.getName(),
+                    statsCreateRootRequest.getStatsTypeName(),statsCreateRootRequest.getValue(),statsCreateRootRequest.getDescription());
+            statsTransactionRepository.save(new StatsTransaction(stats.getName(),stats.getStatsTypeId(),stats.getUserId(),
+                    stats.getValue(),stats.getDescription()));
+            return new ResponseEntity<>(stats, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/child")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public ResponseEntity<Stats> createChildStats(HttpServletRequest request,@RequestBody StatsCreateChildRequest statsCreateChildRequest)
+    {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        try {
+            Stats stats = statsService.createChildStats(userId, statsCreateChildRequest.getName(), statsCreateChildRequest.getStatsTypeName(),
+                    statsCreateChildRequest.getValue(), statsCreateChildRequest.getDescription(),statsCreateChildRequest.getParentStatsName());
+            statsTransactionRepository.save(new StatsTransaction(stats.getName(),stats.getStatsTypeId(),stats.getUserId(),
                     stats.getValue(),stats.getDescription()));
             return new ResponseEntity<>(stats, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -78,7 +109,7 @@ public class StatsController {
     {
         statsRepository.addValue(statsValueRequest.getId(),statsValueRequest.getValue());
         Optional<Stats> stats = statsRepository.findById(statsValueRequest.getId());
-        statsTranscriptionRepository.save(new StatsTranscription(stats.get().getName(),stats.get().getStatsTypeId(),stats.get().getUserId(),
+        statsTransactionRepository.save(new StatsTransaction(stats.get().getName(),stats.get().getStatsTypeId(),stats.get().getUserId(),
                 stats.get().getValue(),stats.get().getDescription()));
     }
 

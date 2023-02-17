@@ -1,7 +1,20 @@
 package com.bayesiansamaritan.lifeplanner.service.impl;
 
-import com.bayesiansamaritan.lifeplanner.model.*;
-import com.bayesiansamaritan.lifeplanner.repository.*;
+import com.bayesiansamaritan.lifeplanner.model.Task.*;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Daily;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Monthly;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Weekly;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Yearly;
+import com.bayesiansamaritan.lifeplanner.model.Task.Task;
+import com.bayesiansamaritan.lifeplanner.model.Task.TaskType;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.DailyRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.MonthlyRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.WeeklyRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.YearlyRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Task.TaskRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Task.TaskTransactionRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Task.TaskTypeRepository;
+import com.bayesiansamaritan.lifeplanner.response.TaskResponse;
 import com.bayesiansamaritan.lifeplanner.response.TaskResponse;
 import com.bayesiansamaritan.lifeplanner.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +23,8 @@ import org.springframework.stereotype.Service;
 import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.TemporalAdjuster;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +37,7 @@ public class TaskServiceImpl implements TaskService {
     TaskRepository taskRepository;
     @Autowired
     TaskTypeRepository taskTypeRepository;
+
     @Autowired
     private DailyRepository dailyRepository;
 
@@ -39,23 +50,40 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private YearlyRepository yearlyRepository;
 
+    @Autowired
+    private TaskTransactionRepository taskTransactionRepository;
+
 
     @Override
     public List<TaskResponse> getAllActiveTasks(Long userId, Boolean active, String taskTypeName){
 
         TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
-        List<Task> tasks = taskRepository.findByUserIdAndActiveAndTaskTypeId(userId,active,taskType.getId());
+        List<Task> tasks = taskRepository.findRootTasksByUserIdAndActiveAndTaskTypeId(userId,active,taskType.getId());
         List<TaskResponse> taskResponses = new ArrayList<>();
-        for (Task task :tasks){
-            TaskResponse taskResponse = new TaskResponse(task.getId(),task.getCreatedAt(),task.getUpdatedAt(),task.getName(),task.getScheduleType(),
-                    task.getTimeTaken(),task.getStartDate(),task.getDueDate(),taskTypeName,task.getDescription());
+        for (Task task: tasks){
+            Optional<List<Task>> childTasks1 =  taskRepository.findChildTasksByUserIdAndActiveAndParentTaskId(userId,true,task.getId());
+            TaskResponse taskResponse = new TaskResponse(task.getId(),task.getCreatedAt(),
+                    task.getUpdatedAt(),task.getName(),task.getScheduleType(),task.getTimeTaken(),task.getStartDate(),
+                    task.getDueDate(),taskType.getName(),task.getDescription());
+            if (childTasks1.isPresent()){
+                List<TaskResponse> childTaskResponses1 = new ArrayList<>();
+                for(Task childTask1 : childTasks1.get()) {
+                    Optional<TaskType> childTaskType1 = taskTypeRepository.findById(childTask1.getTaskTypeId());
+                    TaskResponse childTaskResponse1 = new TaskResponse(childTask1.getId(),childTask1.getCreatedAt(),
+                            childTask1.getUpdatedAt(),childTask1.getName(),childTask1.getScheduleType(),childTask1.getTimeTaken(),
+                            childTask1.getStartDate(),childTask1.getDueDate(),childTaskType1.get().getName(),
+                            childTask1.getDescription());
+                    childTaskResponses1.add(childTaskResponse1);
+                }
+                taskResponse.setTaskResponses(childTaskResponses1);
+            }
             taskResponses.add(taskResponse);
         }
         return taskResponses;
     };
 
     @Override
-    public Task createOneTimeTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
+    public Task createOneTimeRootTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
                                 String taskTypeName){
         TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
         Boolean active = true;
@@ -64,7 +92,17 @@ public class TaskServiceImpl implements TaskService {
     };
 
     @Override
-    public Task createDailyTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
+    public Task createOneTimeChildTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
+                                      String taskTypeName,String parentName){
+        TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
+        Task oldTask = taskRepository.findByUserIdAndName(userId,parentName);
+        Boolean active = true;
+        Task task = taskRepository.save(new Task(name, timeTaken, startDate, dueDate, taskType.getId(), active, userId, scheduleType, oldTask.getId()));
+        return task;
+    };
+
+    @Override
+    public Task createDailyRootTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
                             String taskTypeName){
         TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
         Boolean active = true;
@@ -74,7 +112,18 @@ public class TaskServiceImpl implements TaskService {
     };
 
     @Override
-    public Task createWeeklyTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
+    public Task createDailyChildTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
+                                String taskTypeName,String parentName){
+        TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
+        Task oldTask = taskRepository.findByUserIdAndName(userId,parentName);
+        Boolean active = true;
+        Task task = taskRepository.save(new Task(name, timeTaken, startDate, dueDate, taskType.getId(), active, userId, scheduleType, oldTask.getId()));
+        Daily daily = dailyRepository.save(new Daily(every,"task/"+task.getId()));
+        return task;
+    };
+
+    @Override
+    public Task createWeeklyRootTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
                                 String taskTypeName, List<DayOfWeek> daysOfWeek){
         TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
         Boolean active = true;
@@ -84,7 +133,18 @@ public class TaskServiceImpl implements TaskService {
     };
 
     @Override
-    public Task createMonthlyTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
+    public Task createWeeklyChildTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
+                                 String taskTypeName, List<DayOfWeek> daysOfWeek,String parentName){
+        TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
+        Task oldTask = taskRepository.findByUserIdAndName(userId,parentName);
+        Boolean active = true;
+        Task task = taskRepository.save(new Task(name, timeTaken, startDate, dueDate, taskType.getId(), active, userId, scheduleType, oldTask.getId()));
+        Weekly weekly = weeklyRepository.save(new Weekly(every,"task/"+task.getId(),daysOfWeek));
+        return task;
+    };
+
+    @Override
+    public Task createMonthlyRootTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
                                 String taskTypeName){
         TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
         Boolean active = true;
@@ -94,7 +154,18 @@ public class TaskServiceImpl implements TaskService {
     };
 
     @Override
-    public Task createYearlyTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
+    public Task createMonthlyChildTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
+                                  String taskTypeName,String parentName){
+        TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
+        Task oldTask = taskRepository.findByUserIdAndName(userId,parentName);
+        Boolean active = true;
+        Task task = taskRepository.save(new Task(name, timeTaken, startDate, dueDate, taskType.getId(), active, userId, scheduleType, oldTask.getId()));
+        Monthly monthly = monthlyRepository.save(new Monthly(every,"task/"+task.getId()));
+        return task;
+    };
+
+    @Override
+    public Task createYearlyRootTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
                                 String taskTypeName){
         TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
         Boolean active = true;
@@ -104,32 +175,39 @@ public class TaskServiceImpl implements TaskService {
     };
 
     @Override
+    public Task createYearlyChildTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
+                                 String taskTypeName,String parentName){
+        TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
+        Task oldTask = taskRepository.findByUserIdAndName(userId,parentName);
+        Boolean active = true;
+        Task task = taskRepository.save(new Task(name, timeTaken, startDate, dueDate, taskType.getId(), active, userId, scheduleType, oldTask.getId()));
+        Yearly yearly = yearlyRepository.save(new Yearly(every,"task/"+task.getId()));
+        return task;
+    };
+
+    @Override
     public Task completeTask(Long userId, Long id){
+        Task oldTask = taskRepository.findByUserIdAndId(userId,id);
+        String scheduleTypeName = oldTask.getScheduleType();
+        Date dueDate = oldTask.getDueDate();
         Task task = taskRepository.findByUserIdAndId(userId,id);
-        String scheduleTypeName = task.getScheduleType();
-        Date dueDate = task.getDueDate();
-        taskRepository.completeTask(task.getId(), false);
+        taskTransactionRepository.save(new TaskTransaction(task.getName(),task.getTimeTaken(),task.getStartDate(),task.getDueDate(),task.getTaskTypeId(),
+                task.getUserId(),task.getScheduleType()));
         Boolean active = true;
         if(scheduleTypeName.equals("daily")){
             String referenceId = "task/"+task.getId();
             Daily daily = dailyRepository.findByReferenceId(referenceId);
+            Long time = dueDate.getTime();
+            Date newDueDate1 = new Date(time + 1000*60*60*18 - time%(24*60*60*1000));
             Date newDueDate = new Date(dueDate.getTime() + (1000*60*60*24*daily.getEvery()));
             Date currentDate = new Date();
             if (newDueDate.compareTo(currentDate)<0){
                 Date newDueDate2 = new Date(currentDate.getTime() + 1000*60*60*18 - currentDate.getTime()%(24*60*60*1000) + (1000*60*60*24*daily.getEvery()));
-                Task newTask = taskRepository.save(new Task(task.getName(),task.getTimeTaken(), task.getStartDate(), newDueDate2, task.getTaskTypeId(),
-                        active, userId, task.getScheduleType()));
-                dailyRepository.save(new Daily(daily.getEvery(),"task/"+newTask.getId()));
-                return newTask;
+                taskRepository.modifyDueDate(task.getId(),newDueDate2);
             }
             else{
-                Task newTask = taskRepository.save(new Task(task.getName(),task.getTimeTaken(), task.getStartDate(), newDueDate, task.getTaskTypeId(),
-                        active, userId, task.getScheduleType()));
-                dailyRepository.save(new Daily(daily.getEvery(),"task/"+newTask.getId()));
-                return newTask;
+                taskRepository.modifyDueDate(task.getId(),newDueDate);
             }
-
-
         }
         else if(scheduleTypeName.equals("weekly")){
             String referenceId = "task/"+task.getId();
@@ -138,22 +216,21 @@ public class TaskServiceImpl implements TaskService {
             LocalDate localDueDate = LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(dueDate));
             Boolean match = false;
             Long current = 1L;
-            taskRepository.completeTask(task.getId(), false);
             while( !match){
                 DayOfWeek dayOfWeek = DayOfWeek.valueOf(localDueDate.getDayOfWeek().toString());
                 if (dayOfWeek.equals(dayOfWeek.SUNDAY)){
                     localDueDate = localDueDate.plusDays(7L* (weekly.getEvery()-1));
                 }
                 localDueDate = localDueDate.plusDays(1L);
-                if (daysOfWeek.contains(DayOfWeek.valueOf(localDueDate.getDayOfWeek().toString()))){
-                    match = true;
+                for(DayOfWeek dayOfWeek1:daysOfWeek) {
+                    if (dayOfWeek1.name().equals(localDueDate.getDayOfWeek().name())) {
+                        match = true;
+                    }
                 }
             }
             Date newDueDate = Date.from(localDueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            Task newTask = taskRepository.save(new Task(task.getName(),task.getTimeTaken(), task.getStartDate(), newDueDate, task.getTaskTypeId(),
-                    active, userId, task.getScheduleType()));
-            weeklyRepository.modifyReferenceId(weekly.getId(),"task/"+newTask.getId());
-            return newTask;
+            Date newDueDate1 = new Date(newDueDate.getTime()+ 1000*60*60*23);
+            taskRepository.modifyDueDate(task.getId(),newDueDate1);
         }
         else if(scheduleTypeName.equals("monthly")){
             LocalDate localDueDate = LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(dueDate));
@@ -161,10 +238,7 @@ public class TaskServiceImpl implements TaskService {
             Monthly monthly = monthlyRepository.findByReferenceId(referenceId);
             LocalDate newLocalDueDate = localDueDate.plusMonths(monthly.getEvery());
             Date newDueDate = Date.from(newLocalDueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            Task newTask = taskRepository.save(new Task(task.getName(),task.getTimeTaken(), task.getStartDate(), newDueDate, task.getTaskTypeId(),
-                    active, userId, task.getScheduleType()));
-            monthlyRepository.save(new Monthly(monthly.getEvery(),"task/"+newTask.getId()));
-            return newTask;
+            taskRepository.modifyDueDate(task.getId(),newDueDate);
         }
         else if(scheduleTypeName.equals("yearly")){
             LocalDate localDueDate = LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(dueDate));
@@ -172,10 +246,10 @@ public class TaskServiceImpl implements TaskService {
             Yearly yearly = yearlyRepository.findByReferenceId(referenceId);
             LocalDate newLocalDueDate = localDueDate.plusYears(1L*yearly.getEvery());
             Date newDueDate = Date.from(newLocalDueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            Task newTask = taskRepository.save(new Task(task.getName(),task.getTimeTaken(), task.getStartDate(), newDueDate, task.getTaskTypeId(),
-                    active, userId, task.getScheduleType()));
-            yearlyRepository.save(new Yearly(yearly.getEvery(),"task/"+newTask.getId()));
-            return newTask;
+            taskRepository.modifyDueDate(task.getId(),newDueDate);
+        }
+        else{
+            taskRepository.completeTask(task.getId(),false);
         }
         return task;
     };

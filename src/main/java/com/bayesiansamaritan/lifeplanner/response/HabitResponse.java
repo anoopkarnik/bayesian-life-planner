@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,6 +22,7 @@ public class HabitResponse {
     private Long streak;
     private Long totalTimes;
     private String description;
+    private List<HabitResponse> habitResponses;
 
     public HabitResponse(Long id, Date createdAt, Date updatedAt, String name, String scheduleType, Long timeTaken,
                          Date startDate, Date dueDate, String habitTypeName, String description, Long streak,

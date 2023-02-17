@@ -1,6 +1,6 @@
 package com.bayesiansamaritan.lifeplanner.service;
 
-import com.bayesiansamaritan.lifeplanner.model.Journal;
+import com.bayesiansamaritan.lifeplanner.model.Journal.Journal;
 import com.bayesiansamaritan.lifeplanner.response.JournalResponse;
 
 import java.util.List;

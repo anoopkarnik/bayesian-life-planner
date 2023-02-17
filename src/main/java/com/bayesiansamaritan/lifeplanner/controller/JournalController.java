@@ -1,17 +1,13 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 
-import com.bayesiansamaritan.lifeplanner.model.Habit;
-import com.bayesiansamaritan.lifeplanner.model.Journal;
-import com.bayesiansamaritan.lifeplanner.repository.HabitRepository;
-import com.bayesiansamaritan.lifeplanner.repository.JournalRepository;
-import com.bayesiansamaritan.lifeplanner.request.HabitCreateRequest;
-import com.bayesiansamaritan.lifeplanner.request.HabitDescriptionRequest;
-import com.bayesiansamaritan.lifeplanner.request.JournalCreateRequest;
-import com.bayesiansamaritan.lifeplanner.request.JournalDescriptionRequest;
-import com.bayesiansamaritan.lifeplanner.response.HabitResponse;
+import com.bayesiansamaritan.lifeplanner.model.Journal.Journal;
+import com.bayesiansamaritan.lifeplanner.repository.Journal.JournalRepository;
+import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
+import com.bayesiansamaritan.lifeplanner.request.Journal.JournalCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.Journal.JournalDescriptionRequest;
 import com.bayesiansamaritan.lifeplanner.response.JournalResponse;
-import com.bayesiansamaritan.lifeplanner.service.HabitService;
+import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.JournalService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
@@ -32,11 +29,19 @@ public class JournalController {
 
     @Autowired
     private JournalService journalService;
+    @Autowired
+    private UserProfileRepository userProfileRepository;
+    @Autowired
+    JwtUtils jwtUtils;
+    static final String HEADER_STRING = "Authorization";
+    static final String TOKEN_PREFIX = "Bearer";
 
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<JournalResponse>> getAllJournals(@RequestParam("userId") Long userId, @RequestParam("journalTypeName") String journalTypeName) {
+    public ResponseEntity<List<JournalResponse>> getAllJournals(HttpServletRequest request, @RequestParam("journalTypeName") String journalTypeName) {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             List<JournalResponse> journals = journalService.getAllJournals(userId,journalTypeName);
             if (journals.isEmpty()) {
@@ -51,10 +56,12 @@ public class JournalController {
 
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<Journal> createJournal(@RequestBody JournalCreateRequest journalCreateRequest)
+    public ResponseEntity<Journal> createJournal(HttpServletRequest request, @RequestBody JournalCreateRequest journalCreateRequest)
     {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
         try {
-            Journal journal = journalService.createJournal(journalCreateRequest.getUserId(),journalCreateRequest.getName(),journalCreateRequest.getJournalTypeName(),
+            Journal journal = journalService.createJournal(userId,journalCreateRequest.getName(),journalCreateRequest.getJournalTypeName(),
                     journalCreateRequest.getText(),journalCreateRequest.getHidden());
             return new ResponseEntity<>(journal, HttpStatus.CREATED);
         } catch (Exception e) {

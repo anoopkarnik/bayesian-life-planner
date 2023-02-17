@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,6 +17,7 @@ public class StatsResponse {
     private String statsTypeName;
     private Float value;
     private String description;
+    private List<StatsResponse> statsResponses;
 
     public StatsResponse(Long id, Date createdAt, Date updatedAt, String name, String statsTypeName, Float value, String description) {
         this.id = id;

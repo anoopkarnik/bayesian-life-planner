@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,17 +15,18 @@ public class BadHabitResponse {
     private Date updatedAt;
     private String name;
     private Date startDate;
-    private String habitTypeName;
+    private String badHabitTypeName;
     private Long totalTimes;
     private String description;
+    private List<BadHabitResponse> badHabitResponses;
 
-    public BadHabitResponse(Long id, Date createdAt, Date updatedAt, String name, Date startDate, String habitTypeName, Long totalTimes, String description) {
+    public BadHabitResponse(Long id, Date createdAt, Date updatedAt, String name, Date startDate, String badHabitTypeName, Long totalTimes, String description) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.name = name;
         this.startDate = startDate;
-        this.habitTypeName = habitTypeName;
+        this.badHabitTypeName = badHabitTypeName;
         this.totalTimes = totalTimes;
         this.description = description;
     }

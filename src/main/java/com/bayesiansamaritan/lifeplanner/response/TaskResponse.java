@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,6 +25,7 @@ public class TaskResponse {
     private Date dueDate;
     private String taskTypeName;
     private String description;
+    private List<TaskResponse> taskResponses;
 
     public TaskResponse(Long id,Date createdAt, Date updatedAt, String name, String scheduleType, Long timeTaken,
                         Date startDate, Date dueDate, String taskTypeName, String description) {

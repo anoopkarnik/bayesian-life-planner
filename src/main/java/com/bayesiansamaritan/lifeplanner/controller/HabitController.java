@@ -1,13 +1,14 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 
-import com.bayesiansamaritan.lifeplanner.model.Habit;
-import com.bayesiansamaritan.lifeplanner.repository.HabitRepository;
-import com.bayesiansamaritan.lifeplanner.repository.HabitRepository;
-import com.bayesiansamaritan.lifeplanner.request.HabitCreateRequest;
-import com.bayesiansamaritan.lifeplanner.request.HabitDescriptionRequest;
-import com.bayesiansamaritan.lifeplanner.request.TaskDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.model.Habit.Habit;
+import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitRepository;
+import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
+import com.bayesiansamaritan.lifeplanner.request.Habit.HabitCreateChildRequest;
+import com.bayesiansamaritan.lifeplanner.request.Habit.HabitCreateRootRequest;
+import com.bayesiansamaritan.lifeplanner.request.Habit.HabitDescriptionRequest;
 import com.bayesiansamaritan.lifeplanner.response.HabitResponse;
+import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.HabitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
@@ -28,10 +30,18 @@ public class HabitController {
 
     @Autowired
     HabitService habitService;
+    @Autowired
+    private UserProfileRepository userProfileRepository;
+    @Autowired
+    JwtUtils jwtUtils;
+    static final String HEADER_STRING = "Authorization";
+    static final String TOKEN_PREFIX = "Bearer";
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<HabitResponse>> getAllHabits(@RequestParam("userId") Long userId, @RequestParam("habitTypeName") String habitTypeName) {
+    public ResponseEntity<List<HabitResponse>> getAllHabits(HttpServletRequest request, @RequestParam("habitTypeName") String habitTypeName) {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             List<HabitResponse> habits = habitService.getAllActiveHabits(userId,true,habitTypeName);
             if (habits.isEmpty()) {
@@ -44,31 +54,67 @@ public class HabitController {
         }
     }
 
-    @PostMapping
+    @PostMapping("/root")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<Habit> createHabit(@RequestBody HabitCreateRequest habitCreateRequest)
+    public ResponseEntity<Habit> createHabit(HttpServletRequest request,@RequestBody HabitCreateRootRequest habitCreateRootRequest)
     {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             Habit habit;
-            if(habitCreateRequest.getScheduleType().equals("daily")){
-                habit = habitService.createDailyHabit(habitCreateRequest.getUserId(),habitCreateRequest.getName(),habitCreateRequest.getStartDate(),
-                        habitCreateRequest.getTimeTaken(),habitCreateRequest.getDueDate(),habitCreateRequest.getEvery(),habitCreateRequest.getScheduleType(),
-                        habitCreateRequest.getHabitTypeName());
+            if(habitCreateRootRequest.getScheduleType().equals("daily")){
+                habit = habitService.createDailyRootHabit(userId, habitCreateRootRequest.getName(), habitCreateRootRequest.getStartDate(),
+                        habitCreateRootRequest.getTimeTaken(), habitCreateRootRequest.getDueDate(), habitCreateRootRequest.getEvery(), habitCreateRootRequest.getScheduleType(),
+                        habitCreateRootRequest.getHabitTypeName());
             }
-            else if(habitCreateRequest.getScheduleType().equals("monthly")){
-                habit = habitService.createMonthlyHabit(habitCreateRequest.getUserId(),habitCreateRequest.getName(),habitCreateRequest.getStartDate(),
-                        habitCreateRequest.getTimeTaken(),habitCreateRequest.getDueDate(),habitCreateRequest.getEvery(),habitCreateRequest.getScheduleType(),
-                        habitCreateRequest.getHabitTypeName());
+            else if(habitCreateRootRequest.getScheduleType().equals("monthly")){
+                habit = habitService.createMonthlyRootHabit(userId, habitCreateRootRequest.getName(), habitCreateRootRequest.getStartDate(),
+                        habitCreateRootRequest.getTimeTaken(), habitCreateRootRequest.getDueDate(), habitCreateRootRequest.getEvery(), habitCreateRootRequest.getScheduleType(),
+                        habitCreateRootRequest.getHabitTypeName());
             }
-            else if(habitCreateRequest.getScheduleType().equals("yearly")){
-                habit = habitService.createYearlyHabit(habitCreateRequest.getUserId(),habitCreateRequest.getName(),habitCreateRequest.getStartDate(),
-                        habitCreateRequest.getTimeTaken(),habitCreateRequest.getDueDate(),habitCreateRequest.getEvery(),habitCreateRequest.getScheduleType(),
-                        habitCreateRequest.getHabitTypeName());
+            else if(habitCreateRootRequest.getScheduleType().equals("yearly")){
+                habit = habitService.createYearlyRootHabit(userId, habitCreateRootRequest.getName(), habitCreateRootRequest.getStartDate(),
+                        habitCreateRootRequest.getTimeTaken(), habitCreateRootRequest.getDueDate(), habitCreateRootRequest.getEvery(), habitCreateRootRequest.getScheduleType(),
+                        habitCreateRootRequest.getHabitTypeName());
             }
             else{
-                habit = habitService.createWeeklyHabit(habitCreateRequest.getUserId(),habitCreateRequest.getName(),habitCreateRequest.getStartDate(),
-                        habitCreateRequest.getTimeTaken(),habitCreateRequest.getDueDate(),habitCreateRequest.getEvery(),habitCreateRequest.getScheduleType(),
-                        habitCreateRequest.getHabitTypeName(),habitCreateRequest.getDaysOfWeek());
+                habit = habitService.createWeeklyRootHabit(userId, habitCreateRootRequest.getName(), habitCreateRootRequest.getStartDate(),
+                        habitCreateRootRequest.getTimeTaken(), habitCreateRootRequest.getDueDate(), habitCreateRootRequest.getEvery(), habitCreateRootRequest.getScheduleType(),
+                        habitCreateRootRequest.getHabitTypeName(), habitCreateRootRequest.getDaysOfWeek());
+            }
+            return new ResponseEntity<>(habit, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/child")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public ResponseEntity<Habit> createChildHabit(HttpServletRequest request,@RequestBody HabitCreateChildRequest habitCreateChildRequest)
+    {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        try {
+            Habit habit;
+            if(habitCreateChildRequest.getScheduleType().equals("daily")){
+                habit = habitService.createDailyChildHabit(userId, habitCreateChildRequest.getName(), habitCreateChildRequest.getStartDate(),
+                        habitCreateChildRequest.getTimeTaken(), habitCreateChildRequest.getDueDate(), habitCreateChildRequest.getEvery(), habitCreateChildRequest.getScheduleType(),
+                        habitCreateChildRequest.getHabitTypeName(),habitCreateChildRequest.getParentHabitName());
+            }
+            else if(habitCreateChildRequest.getScheduleType().equals("monthly")){
+                habit = habitService.createMonthlyChildHabit(userId, habitCreateChildRequest.getName(), habitCreateChildRequest.getStartDate(),
+                        habitCreateChildRequest.getTimeTaken(), habitCreateChildRequest.getDueDate(), habitCreateChildRequest.getEvery(), habitCreateChildRequest.getScheduleType(),
+                        habitCreateChildRequest.getHabitTypeName(),habitCreateChildRequest.getParentHabitName());
+            }
+            else if(habitCreateChildRequest.getScheduleType().equals("yearly")){
+                habit = habitService.createYearlyChildHabit(userId, habitCreateChildRequest.getName(), habitCreateChildRequest.getStartDate(),
+                        habitCreateChildRequest.getTimeTaken(), habitCreateChildRequest.getDueDate(), habitCreateChildRequest.getEvery(), habitCreateChildRequest.getScheduleType(),
+                        habitCreateChildRequest.getHabitTypeName(),habitCreateChildRequest.getParentHabitName());
+            }
+            else{
+                habit = habitService.createWeeklyChildHabit(userId, habitCreateChildRequest.getName(), habitCreateChildRequest.getStartDate(),
+                        habitCreateChildRequest.getTimeTaken(), habitCreateChildRequest.getDueDate(), habitCreateChildRequest.getEvery(), habitCreateChildRequest.getScheduleType(),
+                        habitCreateChildRequest.getHabitTypeName(), habitCreateChildRequest.getDaysOfWeek(),habitCreateChildRequest.getParentHabitName());
             }
             return new ResponseEntity<>(habit, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -78,8 +124,10 @@ public class HabitController {
 
     @PatchMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<Habit> completeHabit(@RequestParam("userId") Long userId,@RequestParam("id") Long id)
+    public ResponseEntity<Habit> completeHabit(HttpServletRequest request,@RequestParam("id") Long id)
     {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             Habit habit = habitService.completeHabit(userId,id);
             return new ResponseEntity<>(habit, HttpStatus.CREATED);

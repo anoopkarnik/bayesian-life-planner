@@ -1,7 +1,7 @@
 package com.bayesiansamaritan.lifeplanner.security.services;
 
-import com.bayesiansamaritan.lifeplanner.model.UserProfile;
-import com.bayesiansamaritan.lifeplanner.repository.UserProfileRepository;
+import com.bayesiansamaritan.lifeplanner.model.User.UserProfile;
+import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

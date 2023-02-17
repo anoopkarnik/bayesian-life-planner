@@ -1,17 +1,13 @@
 package com.bayesiansamaritan.lifeplanner.dto;
 
 
-import com.bayesiansamaritan.lifeplanner.model.Skill;
+import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
 import java.util.Date;
 import java.util.Set;
 

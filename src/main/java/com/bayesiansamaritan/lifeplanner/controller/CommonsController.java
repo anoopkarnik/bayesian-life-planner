@@ -1,16 +1,36 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
-import com.bayesiansamaritan.lifeplanner.model.*;
-import com.bayesiansamaritan.lifeplanner.repository.*;
+import com.bayesiansamaritan.lifeplanner.model.User.UserProfile;
+import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
+import com.bayesiansamaritan.lifeplanner.model.Goal.GoalType;
+import com.bayesiansamaritan.lifeplanner.model.Habit.HabitType;
+import com.bayesiansamaritan.lifeplanner.model.Journal.JournalType;
+import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
+import com.bayesiansamaritan.lifeplanner.model.Stats.StatsType;
+import com.bayesiansamaritan.lifeplanner.model.Task.TaskType;
+import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Goal.GoalTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Journal.JournalTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Task.TaskTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
+import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.CommonsService;
+import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -28,17 +48,41 @@ public class CommonsController {
 	HabitTypeRepository habitTypeRepository;
 
 	@Autowired
+	BadHabitTypeRepository badHabitTypeRepository;
+
+	@Autowired
 	StatsTypeRepository statsTypeRepository;
 
 	@Autowired
 	SkillTypeRepository skillTypeRepository;
 
 	@Autowired
+	GoalTypeRepository goalTypeRepository;
+
+	@Autowired
 	CommonsService commonsService;
+	@Autowired
+	private UserProfileRepository userProfileRepository;
+	@Autowired
+	JwtUtils jwtUtils;
+	static final String HEADER_STRING = "Authorization";
+	static final String TOKEN_PREFIX = "Bearer";
+
+
+	@GetMapping("/user")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public Optional<UserProfile> getUser(HttpServletRequest request) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Optional<UserProfile> userProfile = userProfileRepository.findByName(username);
+		return userProfile;
+	};
+
 
 	@GetMapping("/task")
-	public ResponseEntity<List<TaskType>> getAllTasks(@RequestParam Long userId) {
+	public ResponseEntity<List<TaskType>> getAllTasks(HttpServletRequest request) {
 		try {
+			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+			Long userId = userProfileRepository.findByName(username).get().getId();
 			List<TaskType> taskTypes = commonsService.findTaskTypeByUserId(userId);
 			if (taskTypes.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -81,8 +125,10 @@ public class CommonsController {
 	}
 
 	@GetMapping("/habit")
-	public ResponseEntity<List<HabitType>> getAllHabits(@RequestParam Long userId) {
+	public ResponseEntity<List<HabitType>> getAllHabits(HttpServletRequest request) {
 		try {
+			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+			Long userId = userProfileRepository.findByName(username).get().getId();
 			List<HabitType> habitTypes = commonsService.findHabitTypeByUserId(userId);
 			if (habitTypes.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -125,8 +171,10 @@ public class CommonsController {
 	}
 
 	@GetMapping("/journal")
-	public ResponseEntity<List<JournalType>> getAllJournals(@RequestParam Long userId) {
+	public ResponseEntity<List<JournalType>> getAllJournals(HttpServletRequest request) {
 		try {
+			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+			Long userId = userProfileRepository.findByName(username).get().getId();
 			List<JournalType> journalTypes = commonsService.findJournalTypeByUserId(userId);
 			if (journalTypes.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -169,8 +217,10 @@ public class CommonsController {
 	}
 
 	@GetMapping("/stats")
-	public ResponseEntity<List<StatsType>> getAllStats(@RequestParam Long userId) {
+	public ResponseEntity<List<StatsType>> getAllStats(HttpServletRequest request) {
 		try {
+			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+			Long userId = userProfileRepository.findByName(username).get().getId();
 			List<StatsType> statsTypes = commonsService.findStatsTypeByUserId(userId);
 			if (statsTypes.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -213,8 +263,10 @@ public class CommonsController {
 	}
 
 	@GetMapping("/skill")
-	public ResponseEntity<List<SkillType>> getAllSkill(@RequestParam Long userId) {
+	public ResponseEntity<List<SkillType>> getAllSkill(HttpServletRequest request) {
 		try {
+			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+			Long userId = userProfileRepository.findByName(username).get().getId();
 			List<SkillType> skillTypes = commonsService.findSkillTypeByUserId(userId);
 			if (skillTypes.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -251,6 +303,98 @@ public class CommonsController {
 	public void modifySkillType(@RequestParam Long id,@RequestParam String name) {
 		try {
 			skillTypeRepository.modifyName(id,name);
+		} catch (Exception e) {
+
+		}
+	}
+
+	@GetMapping("/goal")
+	public ResponseEntity<List<GoalType>> getAllGoal(HttpServletRequest request) {
+		try {
+			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+			Long userId = userProfileRepository.findByName(username).get().getId();
+			List<GoalType> goalTypes = commonsService.findGoalTypeByUserId(userId);
+			if (goalTypes.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			return new ResponseEntity<>(goalTypes , HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	@PostMapping("/goal")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public ResponseEntity<GoalType> createGoalType(@RequestBody GoalType goalType) {
+		try {
+			GoalType _goalType= goalTypeRepository.save(new GoalType(goalType.getName(),goalType.getUserId()));
+			return new ResponseEntity<>(_goalType , HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@DeleteMapping("/goal")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public void deleteGoalType(@RequestParam Long id) {
+		try {
+			goalTypeRepository.deleteById(id);
+		} catch (Exception e) {
+
+		}
+	}
+	@PatchMapping("/goal")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public void modifyGoalType(@RequestParam Long id,@RequestParam String name) {
+		try {
+			goalTypeRepository.modifyName(id,name);
+		} catch (Exception e) {
+
+		}
+	}
+
+	@GetMapping("/badHabit")
+	public ResponseEntity<List<BadHabitType>> getAllBadHabits(HttpServletRequest request) {
+		try {
+			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+			Long userId = userProfileRepository.findByName(username).get().getId();
+			List<BadHabitType> habitTypes = commonsService.findBadHabitTypeByUserId(userId);
+			if (habitTypes.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			return new ResponseEntity<>(habitTypes , HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	@PostMapping("/badHabit")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public ResponseEntity<BadHabitType> createBadHabitType(@RequestBody BadHabitType habitType) {
+		try {
+			BadHabitType _habitType = badHabitTypeRepository.save(new BadHabitType(habitType.getName(),habitType.getUserId()));
+			return new ResponseEntity<>(_habitType , HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@DeleteMapping("/badHabit")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public void deleteBadHabitType(@RequestParam Long id) {
+		try {
+			badHabitTypeRepository.deleteById(id);
+		} catch (Exception e) {
+
+		}
+	}
+	@PatchMapping("/badHabit")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public void modifyBadHabitType(@RequestParam Long id,@RequestParam String name) {
+		try {
+			badHabitTypeRepository.modifyName(id,name);
 		} catch (Exception e) {
 
 		}

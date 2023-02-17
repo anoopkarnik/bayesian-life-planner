@@ -1,15 +1,19 @@
 package com.bayesiansamaritan.lifeplanner.service;
 
-import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
-import com.bayesiansamaritan.lifeplanner.model.*;
-import com.bayesiansamaritan.lifeplanner.response.HabitResponse;
+import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
+import com.bayesiansamaritan.lifeplanner.model.Goal.GoalType;
+import com.bayesiansamaritan.lifeplanner.model.Habit.HabitType;
+import com.bayesiansamaritan.lifeplanner.model.Journal.JournalType;
+import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
+import com.bayesiansamaritan.lifeplanner.model.Stats.StatsType;
+import com.bayesiansamaritan.lifeplanner.model.Task.TaskType;
 
-import java.util.Date;
 import java.util.List;
 
 public interface CommonsService {
 
     public List<HabitType> findHabitTypeByUserId(Long userId);
+    public List<BadHabitType> findBadHabitTypeByUserId(Long userId);
     public List<TaskType> findTaskTypeByUserId(Long userId);
 
     public List<JournalType> findJournalTypeByUserId(Long userId);
@@ -18,4 +22,5 @@ public interface CommonsService {
 
     public List<SkillType> findSkillTypeByUserId(Long userId);
     public List<GoalType> findGoalTypeByUserId(Long userId);
+
 }

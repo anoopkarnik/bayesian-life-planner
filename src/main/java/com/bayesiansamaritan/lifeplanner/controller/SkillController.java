@@ -1,12 +1,14 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 
-import com.bayesiansamaritan.lifeplanner.model.Skill;
-import com.bayesiansamaritan.lifeplanner.repository.SkillRepository;
-import com.bayesiansamaritan.lifeplanner.request.SkillCreateChildRequest;
-import com.bayesiansamaritan.lifeplanner.request.SkillCreateRootRequest;
-import com.bayesiansamaritan.lifeplanner.request.SkillDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
+import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
+import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
+import com.bayesiansamaritan.lifeplanner.request.Skill.SkillCreateChildRequest;
+import com.bayesiansamaritan.lifeplanner.request.Skill.SkillCreateRootRequest;
+import com.bayesiansamaritan.lifeplanner.request.Skill.SkillDescriptionRequest;
 import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
+import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.SkillService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -29,11 +31,19 @@ public class SkillController {
 
     @Autowired
     private SkillService skillService;
+    @Autowired
+    private UserProfileRepository userProfileRepository;
+    @Autowired
+    JwtUtils jwtUtils;
+    static final String HEADER_STRING = "Authorization";
+    static final String TOKEN_PREFIX = "Bearer";
 
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<SkillResponse>> getAllSkill(@RequestParam("userId") Long userId, @RequestParam("skillTypeName") String skillTypeName) {
+    public ResponseEntity<List<SkillResponse>> getAllSkill(HttpServletRequest request, @RequestParam("skillTypeName") String skillTypeName) {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             List<SkillResponse> skill= skillService.getAllSkills(userId,skillTypeName);
             if (skill.isEmpty()) {
@@ -48,10 +58,12 @@ public class SkillController {
 
     @PostMapping("/root")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<Skill> createRootSkill(@RequestBody SkillCreateRootRequest skillCreateRootRequest)
+    public ResponseEntity<Skill> createRootSkill(HttpServletRequest request,@RequestBody SkillCreateRootRequest skillCreateRootRequest)
     {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
         try {
-            Skill skill = skillService.createRootSkill(skillCreateRootRequest.getUserId(), skillCreateRootRequest.getName(),
+            Skill skill = skillService.createRootSkill(userId, skillCreateRootRequest.getName(),
                     skillCreateRootRequest.getSkillTypeName(), skillCreateRootRequest.getTimeTaken());
             return new ResponseEntity<>(skill, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -61,10 +73,12 @@ public class SkillController {
 
     @PostMapping("/child")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<Skill> createChildSkill(@RequestBody SkillCreateChildRequest skillCreateChildRequest)
+    public ResponseEntity<Skill> createChildSkill(HttpServletRequest request,@RequestBody SkillCreateChildRequest skillCreateChildRequest)
     {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
         try {
-            Skill skill = skillService.createChildSkill(skillCreateChildRequest.getUserId(), skillCreateChildRequest.getName(),
+            Skill skill = skillService.createChildSkill(userId, skillCreateChildRequest.getName(),
                     skillCreateChildRequest.getSkillTypeName(),skillCreateChildRequest.getTimeTaken(),skillCreateChildRequest.getParentSkillName());
             return new ResponseEntity<>(skill, HttpStatus.CREATED);
         } catch (Exception e) {

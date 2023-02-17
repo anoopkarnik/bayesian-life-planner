@@ -1,9 +1,7 @@
 package com.bayesiansamaritan.lifeplanner.service;
 
-import com.bayesiansamaritan.lifeplanner.model.Skill;
-import com.bayesiansamaritan.lifeplanner.model.Stats;
+import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
 import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
-import com.bayesiansamaritan.lifeplanner.response.StatsResponse;
 
 import java.util.List;
 

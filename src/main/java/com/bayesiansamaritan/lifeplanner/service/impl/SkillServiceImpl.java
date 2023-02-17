@@ -1,20 +1,15 @@
 package com.bayesiansamaritan.lifeplanner.service.impl;
 
-import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
-import com.bayesiansamaritan.lifeplanner.model.*;
-import com.bayesiansamaritan.lifeplanner.repository.*;
+import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
+import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
+import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillTypeRepository;
 import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
-import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
-import com.bayesiansamaritan.lifeplanner.service.SkillService;
 import com.bayesiansamaritan.lifeplanner.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
