@@ -1,8 +1,5 @@
 package com.bayesiansamaritan.lifeplanner.model.Goal;
 
-import com.bayesiansamaritan.lifeplanner.model.Habit.HabitRule;
-import com.bayesiansamaritan.lifeplanner.model.Skill.SkillRule;
-import com.bayesiansamaritan.lifeplanner.model.Task.TaskRule;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -53,9 +50,14 @@ public class Goal {
     @Column(name="active")
     private Boolean active;
 
+    @Column(name="completed_percentage")
+    private Float completedPercentage=0F;
+
+    @Column(name="work_percentage")
+    private Float workPercentage=0F;
+
     @Column(name="completed")
     private Boolean completed;
-
 
     @Column(name="user_id")
     private Long userId;
@@ -66,30 +68,18 @@ public class Goal {
     @Column(name="parent_id")
     private long parentId=0L;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name="goal_id")
-    private Set<HabitRule> habitRules = new HashSet<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name="goal_id")
-    private Set<TaskRule> taskRules = new HashSet<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name="goal_id")
-    private Set<SkillRule> skillRules = new HashSet<>();
-
-    public Goal(String name, Long timeTaken, Long goalTypeId, Boolean active, Long userId, Boolean completed) {
+    public Goal(String name, Date dueDate, Long goalTypeId, Boolean active, Long userId, Boolean completed) {
         this.name = name;
-        this.timeTaken = timeTaken;
+        this.dueDate = dueDate;
         this.goalTypeId = goalTypeId;
         this.active = active;
         this.completed = completed;
         this.userId = userId;
     }
 
-    public Goal(String name, Long timeTaken, Long goalTypeId, Boolean active, Long userId, Boolean completed, Long parentId) {
+    public Goal(String name, Date dueDate, Long goalTypeId, Boolean active, Long userId, Boolean completed, Long parentId) {
         this.name = name;
-        this.timeTaken = timeTaken;
+        this.dueDate = dueDate;
         this.goalTypeId = goalTypeId;
         this.active = active;
         this.completed = completed;

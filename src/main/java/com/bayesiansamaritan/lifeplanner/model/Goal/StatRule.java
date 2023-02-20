@@ -1,7 +1,8 @@
-package com.bayesiansamaritan.lifeplanner.model.BadHabit;
+package com.bayesiansamaritan.lifeplanner.model.Goal;
 
-import com.bayesiansamaritan.lifeplanner.enums.BadHabitEnum;
 import com.bayesiansamaritan.lifeplanner.enums.HabitEnum;
+import com.bayesiansamaritan.lifeplanner.enums.StatEnum;
+import com.bayesiansamaritan.lifeplanner.enums.TaskEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,8 +17,8 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "bad_habit_rule",schema = "life_schema")
-public class BadHabitRule {
+@Table(name = "stat_rule",schema = "life_schema")
+public class StatRule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,28 +37,39 @@ public class BadHabitRule {
     @Column(name="name")
     private String name;
 
-    @Column(name="bad_habit_id")
-    private Long badHabitId;
+    @Column(name="stat_id")
+    private Long statId;
+
+    @Column(name="goal_id")
+    private Long goalId;
 
     @Column(name="active")
     private Boolean active;
 
     @Column(name="user_id")
     private Long userId;
-
     @Column(name="value")
     private Long value;
-    @Column(name="bad_habit_condition_type")
-    private BadHabitEnum badHabitConditionType;
+
+    @Column(name="weightage")
+    private Float weightage;
+
+    @Column(name="stat_condition_type")
+    private StatEnum statConditionType;
     @Column(name="description",length = 10240)
     private String description;
-
-    public BadHabitRule(String name, Long habitId, Boolean active, Long userId, Long value, BadHabitEnum badHabitConditionType) {
+    @Column(name="rule_category")
+    private String ruleCategory;
+    public StatRule(String name, Long statId, Long goalId, Boolean active, Long userId,  StatEnum statConditionType,Long value,Float weightage,
+                    String ruleCategory) {
         this.name = name;
-        this.badHabitId = habitId;
+        this.statId = statId;
+        this.goalId = goalId;
         this.active = active;
         this.userId = userId;
         this.value = value;
-        this.badHabitConditionType = badHabitConditionType;
+        this.statConditionType = statConditionType;
+        this.weightage = weightage;
+        this.ruleCategory =ruleCategory;
     }
 }

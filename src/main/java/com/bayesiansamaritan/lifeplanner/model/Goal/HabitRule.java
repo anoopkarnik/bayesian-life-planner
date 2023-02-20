@@ -1,5 +1,6 @@
-package com.bayesiansamaritan.lifeplanner.model.Task;
+package com.bayesiansamaritan.lifeplanner.model.Goal;
 
+import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
 import com.bayesiansamaritan.lifeplanner.enums.HabitEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,14 +10,15 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "task_rule",schema = "life_schema")
-public class TaskRule {
+@Table(name = "habit_rule",schema = "life_schema")
+public class HabitRule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,8 +37,11 @@ public class TaskRule {
     @Column(name="name")
     private String name;
 
-    @Column(name="task_id")
-    private Long taskId;
+    @Column(name="habit_id")
+    private Long habitId;
+
+    @Column(name="goal_id")
+    private Long goalId;
 
     @Column(name="active")
     private Boolean active;
@@ -44,16 +49,27 @@ public class TaskRule {
     @Column(name="user_id")
     private Long userId;
 
+    @Column(name="weightage")
+    private Float weightage;
     @Column(name="value")
     private Long value;
+    @Column(name="habit_condition_type")
+    private HabitEnum habitConditionType;
+    @Column(name="rule_category")
+    private String ruleCategory;
     @Column(name="description",length = 10240)
     private String description;
 
-    public TaskRule(String name, Long taskId, Boolean active, Long userId, Long value) {
+    public HabitRule(String name, Long habitId, Long goalId, Boolean active,Long userId, HabitEnum habitConditionType, Long value,Float weightage,
+                     String ruleCategory) {
         this.name = name;
-        this.taskId = taskId;
+        this.habitId = habitId;
+        this.goalId = goalId;
         this.active = active;
         this.userId = userId;
         this.value = value;
+        this.habitConditionType = habitConditionType;
+        this.weightage = weightage;
+        this.ruleCategory =ruleCategory;
     }
 }

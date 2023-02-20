@@ -20,6 +20,9 @@ public interface BadHabitRepository extends JpaRepository<BadHabit, Long> {
    @Query("Select t from BadHabit t where t.userId=:userId and t.active=:active and t.badHabitTypeId=:habitTypeId  and t.startDate<=now() and t.parentId=0 order by t.updatedAt asc")
    List<BadHabit> findRootBadHabitsByUserIdAndActiveAndHabitTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                  @Param("habitTypeId") Long habitTypeId);
+   @Query("Select t from BadHabit t where t.userId=:userId and t.active=:active and t.badHabitTypeId=:habitTypeId  and t.startDate<=now() order by t.updatedAt asc")
+   List<BadHabit> findAllBadHabitsByUserIdAndActiveAndHabitTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
+                                                                   @Param("habitTypeId") Long habitTypeId);
 
    @Query("Select t from BadHabit t where t.userId=:userId and t.active=:active and  t.startDate<=now() and t.parentId=:parentBadHabitId order by t.updatedAt asc")
    Optional<List<BadHabit>> findChildBadHabitsByUserIdAndActiveAndParentBadHabitId(@Param("userId") Long userId, @Param("active") Boolean active,

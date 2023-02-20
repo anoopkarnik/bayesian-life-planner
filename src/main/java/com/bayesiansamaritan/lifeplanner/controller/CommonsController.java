@@ -97,9 +97,11 @@ public class CommonsController {
 
 	@PostMapping("/task")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public ResponseEntity<TaskType> createTaskType(@RequestBody TaskType taskType) {
+	public ResponseEntity<TaskType> createTaskType(HttpServletRequest request, @RequestBody TaskType taskType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
 		try {
-			TaskType _taskType = taskTypeRepository.save(new TaskType(taskType.getName(),taskType.getUserId()));
+			TaskType _taskType = taskTypeRepository.save(new TaskType(taskType.getName(),userId));
 			return new ResponseEntity<>(_taskType , HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -143,9 +145,11 @@ public class CommonsController {
 
 	@PostMapping("/habit")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public ResponseEntity<HabitType> createHabitType(@RequestBody HabitType habitType) {
+	public ResponseEntity<HabitType> createHabitType(HttpServletRequest request,@RequestBody HabitType habitType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
 		try {
-			HabitType _habitType = habitTypeRepository.save(new HabitType(habitType.getName(),habitType.getUserId()));
+			HabitType _habitType = habitTypeRepository.save(new HabitType(habitType.getName(),userId));
 			return new ResponseEntity<>(_habitType , HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -189,9 +193,11 @@ public class CommonsController {
 
 	@PostMapping("/journal")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public ResponseEntity<JournalType> createJournalType(@RequestBody JournalType journalType) {
+	public ResponseEntity<JournalType> createJournalType(HttpServletRequest request,@RequestBody JournalType journalType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
 		try {
-			JournalType _journalType= journalTypeRepository.save(new JournalType(journalType.getName(),journalType.getUserId()));
+			JournalType _journalType= journalTypeRepository.save(new JournalType(journalType.getName(),userId));
 			return new ResponseEntity<>(_journalType , HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -235,9 +241,11 @@ public class CommonsController {
 
 	@PostMapping("/stats")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public ResponseEntity<StatsType> createStatsType(@RequestBody StatsType statsType) {
+	public ResponseEntity<StatsType> createStatsType(HttpServletRequest request,@RequestBody StatsType statsType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
 		try {
-			StatsType _statsType= statsTypeRepository.save(new StatsType(statsType.getName(),statsType.getUserId()));
+			StatsType _statsType= statsTypeRepository.save(new StatsType(statsType.getName(),userId));
 			return new ResponseEntity<>(_statsType , HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -281,9 +289,11 @@ public class CommonsController {
 
 	@PostMapping("/skill")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public ResponseEntity<SkillType> createSkillType(@RequestBody SkillType skillType) {
+	public ResponseEntity<SkillType> createSkillType(HttpServletRequest request,@RequestBody SkillType skillType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
 		try {
-			SkillType _skillType= skillTypeRepository.save(new SkillType(skillType.getName(),skillType.getUserId()));
+			SkillType _skillType= skillTypeRepository.save(new SkillType(skillType.getName(),userId));
 			return new ResponseEntity<>(_skillType , HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -327,9 +337,11 @@ public class CommonsController {
 
 	@PostMapping("/goal")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public ResponseEntity<GoalType> createGoalType(@RequestBody GoalType goalType) {
+	public ResponseEntity<GoalType> createGoalType(HttpServletRequest request,@RequestBody GoalType goalType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
 		try {
-			GoalType _goalType= goalTypeRepository.save(new GoalType(goalType.getName(),goalType.getUserId()));
+			GoalType _goalType= goalTypeRepository.save(new GoalType(goalType.getName(),userId));
 			return new ResponseEntity<>(_goalType , HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -373,9 +385,11 @@ public class CommonsController {
 
 	@PostMapping("/badHabit")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public ResponseEntity<BadHabitType> createBadHabitType(@RequestBody BadHabitType habitType) {
+	public ResponseEntity<BadHabitType> createBadHabitType(HttpServletRequest request,@RequestBody BadHabitType habitType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
 		try {
-			BadHabitType _habitType = badHabitTypeRepository.save(new BadHabitType(habitType.getName(),habitType.getUserId()));
+			BadHabitType _habitType = badHabitTypeRepository.save(new BadHabitType(habitType.getName(),userId));
 			return new ResponseEntity<>(_habitType , HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

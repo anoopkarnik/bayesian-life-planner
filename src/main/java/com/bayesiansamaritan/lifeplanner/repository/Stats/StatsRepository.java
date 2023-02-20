@@ -21,6 +21,10 @@ public interface StatsRepository extends JpaRepository<Stats, Long> {
    List<Stats> findRootStatsByUserIdAndStatsTypeId(@Param("userId") Long userId,
                                                     @Param("statsTypeId") Long statsTypeId);
 
+   @Query("Select t from Stats t where t.userId=:userId and t.statsTypeId=:statsTypeId order by t.updatedAt asc")
+   List<Stats> findAllStatsByUserIdAndStatsTypeId(@Param("userId") Long userId,
+                                                   @Param("statsTypeId") Long statsTypeId);
+
    @Query("Select t from Stats t where t.userId=:userId and t.parentId=:parentStatsId order by t.updatedAt asc")
    Optional<List<Stats>> findChildStatsByUserIdAndParentStatsId(@Param("userId") Long userId,
                                                                 @Param("parentStatsId") Long parentStatsId);

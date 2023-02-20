@@ -1,6 +1,6 @@
-package com.bayesiansamaritan.lifeplanner.model.Habit;
+package com.bayesiansamaritan.lifeplanner.model.Goal;
 
-import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
+import com.bayesiansamaritan.lifeplanner.enums.BadHabitEnum;
 import com.bayesiansamaritan.lifeplanner.enums.HabitEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,15 +10,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "habit_rule",schema = "life_schema")
-public class HabitRule {
+@Table(name = "bad_habit_rule",schema = "life_schema")
+public class BadHabitRule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,28 +36,39 @@ public class HabitRule {
     @Column(name="name")
     private String name;
 
-    @Column(name="habit_id")
-    private Long habitId;
+    @Column(name="bad_habit_id")
+    private Long badHabitId;
+
+    @Column(name="goal_id")
+    private Long goalId;
 
     @Column(name="active")
     private Boolean active;
 
     @Column(name="user_id")
     private Long userId;
+    @Column(name="weightage")
+    private Float weightage;
 
     @Column(name="value")
     private Long value;
-    @Column(name="habit_condition_type")
-    private HabitEnum habitConditionType;
+    @Column(name="bad_habit_condition_type")
+    private BadHabitEnum badHabitConditionType;
     @Column(name="description",length = 10240)
     private String description;
+    @Column(name="rule_category")
+    private String ruleCategory;
 
-    public HabitRule(String name, Long habitId, Boolean active, Long userId, Long value, HabitEnum habitConditionType) {
+    public BadHabitRule(String name, Long badHabitId, Long goalId, Boolean active, Long userId, BadHabitEnum badHabitConditionType, Long value,Float weightage,
+                        String ruleCategory) {
+        this.goalId = goalId;
         this.name = name;
-        this.habitId = habitId;
+        this.badHabitId = badHabitId;
         this.active = active;
         this.userId = userId;
         this.value = value;
-        this.habitConditionType = habitConditionType;
+        this.badHabitConditionType = badHabitConditionType;
+        this.weightage = weightage;
+        this.ruleCategory =ruleCategory;
     }
 }

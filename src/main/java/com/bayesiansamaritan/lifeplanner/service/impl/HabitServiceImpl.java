@@ -85,6 +85,35 @@ public class HabitServiceImpl implements HabitService {
     };
 
     @Override
+    public List<HabitResponse> getAllActiveHabitsAndSubHabits(Long userId, Boolean active, String habitTypeName){
+
+        HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
+        List<Habit> oldHabits = habitRepository.findRootHabitByUserIdAndActiveAndHabitTypeId(userId,active,habitType.getId());
+        List<Habit> habits = removeRootStreak(oldHabits);
+        List<HabitResponse> habitResponses = new ArrayList<>();
+        for (Habit habit: habits){
+            Optional<List<Habit>> oldChildHabits1 =  habitRepository.findChildHabitsByUserIdAndActiveAndParentHabitId(userId,true,habit.getId());
+            HabitResponse habitResponse = new HabitResponse(habit.getId(),habit.getCreatedAt(),
+                    habit.getUpdatedAt(),habit.getName(),habit.getScheduleType(),habit.getTimeTaken(),habit.getStartDate(),
+                    habit.getDueDate(),habitType.getName(),habit.getDescription(),habit.getStreak(),habit.getTotalTimes());
+            if (oldChildHabits1.get().size()>0){
+                List<Habit> childHabits1 = removeChildStreak(oldChildHabits1.get());
+                for(Habit childHabit1 : childHabits1) {
+                    Optional<HabitType> childHabitType1 = habitTypeRepository.findById(childHabit1.getHabitTypeId());
+                    HabitResponse childHabitResponse1 = new HabitResponse(childHabit1.getId(),childHabit1.getCreatedAt(),
+                            childHabit1.getUpdatedAt(),childHabit1.getName(),childHabit1.getScheduleType(),childHabit1.getTimeTaken(),
+                            childHabit1.getStartDate(),childHabit1.getDueDate(),childHabitType1.get().getName(),
+                            childHabit1.getDescription(),childHabit1.getStreak(),childHabit1.getTotalTimes());
+                    habitResponses.add(childHabitResponse1);
+                }
+
+            }
+            habitResponses.add(habitResponse);
+        }
+        return habitResponses;
+    };
+
+    @Override
     public Habit createDailyRootHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate, Long every, String scheduleType,
                                   String habitTypeName){
         HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
@@ -217,7 +246,7 @@ public class HabitServiceImpl implements HabitService {
         habitRepository.completeHabit(oldHabit.getId());
         Habit habit = habitRepository.findByUserIdAndId(userId,id);
         habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),dueDate,
-                habit.getHabitTypeId(),userId,habit.getStreak(),habit.getTotalTimes(),habit.getScheduleType()));
+                habit.getHabitTypeId(),userId,habit.getStreak(),habit.getTotalTimes(),habit.getScheduleType(),habit.getId()));
         Boolean active = true;
         if (scheduleTypeName.equals("daily")){
             String referenceId = "habit/"+habit.getId();

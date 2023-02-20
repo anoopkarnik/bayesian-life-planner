@@ -11,6 +11,8 @@ import java.util.List;
 public interface HabitService {
 
     public List<HabitResponse> getAllActiveHabits(Long userId, Boolean active, String habitTypeName);
+
+    public List<HabitResponse> getAllActiveHabitsAndSubHabits(Long userId, Boolean active, String habitTypeName);
     public Habit createDailyRootHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate, Long every, String scheduleType,
                            String habitTypeName);
 

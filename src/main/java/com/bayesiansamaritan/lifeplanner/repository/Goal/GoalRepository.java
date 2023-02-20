@@ -40,4 +40,14 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
    @Modifying
    @Query("update Goal set description=:description,updated_at=now() where id=:id")
    public void addDescription(@Param("id") Long id, @Param("description") String description);
+
+   @Transactional
+   @Modifying
+   @Query("update Goal set completedPercentage=:completedPercentage,updated_at=now() where id=:id")
+   public void modifyCompletedPercentage(@Param("id") Long id, @Param("completedPercentage") Float completedPercentage);
+
+   @Transactional
+   @Modifying
+   @Query("update Goal set workPercentage=:workPercentage,updated_at=now() where id=:id")
+   public void modifyWorkPercentage(@Param("id") Long id, @Param("workPercentage") Float workPercentage);
 }

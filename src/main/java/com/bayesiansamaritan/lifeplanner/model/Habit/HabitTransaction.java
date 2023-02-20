@@ -52,6 +52,9 @@ public class HabitTransaction {
     @Column(name="streak")
     private Long streak;
 
+    @Column(name="habit_id")
+    private Long habitId;
+
     @Column(name="total_times")
     private Long totalTimes;
 
@@ -64,7 +67,7 @@ public class HabitTransaction {
     public HabitTransaction(){};
 
     public HabitTransaction(String name,  Long timeTaken, Date startDate, Date dueDate, Long habitTypeId,  Long userId,
-                 Long streak, Long totalTimes, String scheduleType) {
+                 Long streak, Long totalTimes, String scheduleType,Long habitId) {
         this.name = name;
         this.timeTaken = timeTaken;
         this.startDate = startDate;
@@ -74,6 +77,7 @@ public class HabitTransaction {
         this.streak = streak;
         this.totalTimes = totalTimes;
         this.scheduleType = scheduleType;
+        this.habitId = habitId;
     }
 
 }

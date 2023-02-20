@@ -1,4 +1,4 @@
-package com.bayesiansamaritan.lifeplanner.model.Skill;
+package com.bayesiansamaritan.lifeplanner.model.Goal;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +37,9 @@ public class SkillRule {
     @Column(name="skill_id")
     private Long skillId;
 
+    @Column(name="goal_id")
+    private Long goalId;
+
     @Column(name="active")
     private Boolean active;
 
@@ -45,14 +48,22 @@ public class SkillRule {
 
     @Column(name="value")
     private Long value;
+    @Column(name="weightage")
+    private Float weightage;
     @Column(name="description",length = 10240)
     private String description;
+    @Column(name="rule_category")
+    private String ruleCategory;
 
-    public SkillRule(String name, Long skillId, Boolean active, Long userId, Long value) {
+    public SkillRule(String name, Long skillId, Long goalId,Boolean active, Long userId,Long value,Float weightage,
+                     String ruleCategory){
         this.name = name;
         this.skillId = skillId;
+        this.goalId = goalId;
         this.active = active;
         this.userId = userId;
         this.value = value;
+        this.weightage = weightage;
+        this.ruleCategory =ruleCategory;
     }
 }

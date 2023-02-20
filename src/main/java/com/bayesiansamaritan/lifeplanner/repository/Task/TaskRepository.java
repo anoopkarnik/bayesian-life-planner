@@ -22,6 +22,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
    List<Task> findRootTasksByUserIdAndActiveAndTaskTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                  @Param("taskTypeId") Long taskTypeId);
 
+   @Query("Select t from Task t where t.userId=:userId and t.active=:active and t.taskTypeId=:taskTypeId and t.startDate<=now() order by t.dueDate asc")
+   List<Task> findAllTasksByUserIdAndActiveAndTaskTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
+                                                          @Param("taskTypeId") Long taskTypeId);
+
    @Query("Select t from Task t where t.userId=:userId and t.active=:active and t.parentId=:parentTaskId and t.startDate<=now()order by t.dueDate asc")
    Optional<List<Task>> findChildTasksByUserIdAndActiveAndParentTaskId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                                       @Param("parentTaskId") Long parentTaskId);

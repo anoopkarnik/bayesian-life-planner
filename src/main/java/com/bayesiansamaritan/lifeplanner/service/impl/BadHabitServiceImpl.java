@@ -60,6 +60,33 @@ public class BadHabitServiceImpl implements BadHabitService {
     };
 
     @Override
+    public List<BadHabitResponse> getAllActiveBadHabitsAndSubBadHabits(Long userId, Boolean active, String badHabitTypeName){
+
+        BadHabitType badHabitType = badHabitTypeRepository.findByNameAndUserId(badHabitTypeName,userId);
+        List<BadHabit> badHabits = badHabitRepository.findRootBadHabitsByUserIdAndActiveAndHabitTypeId(userId,true,badHabitType.getId());
+        List<BadHabitResponse> badHabitResponses = new ArrayList<>();
+        for (BadHabit badHabit: badHabits){
+            Optional<List<BadHabit>> childBadHabits1 =  badHabitRepository.findChildBadHabitsByUserIdAndActiveAndParentBadHabitId(userId,
+                    true,badHabit.getId());
+            BadHabitResponse badHabitResponse = new BadHabitResponse(badHabit.getId(),badHabit.getCreatedAt(),
+                    badHabit.getUpdatedAt(),badHabit.getName(),badHabit.getStartDate(),badHabitType.getName(),badHabit.getTotalTimes(),
+                    badHabit.getDescription());
+            if (childBadHabits1.isPresent()){
+                for(BadHabit childBadHabit1 : childBadHabits1.get()) {
+                    Optional<BadHabitType> childBadHabitType1 = badHabitTypeRepository.findById(childBadHabit1.getBadHabitTypeId());
+                    BadHabitResponse childBadHabitResponse1 = new BadHabitResponse(childBadHabit1.getId(),childBadHabit1.getCreatedAt(),
+                            childBadHabit1.getUpdatedAt(),childBadHabit1.getName(),childBadHabit1.getStartDate(),childBadHabitType1.get().getName(),
+                            childBadHabit1.getTotalTimes(),childBadHabit1.getDescription());
+                    badHabitResponses.add(childBadHabitResponse1);
+                }
+            }
+            badHabitResponses.add(badHabitResponse);
+        }
+        return badHabitResponses;
+    };
+
+
+    @Override
     public BadHabit createRootBadHabit(Long userId, String name,Date startDate, String habitTypeName){
         BadHabitType badHabitType = badHabitTypeRepository.findByNameAndUserId(habitTypeName,userId);
         Boolean active = true;
@@ -83,7 +110,7 @@ public class BadHabitServiceImpl implements BadHabitService {
         BadHabit oldHabit = badHabitRepository.findByUserIdAndId(userId,id);
         badHabitRepository.carriedOutBadHabit(oldHabit.getId());
         BadHabit habit = badHabitRepository.findByUserIdAndId(userId,id);
-        habitTransactionRepository.save(new BadHabitTransaction(habit.getName(),habit.getStartDate(), habit.getBadHabitTypeId(),
+        habitTransactionRepository.save(new BadHabitTransaction(habit.getId(),habit.getName(),habit.getStartDate(), habit.getBadHabitTypeId(),
                 userId,habit.getTotalTimes(),habit.getDescription()));
         return habit;
     };

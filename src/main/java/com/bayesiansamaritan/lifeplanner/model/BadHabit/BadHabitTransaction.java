@@ -37,6 +37,9 @@ public class BadHabitTransaction {
     @Column(name="start_date")
     private Date startDate;
 
+    @Column(name="habit_id")
+    private Long habitId;
+
     @Column(name="habit_type_id")
     private Long habitTypeId;
 
@@ -49,9 +52,8 @@ public class BadHabitTransaction {
     @Column(name="description",length = 10240)
     private String description;
 
-    ;
-
-    public BadHabitTransaction(String name, Date startDate, Long habitTypeId, Long userId, Long totalTimes, String description) {
+    public BadHabitTransaction(Long habitId,String name, Date startDate, Long habitTypeId, Long userId, Long totalTimes, String description) {
+        this.habitId = habitId;
         this.name = name;
         this.startDate = startDate;
         this.habitTypeId = habitTypeId;

@@ -53,10 +53,14 @@ public class TaskTransaction {
     @Column(name="description",length = 10240)
     private String description;
 
+    @Column(name="task_id")
+    private Long taskId;
+
 
     public TaskTransaction(){};
 
-    public TaskTransaction(String name, Long timeTaken, Date startDate, Date dueDate, Long taskTypeId,  Long userId, String scheduleType) {
+    public TaskTransaction(String name, Long timeTaken, Date startDate, Date dueDate, Long taskTypeId,  Long userId, String scheduleType,
+                           Long taskId) {
         this.name = name;
         this.timeTaken = timeTaken;
         this.startDate = startDate;
@@ -64,9 +68,11 @@ public class TaskTransaction {
         this.taskTypeId = taskTypeId;
         this.userId = userId;
         this.scheduleType = scheduleType;
+        this.taskId = taskId;
     }
 
-    public TaskTransaction(Date createdAt, Date updatedAt, String name, String scheduleType, Long timeTaken, Date startDate, Date dueDate, Long taskTypeId,  Long userId) {
+    public TaskTransaction(Date createdAt, Date updatedAt, String name, String scheduleType, Long timeTaken, Date startDate, Date dueDate, Long taskTypeId,
+                           Long userId, Long taskId) {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.name = name;
@@ -76,6 +82,7 @@ public class TaskTransaction {
         this.dueDate = dueDate;
         this.taskTypeId = taskTypeId;
         this.userId = userId;
+        this.taskId = taskId;
     }
 
 }

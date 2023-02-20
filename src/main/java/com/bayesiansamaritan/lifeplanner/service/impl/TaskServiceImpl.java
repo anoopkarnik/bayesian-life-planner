@@ -83,6 +83,32 @@ public class TaskServiceImpl implements TaskService {
     };
 
     @Override
+    public List<TaskResponse> getAllActiveTasksAndSubTasks(Long userId, Boolean active, String taskTypeName){
+
+        TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
+        List<Task> tasks = taskRepository.findRootTasksByUserIdAndActiveAndTaskTypeId(userId,active,taskType.getId());
+        List<TaskResponse> taskResponses = new ArrayList<>();
+        for (Task task: tasks){
+            Optional<List<Task>> childTasks1 =  taskRepository.findChildTasksByUserIdAndActiveAndParentTaskId(userId,true,task.getId());
+            TaskResponse taskResponse = new TaskResponse(task.getId(),task.getCreatedAt(),
+                    task.getUpdatedAt(),task.getName(),task.getScheduleType(),task.getTimeTaken(),task.getStartDate(),
+                    task.getDueDate(),taskType.getName(),task.getDescription());
+            if (childTasks1.isPresent()){
+                for(Task childTask1 : childTasks1.get()) {
+                    Optional<TaskType> childTaskType1 = taskTypeRepository.findById(childTask1.getTaskTypeId());
+                    TaskResponse childTaskResponse1 = new TaskResponse(childTask1.getId(),childTask1.getCreatedAt(),
+                            childTask1.getUpdatedAt(),childTask1.getName(),childTask1.getScheduleType(),childTask1.getTimeTaken(),
+                            childTask1.getStartDate(),childTask1.getDueDate(),childTaskType1.get().getName(),
+                            childTask1.getDescription());
+                    taskResponses.add(childTaskResponse1);
+                }
+            }
+            taskResponses.add(taskResponse);
+        }
+        return taskResponses;
+    };
+
+    @Override
     public Task createOneTimeRootTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
                                 String taskTypeName){
         TaskType taskType = taskTypeRepository.findByNameAndUserId(taskTypeName, userId);
@@ -192,7 +218,7 @@ public class TaskServiceImpl implements TaskService {
         Date dueDate = oldTask.getDueDate();
         Task task = taskRepository.findByUserIdAndId(userId,id);
         taskTransactionRepository.save(new TaskTransaction(task.getName(),task.getTimeTaken(),task.getStartDate(),task.getDueDate(),task.getTaskTypeId(),
-                task.getUserId(),task.getScheduleType()));
+                task.getUserId(),task.getScheduleType(),task.getId()));
         Boolean active = true;
         if(scheduleTypeName.equals("daily")){
             String referenceId = "task/"+task.getId();

@@ -11,6 +11,7 @@ import java.util.List;
 public interface TaskService {
 
     public List<TaskResponse> getAllActiveTasks(Long userId, Boolean active, String taskTypeName);
+    public List<TaskResponse> getAllActiveTasksAndSubTasks(Long userId, Boolean active, String taskTypeName);
 
     public Task createOneTimeRootTask(Long userId, String name, Date startDate, Long timeTaken, Date dueDate, Long every, String scheduleType,
                                   String taskTypeName);

@@ -71,7 +71,7 @@ public class StatsController {
             Stats stats = statsService.createRootStats(userId,statsCreateRootRequest.getName(),
                     statsCreateRootRequest.getStatsTypeName(),statsCreateRootRequest.getValue(),statsCreateRootRequest.getDescription());
             statsTransactionRepository.save(new StatsTransaction(stats.getName(),stats.getStatsTypeId(),stats.getUserId(),
-                    stats.getValue(),stats.getDescription()));
+                    stats.getValue(),stats.getDescription(),stats.getId()));
             return new ResponseEntity<>(stats, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -88,7 +88,7 @@ public class StatsController {
             Stats stats = statsService.createChildStats(userId, statsCreateChildRequest.getName(), statsCreateChildRequest.getStatsTypeName(),
                     statsCreateChildRequest.getValue(), statsCreateChildRequest.getDescription(),statsCreateChildRequest.getParentStatsName());
             statsTransactionRepository.save(new StatsTransaction(stats.getName(),stats.getStatsTypeId(),stats.getUserId(),
-                    stats.getValue(),stats.getDescription()));
+                    stats.getValue(),stats.getDescription(),stats.getId()));
             return new ResponseEntity<>(stats, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -110,7 +110,7 @@ public class StatsController {
         statsRepository.addValue(statsValueRequest.getId(),statsValueRequest.getValue());
         Optional<Stats> stats = statsRepository.findById(statsValueRequest.getId());
         statsTransactionRepository.save(new StatsTransaction(stats.get().getName(),stats.get().getStatsTypeId(),stats.get().getUserId(),
-                stats.get().getValue(),stats.get().getDescription()));
+                stats.get().getValue(),stats.get().getDescription(),stats.get().getId()));
     }
 
 

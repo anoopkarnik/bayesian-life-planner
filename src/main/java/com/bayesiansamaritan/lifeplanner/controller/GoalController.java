@@ -64,7 +64,7 @@ public class GoalController {
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             Goal goal = goalService.createRootGoal(userId, goalCreateRootRequest.getName(),
-                    goalCreateRootRequest.getGoalTypeName(), goalCreateRootRequest.getTimeTaken());
+                    goalCreateRootRequest.getGoalTypeName(), goalCreateRootRequest.getDueDate());
             return new ResponseEntity<>(goal, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -79,7 +79,7 @@ public class GoalController {
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             Goal goal = goalService.createChildGoal(userId, goalCreateChildRequest.getName(),
-                    goalCreateChildRequest.getGoalTypeName(),goalCreateChildRequest.getTimeTaken(),goalCreateChildRequest.getParentGoalName());
+                    goalCreateChildRequest.getGoalTypeName(),goalCreateChildRequest.getDueDate(),goalCreateChildRequest.getParentGoalName());
             return new ResponseEntity<>(goal, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

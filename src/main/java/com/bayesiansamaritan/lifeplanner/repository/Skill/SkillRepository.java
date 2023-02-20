@@ -20,6 +20,10 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
    List<Skill> findRootSkillsByUserIdAndActiveAndSkillTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                  @Param("skillTypeId") Long skillTypeId);
 
+   @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.skillTypeId=:skillTypeId")
+   List<Skill> findAllSkillsByUserIdAndActiveAndSkillTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
+                                                             @Param("skillTypeId") Long skillTypeId);
+
    @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.parentId=:parentSkillId")
    Optional<List<Skill>> findSkillsByUserIdAndActiveAndParentSkillId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                                      @Param("parentSkillId") Long parentSkillId);
