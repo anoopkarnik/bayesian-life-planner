@@ -81,6 +81,15 @@ public class RuleController {
         return completedPercentage;
     };
 
+    @GetMapping("/workPercentage")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public Float getWorkPercentage(HttpServletRequest request, @RequestParam("goalId") Long goalId) {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        Float workPercentage = ruleService.getWorkPercentage(userId,goalId);
+        return workPercentage;
+    };
+
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public void addRule(HttpServletRequest request,@RequestBody RuleCreateRequest ruleRequest) {

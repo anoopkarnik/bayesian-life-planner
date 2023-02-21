@@ -40,7 +40,7 @@ public class GoalServiceImpl implements GoalService {
             goalRepository.modifyWorkPercentage(goal.getId(),workPercentage);
             GoalResponse goalResponse = new GoalResponse(goal.getId(),goal.getCreatedAt(),
                     goal.getUpdatedAt(),goal.getName(),goal.getDueDate(),goalType.getName(),
-                    goal.getCompleted(),goal.getDescription(),completedPercentage);
+                    goal.getCompleted(),goal.getDescription(),completedPercentage,workPercentage);
             if (childGoals1.isPresent()){
                 List<GoalResponse> childGoalResponses1 = new ArrayList<>();
                 for(Goal childGoal1 : childGoals1.get()) {
@@ -52,7 +52,7 @@ public class GoalServiceImpl implements GoalService {
                     Optional<List<Goal>> childGoals2 =  goalRepository.findGoalsByUserIdAndActiveAndParentGoalId(userId,true,childGoal1.getId());
                     GoalResponse childGoalResponse1 = new GoalResponse(childGoal1.getId(), childGoal1.getCreatedAt(),
                             childGoal1.getUpdatedAt(), childGoal1.getName(), childGoal1.getDueDate(), childGoalType1.get().getName(),
-                            childGoal1.getCompleted(), childGoal1.getDescription(),child1CompletedPercentage);
+                            childGoal1.getCompleted(), childGoal1.getDescription(),child1CompletedPercentage,child1WorkPercentage);
                     if (childGoals2.isPresent()){
                         List<GoalResponse> childGoalResponses2 = new ArrayList<>();
                         for(Goal childGoal2 : childGoals2.get()){
@@ -64,7 +64,7 @@ public class GoalServiceImpl implements GoalService {
                             Optional<List<Goal>> childGoals3 =  goalRepository.findGoalsByUserIdAndActiveAndParentGoalId(userId,true,childGoal2.getId());
                             GoalResponse childGoalResponse2 = new GoalResponse(childGoal2.getId(), childGoal2.getCreatedAt(),
                                     childGoal2.getUpdatedAt(), childGoal2.getName(), childGoal2.getDueDate(), childGoalType2.get().getName(),
-                                    childGoal2.getCompleted(), childGoal2.getDescription(),goal.getCompletedPercentage());
+                                    childGoal2.getCompleted(), childGoal2.getDescription(),child2CompletedPercentage,child2WorkPercentage);
                             if (childGoals3.isPresent()){
                                 List<GoalResponse> childGoalResponses3 = new ArrayList<>();
                                 for(Goal childGoal3 : childGoals3.get()){
@@ -76,7 +76,7 @@ public class GoalServiceImpl implements GoalService {
                                     Optional<List<Goal>> childGoals4 =  goalRepository.findGoalsByUserIdAndActiveAndParentGoalId(userId,true,childGoal3.getId());
                                     GoalResponse childGoalResponse3 = new GoalResponse(childGoal3.getId(), childGoal3.getCreatedAt(),
                                             childGoal3.getUpdatedAt(), childGoal3.getName(), childGoal3.getDueDate(), childGoalType3.get().getName(),
-                                            childGoal3.getCompleted(), childGoal3.getDescription(),goal.getCompletedPercentage());
+                                            childGoal3.getCompleted(), childGoal3.getDescription(),child3CompletedPercentage,child3WorkPercentage);
                                     if (childGoals4.isPresent()){
                                         List<GoalResponse> childGoalResponses4 = new ArrayList<>();
                                         for(Goal childGoal4 : childGoals4.get()){
@@ -88,7 +88,7 @@ public class GoalServiceImpl implements GoalService {
                                             Optional<List<Goal>> childGoals5 =  goalRepository.findGoalsByUserIdAndActiveAndParentGoalId(userId,true,childGoal4.getId());
                                             GoalResponse childGoalResponse4 = new GoalResponse(childGoal4.getId(), childGoal4.getCreatedAt(),
                                                     childGoal4.getUpdatedAt(), childGoal4.getName(), childGoal4.getDueDate(), childGoalType4.get().getName(),
-                                                    childGoal4.getCompleted(), childGoal4.getDescription(),goal.getCompletedPercentage());
+                                                    childGoal4.getCompleted(), childGoal4.getDescription(),child4CompletedPercentage,child4WorkPercentage);
                                             childGoalResponses4.add(childGoalResponse4);
                                         }
                                         childGoalResponse3.setGoalResponses(childGoalResponses4);

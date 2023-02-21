@@ -19,6 +19,8 @@ public class GoalResponse {
 
     private Boolean completed;
     private Float completedPercentage;
+
+    private Float workPercentage;
     private String description;
 
     private List<GoalResponse> goalResponses;
@@ -38,7 +40,7 @@ public class GoalResponse {
     }
 
     public GoalResponse(Long id, Date createdAt, Date updatedAt, String name, Date dueDate, String goalTypeName, Boolean completed, String description,
-                        Float completedPercentage) {
+                        Float completedPercentage, Float workPercentage) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -48,5 +50,6 @@ public class GoalResponse {
         this.completed = completed;
         this.description = description;
         this.completedPercentage = completedPercentage;
+        this.workPercentage = workPercentage;
     }
 }

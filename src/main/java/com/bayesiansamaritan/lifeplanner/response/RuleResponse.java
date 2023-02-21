@@ -22,6 +22,7 @@ public class RuleResponse {
     private String conditionType;
     private String description;
     private String ruleType;
+    private Float weightage;
 
 
 }

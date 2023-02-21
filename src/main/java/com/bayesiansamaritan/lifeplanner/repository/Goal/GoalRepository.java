@@ -16,11 +16,11 @@ import java.util.Optional;
 public interface GoalRepository extends JpaRepository<Goal, Long> {
 
 
-   @Query("Select t from Goal t where t.userId=:userId and t.active=:active and t.goalTypeId=:goalTypeId and t.parentId=0")
+   @Query("Select t from Goal t where t.userId=:userId and t.active=:active and t.goalTypeId=:goalTypeId and t.parentId=0 order by t.updatedAt desc")
    List<Goal> findRootGoalsByUserIdAndActiveAndGoalTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                  @Param("goalTypeId") Long goalTypeId);
 
-   @Query("Select t from Goal t where t.userId=:userId and t.active=:active and t.parentId=:parentGoalId")
+   @Query("Select t from Goal t where t.userId=:userId and t.active=:active and t.parentId=:parentGoalId order by t.updatedAt desc")
    Optional<List<Goal>> findGoalsByUserIdAndActiveAndParentGoalId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                                      @Param("parentGoalId") Long parentGoalId);
 

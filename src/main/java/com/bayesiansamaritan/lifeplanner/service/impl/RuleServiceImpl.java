@@ -115,31 +115,31 @@ public class RuleServiceImpl implements RuleService {
         for (TaskRule taskRule: taskRules){
             RuleResponse ruleResponse = new RuleResponse(taskRule.getId(),taskRule.getCreatedAt(),taskRule.getUpdatedAt(),taskRule.getName(),
                     taskRule.getTaskId(),taskRule.getGoalId(),taskRule.getActive(),taskRule.getValue(),taskRule.getTaskConditionType().toString(),
-                    taskRule.getDescription(),"task");
+                    taskRule.getDescription(),"task",taskRule.getWeightage());
             ruleResponses.add(ruleResponse);
         }
         for (HabitRule habitRule: habitRules){
             RuleResponse ruleResponse = new RuleResponse(habitRule.getId(),habitRule.getCreatedAt(),habitRule.getUpdatedAt(),habitRule.getName(),
                     habitRule.getHabitId(),habitRule.getGoalId(),habitRule.getActive(),habitRule.getValue(),habitRule.getHabitConditionType().toString(),
-                    habitRule.getDescription(),"habit");
+                    habitRule.getDescription(),"habit",habitRule.getWeightage());
             ruleResponses.add(ruleResponse);
         }
         for (BadHabitRule badHabitRule: badHabitRules){
             RuleResponse ruleResponse = new RuleResponse(badHabitRule.getId(),badHabitRule.getCreatedAt(),badHabitRule.getUpdatedAt(),badHabitRule.getName(),
                     badHabitRule.getBadHabitId(),badHabitRule.getGoalId(),badHabitRule.getActive(),badHabitRule.getValue(),badHabitRule.getBadHabitConditionType().toString(),
-                    badHabitRule.getDescription(),"badHabit");
+                    badHabitRule.getDescription(),"badHabit",badHabitRule.getWeightage());
             ruleResponses.add(ruleResponse);
         }
         for (SkillRule skillRule: skillRules){
             RuleResponse ruleResponse = new RuleResponse(skillRule.getId(),skillRule.getCreatedAt(),skillRule.getUpdatedAt(),skillRule.getName(),
                     skillRule.getSkillId(),skillRule.getGoalId(),skillRule.getActive(),skillRule.getValue(),"",
-                    skillRule.getDescription(),"skill");
+                    skillRule.getDescription(),"skill",skillRule.getWeightage());
             ruleResponses.add(ruleResponse);
         }
         for (StatRule statRule: statRules){
             RuleResponse ruleResponse = new RuleResponse(statRule.getId(),statRule.getCreatedAt(),statRule.getUpdatedAt(),statRule.getName(),
                     statRule.getStatId(),statRule.getGoalId(),statRule.getActive(),statRule.getValue(),"",
-                    statRule.getDescription(),"stat");
+                    statRule.getDescription(),"stat",statRule.getWeightage());
             ruleResponses.add(ruleResponse);
         }
         return ruleResponses;
@@ -156,31 +156,31 @@ public class RuleServiceImpl implements RuleService {
         for (TaskRule taskRule: taskRules){
             RuleResponse ruleResponse = new RuleResponse(taskRule.getId(),taskRule.getCreatedAt(),taskRule.getUpdatedAt(),taskRule.getName(),
                     taskRule.getTaskId(),taskRule.getGoalId(),taskRule.getActive(),taskRule.getValue(),taskRule.getTaskConditionType().toString(),
-                    taskRule.getDescription(),"task");
+                    taskRule.getDescription(),"task",taskRule.getWeightage());
             ruleResponses.add(ruleResponse);
         }
         for (HabitRule habitRule: habitRules){
             RuleResponse ruleResponse = new RuleResponse(habitRule.getId(),habitRule.getCreatedAt(),habitRule.getUpdatedAt(),habitRule.getName(),
                     habitRule.getHabitId(),habitRule.getGoalId(),habitRule.getActive(),habitRule.getValue(),habitRule.getHabitConditionType().toString(),
-                    habitRule.getDescription(),"habit");
+                    habitRule.getDescription(),"habit",habitRule.getWeightage());
             ruleResponses.add(ruleResponse);
         }
         for (BadHabitRule badHabitRule: badHabitRules){
             RuleResponse ruleResponse = new RuleResponse(badHabitRule.getId(),badHabitRule.getCreatedAt(),badHabitRule.getUpdatedAt(),badHabitRule.getName(),
                     badHabitRule.getBadHabitId(),badHabitRule.getGoalId(),badHabitRule.getActive(),badHabitRule.getValue(),badHabitRule.getBadHabitConditionType().toString(),
-                    badHabitRule.getDescription(),"badHabit");
+                    badHabitRule.getDescription(),"badHabit",badHabitRule.getWeightage());
             ruleResponses.add(ruleResponse);
         }
         for (SkillRule skillRule: skillRules){
             RuleResponse ruleResponse = new RuleResponse(skillRule.getId(),skillRule.getCreatedAt(),skillRule.getUpdatedAt(),skillRule.getName(),
                     skillRule.getSkillId(),skillRule.getGoalId(),skillRule.getActive(),skillRule.getValue(),"",
-                    skillRule.getDescription(),"skill");
+                    skillRule.getDescription(),"skill",skillRule.getWeightage());
             ruleResponses.add(ruleResponse);
         }
         for (StatRule statRule: statRules){
             RuleResponse ruleResponse = new RuleResponse(statRule.getId(),statRule.getCreatedAt(),statRule.getUpdatedAt(),statRule.getName(),
                     statRule.getStatId(),statRule.getGoalId(),statRule.getActive(),statRule.getValue(),"",
-                    statRule.getDescription(),"stat");
+                    statRule.getDescription(),"stat",statRule.getWeightage());
             ruleResponses.add(ruleResponse);
         }
         return ruleResponses;
@@ -407,10 +407,14 @@ public class RuleServiceImpl implements RuleService {
             }
         }
         Float completePercentage = 0F;
+        Float totalWeightage = 0F;
+        for (Float weightage: weightages){
+            totalWeightage+=weightage;
+        }
         if (completePercentages.size()>0){
             int start =0;
             for(Float percentage : completePercentages){
-                completePercentage+=percentage*weightages.get(start);
+                completePercentage+=percentage*weightages.get(start)/totalWeightage;
                 start+=1;
             }
             completePercentage = completePercentage/completePercentages.size();
@@ -441,13 +445,13 @@ public class RuleServiceImpl implements RuleService {
             weightages.add(habitRule.getWeightage());
             Optional<Habit> habit = habitRepository.findById(habitRule.getHabitId());
             if(habitRule.getHabitConditionType().equals(HabitEnum.HABIT_STREAK)){
-                workPercentages.add((float) (habit.get().getStreak()/habitRule.getValue()));
+                workPercentages.add((float) (habit.get().getStreak()*100/habitRule.getValue()));
             }
             else if (habitRule.getHabitConditionType().equals(HabitEnum.HABIT_TOTAL_TIMES)){
-                workPercentages.add((float) (habit.get().getTotalTimes()/habitRule.getValue()));
+                workPercentages.add((float) (habit.get().getTotalTimes()*100/habitRule.getValue()));
             }
             else if(habitRule.getHabitConditionType().equals(HabitEnum.HABIT_TOTAL_TIME_SPENT)){
-                workPercentages.add((float) (habit.get().getTotalTimeSpent()/habitRule.getValue()));
+                workPercentages.add((float) (habit.get().getTotalTimeSpent()*100/habitRule.getValue()));
             }
         }
         for (BadHabitRule badHabitRule: badHabitRules){
@@ -492,10 +496,14 @@ public class RuleServiceImpl implements RuleService {
             }
         }
         Float workPercentage = 0F;
+        Float totalWeightage = 0F;
+        for (Float weightage: weightages){
+            totalWeightage+=weightage;
+        }
         if (workPercentages.size()>0){
             int start =0;
             for(Float percentage : workPercentages){
-                workPercentage+=percentage*weightages.get(start);
+                workPercentage+=percentage*weightages.get(start)/totalWeightage;
                 start+=1;
             }
             workPercentage = workPercentage/workPercentages.size();
