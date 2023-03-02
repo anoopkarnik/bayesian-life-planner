@@ -5,7 +5,7 @@ import com.bayesiansamaritan.lifeplanner.model.Journal.Journal;
 import com.bayesiansamaritan.lifeplanner.repository.Journal.JournalRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Journal.JournalCreateRequest;
-import com.bayesiansamaritan.lifeplanner.request.Journal.JournalDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.request.Journal.JournalModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.JournalResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.JournalService;
@@ -70,11 +70,13 @@ public class JournalController {
     }
 
 
-    @PatchMapping("/description")
+    @PatchMapping("/modifyParams")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void addDescription(@RequestBody JournalDescriptionRequest journalDescriptionRequest)
+    public void modifyParams(@RequestBody JournalModifyRequest journalModifyRequest)
     {
-        journalRepository.addText(journalDescriptionRequest.getId(),journalDescriptionRequest.getText());
+        journalRepository.modifyParams(journalModifyRequest.getId(),journalModifyRequest.getName(),journalModifyRequest.getStartDate(),
+                journalModifyRequest.getDescription(),journalModifyRequest.getActive(),journalModifyRequest.getHidden(),
+                journalModifyRequest.getCompleted(),journalModifyRequest.getText());
     }
 
 

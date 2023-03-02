@@ -1,5 +1,6 @@
 package com.bayesiansamaritan.lifeplanner.model.Stats;
 
+import com.bayesiansamaritan.lifeplanner.model.Base2Model;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -12,19 +13,8 @@ import java.util.Date;
 @Table(name = "stats_transaction",schema = "life_schema")
 @Getter
 @Setter
-public class StatsTransaction {
+public class StatsTransaction extends Base2Model {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", updatable = false)
-    protected Date createdAt;
-
-    @Column(name="name")
-    private String name;
 
     @Column(name="stats_type_id")
     private Long statsTypeId;
@@ -32,17 +22,11 @@ public class StatsTransaction {
     @Column(name="stat_id")
     private Long statId;
 
-    @Column(name="user_id")
-    private Long userId;
-
     @Column(name="value")
     private float value;
 
     @Column(name="parent_id")
     private long parentId=0L;
-
-    @Column(name="description",length = 10240)
-    private String description;
 
     public StatsTransaction(){};
 

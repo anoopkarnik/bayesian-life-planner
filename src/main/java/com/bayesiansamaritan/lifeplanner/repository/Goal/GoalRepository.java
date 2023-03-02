@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,22 +25,8 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
    Optional<List<Goal>> findGoalsByUserIdAndActiveAndParentGoalId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                                      @Param("parentGoalId") Long parentGoalId);
 
-   void deleteById(Long id);
-
-   Goal findByUserIdAndId(@Param("userId") Long userId, @Param("id") Long id);
-
    @Query("Select t from Goal t where t.userId=:userId and t.name=:name")
    Goal findByUserIdAndName(@Param("userId") Long userId, @Param("name") String name);
-
-   @Transactional
-   @Modifying
-   @Query("update Goal set completed=true,updated_at=now() where id=:id")
-   public void completeGoal(@Param("id") Long id);
-
-   @Transactional
-   @Modifying
-   @Query("update Goal set description=:description,updated_at=now() where id=:id")
-   public void addDescription(@Param("id") Long id, @Param("description") String description);
 
    @Transactional
    @Modifying
@@ -48,6 +35,29 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 
    @Transactional
    @Modifying
+   @Query("update Goal set childPercentage=:childPercentage,updated_at=now() where id=:id")
+   public void modifyChildPercentage(@Param("id") Long id, @Param("childPercentage") Float childPercentage);
+
+   @Transactional
+   @Modifying
    @Query("update Goal set workPercentage=:workPercentage,updated_at=now() where id=:id")
    public void modifyWorkPercentage(@Param("id") Long id, @Param("workPercentage") Float workPercentage);
+   @Transactional
+   @Modifying
+   @Query("update Goal set timeRemainingPercentage=:timeRemainingPercentage,updated_at=now() where id=:id")
+   public void modifyTimeRemainingPercentage(@Param("id") Long id, @Param("timeRemainingPercentage") Float timeRemainingPercentage);
+
+   void deleteById(Long id);
+   @Transactional
+   @Modifying
+   @Query("update Goal set name=:name,startDate=:startDate,description=:description,active=:active,hidden=:hidden,completed=:completed" +
+           ",dueDate=:dueDate,timeTaken=:timeTaken,updated_at=now()  where id=:id")
+   public void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("startDate") Date startDate, @Param("description") String description,
+                            @Param("active") Boolean active, @Param("hidden") Boolean hidden, @Param("completed") Boolean completed,
+                            @Param("dueDate") Date dueDate,@Param("timeTaken") Long timeTaken);
+
+   @Transactional
+   @Modifying
+   @Query("update Goal set completed=:completed,updated_at=now() where id=:id")
+   public void completeGoal(@Param("id") Long id, @Param("completed") Boolean completed);
 }

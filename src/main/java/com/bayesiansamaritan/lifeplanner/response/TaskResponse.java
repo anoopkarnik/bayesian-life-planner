@@ -26,9 +26,12 @@ public class TaskResponse {
     private String taskTypeName;
     private String description;
     private List<TaskResponse> taskResponses;
+    private Boolean active;
+    private Boolean hidden;
+    private Boolean completed;
 
     public TaskResponse(Long id,Date createdAt, Date updatedAt, String name, String scheduleType, Long timeTaken,
-                        Date startDate, Date dueDate, String taskTypeName, String description) {
+                        Date startDate, Date dueDate, String taskTypeName, String description,Boolean active, Boolean hidden, Boolean completed) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -39,5 +42,8 @@ public class TaskResponse {
         this.dueDate = dueDate;
         this.taskTypeName = taskTypeName;
         this.description = description;
+        this.active = active;
+        this.hidden = hidden;
+        this.completed = completed;
     }
 }

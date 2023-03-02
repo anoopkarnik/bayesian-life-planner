@@ -1,8 +1,6 @@
 package com.bayesiansamaritan.lifeplanner.service;
 
-import com.bayesiansamaritan.lifeplanner.model.Goal.Goal;
-import com.bayesiansamaritan.lifeplanner.request.Goal.RuleCreateRequest;
-import com.bayesiansamaritan.lifeplanner.response.GoalResponse;
+import com.bayesiansamaritan.lifeplanner.request.Rule.RuleCreateRequest;
 import com.bayesiansamaritan.lifeplanner.response.NamesResponse;
 import com.bayesiansamaritan.lifeplanner.response.RuleResponse;
 import com.bayesiansamaritan.lifeplanner.response.TypesResponse;

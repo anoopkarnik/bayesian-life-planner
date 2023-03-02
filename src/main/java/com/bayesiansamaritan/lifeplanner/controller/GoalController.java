@@ -6,7 +6,7 @@ import com.bayesiansamaritan.lifeplanner.repository.Goal.GoalRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Goal.GoalCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.Goal.GoalCreateRootRequest;
-import com.bayesiansamaritan.lifeplanner.request.Goal.GoalDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.request.Goal.GoalModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.GoalResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.GoalService;
@@ -41,11 +41,12 @@ public class GoalController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<GoalResponse>> getAllGoal(HttpServletRequest request, @RequestParam("goalTypeName") String goalTypeName) {
+    public ResponseEntity<List<GoalResponse>> getAllGoal(HttpServletRequest request, @RequestParam("goalTypeName") String goalTypeName,
+                                                         @RequestParam("active") Boolean active) {
         String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
-            List<GoalResponse> goal= goalService.getAllGoals(userId,goalTypeName);
+            List<GoalResponse> goal= goalService.getAllGoals(userId,active,goalTypeName);
             if (goal.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -64,7 +65,7 @@ public class GoalController {
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             Goal goal = goalService.createRootGoal(userId, goalCreateRootRequest.getName(),
-                    goalCreateRootRequest.getGoalTypeName(), goalCreateRootRequest.getDueDate());
+                    goalCreateRootRequest.getGoalTypeName(), goalCreateRootRequest.getDueDate(),goalCreateRootRequest.getActive());
             return new ResponseEntity<>(goal, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -79,7 +80,8 @@ public class GoalController {
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             Goal goal = goalService.createChildGoal(userId, goalCreateChildRequest.getName(),
-                    goalCreateChildRequest.getGoalTypeName(),goalCreateChildRequest.getDueDate(),goalCreateChildRequest.getParentGoalName());
+                    goalCreateChildRequest.getGoalTypeName(),goalCreateChildRequest.getDueDate(),goalCreateChildRequest.getParentGoalName(),
+                    goalCreateChildRequest.getActive());
             return new ResponseEntity<>(goal, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -87,18 +89,20 @@ public class GoalController {
     }
 
 
-    @PatchMapping("/description")
+    @PatchMapping("/modifyParams")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void addDescription(@RequestBody GoalDescriptionRequest goalDescriptionRequest)
+    public void modifyParams(@RequestBody GoalModifyRequest goalModifyRequest)
     {
-        goalRepository.addDescription(goalDescriptionRequest.getId(),goalDescriptionRequest.getDescription());
+        goalRepository.modifyParams(goalModifyRequest.getId(),goalModifyRequest.getName(),goalModifyRequest.getStartDate(),goalModifyRequest.getDescription(),
+                goalModifyRequest.getActive(),goalModifyRequest.getHidden(),goalModifyRequest.getCompleted(),goalModifyRequest.getDueDate(),
+                goalModifyRequest.getTimeTaken());
     }
 
     @PutMapping("/complete")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public void completeGoal(@RequestParam("id") Long id)
     {
-        goalRepository.completeGoal(id);
+        goalRepository.completeGoal(id,true);
     }
 
 

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface GoalService {
 
-    public List<GoalResponse> getAllGoals(Long userId, String goalTypeName);
-    public Goal createRootGoal(Long userId, String name, String goalTypeName, Date dueDate);
-    public Goal createChildGoal(Long userId, String name, String goalTypeName, Date dueDate ,String parentName);
+    public List<GoalResponse> getAllGoals(Long userId,Boolean active, String goalTypeName);
+    public Goal createRootGoal(Long userId, String name, String goalTypeName, Date dueDate, Boolean active);
+    public Goal createChildGoal(Long userId, String name, String goalTypeName, Date dueDate ,String parentName, Boolean active);
 }

@@ -1,7 +1,8 @@
-package com.bayesiansamaritan.lifeplanner.model.Goal;
+package com.bayesiansamaritan.lifeplanner.model.Rule;
 
 import com.bayesiansamaritan.lifeplanner.enums.HabitEnum;
 import com.bayesiansamaritan.lifeplanner.enums.TaskEnum;
+import com.bayesiansamaritan.lifeplanner.model.Base2Model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,37 +18,12 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @Table(name = "task_rule",schema = "life_schema")
-public class TaskRule {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", updatable = false)
-    protected Date createdAt;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    protected Date updatedAt;
-
-    @Column(name="name")
-    private String name;
+public class TaskRule extends Base2Model {
 
     @Column(name="task_id")
     private Long taskId;
-
     @Column(name="goal_id")
     private Long goalId;
-
-    @Column(name="active")
-    private Boolean active;
-
-    @Column(name="user_id")
-    private Long userId;
-
     @Column(name="task_condition_type")
     private TaskEnum taskConditionType;
 
@@ -55,8 +31,6 @@ public class TaskRule {
     private Long value;
     @Column(name="weightage")
     private Float weightage;
-    @Column(name="description",length = 10240)
-    private String description;
     @Column(name="rule_category")
     private String ruleCategory;
 

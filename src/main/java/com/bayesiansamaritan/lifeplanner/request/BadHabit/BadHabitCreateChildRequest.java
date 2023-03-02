@@ -13,8 +13,8 @@ public class BadHabitCreateChildRequest {
 
     private String name;
     private Date startDate;
-    private String habitTypeName;
+    private String badHabitTypeName;
     private String parentBadHabitName;
-
+    private Boolean active;
 
 }

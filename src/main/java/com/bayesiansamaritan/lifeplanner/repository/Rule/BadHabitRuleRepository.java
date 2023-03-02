@@ -1,9 +1,6 @@
-package com.bayesiansamaritan.lifeplanner.repository.Goal;
+package com.bayesiansamaritan.lifeplanner.repository.Rule;
 
-import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabit;
-import com.bayesiansamaritan.lifeplanner.model.Goal.BadHabitRule;
-import com.bayesiansamaritan.lifeplanner.model.Goal.Goal;
-import com.bayesiansamaritan.lifeplanner.model.Goal.HabitRule;
+import com.bayesiansamaritan.lifeplanner.model.Rule.BadHabitRule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Repository
@@ -25,6 +21,11 @@ public interface BadHabitRuleRepository extends JpaRepository<BadHabitRule, Long
     @Query("Select t from BadHabitRule t where t.userId=:userId and t.goalId=:goalId and t.active=:active and t.ruleCategory='WorkRules'")
     List<BadHabitRule> findWorkRulesByUserIdAndGoalIdAndActive(@Param("userId") Long userId, @Param("goalId") Long goalId,
                                                             @Param("active") Boolean active);
+
+    @Transactional
+    @Modifying
+    @Query("update BadHabitRule set active=:active where id=:id")
+    public void modifyActiveStatus(@Param("id") Long id, @Param("active") Boolean active);
 
 
 }

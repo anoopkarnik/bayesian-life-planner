@@ -7,9 +7,9 @@ import com.bayesiansamaritan.lifeplanner.enums.TaskEnum;
 import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabit;
 import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitTransaction;
 import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
-import com.bayesiansamaritan.lifeplanner.model.Goal.*;
 import com.bayesiansamaritan.lifeplanner.model.Habit.Habit;
 import com.bayesiansamaritan.lifeplanner.model.Habit.HabitType;
+import com.bayesiansamaritan.lifeplanner.model.Rule.*;
 import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
 import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
 import com.bayesiansamaritan.lifeplanner.model.Stats.Stats;
@@ -23,6 +23,7 @@ import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTypeReposit
 import com.bayesiansamaritan.lifeplanner.repository.Goal.*;
 import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Rule.*;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsRepository;
@@ -31,14 +32,13 @@ import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Task.TaskRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Task.TaskTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
-import com.bayesiansamaritan.lifeplanner.request.Goal.RuleCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.Rule.RuleCreateRequest;
 import com.bayesiansamaritan.lifeplanner.response.*;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -259,28 +259,28 @@ public class RuleServiceImpl implements RuleService {
 
         List<NamesResponse> namesResponses = new ArrayList<>();
         if (type.equals("task")){
-            List<TaskResponse> list = taskService.getAllActiveTasksAndSubTasks(userId,true,name);
+            List<TaskResponse> list = taskService.getAllTasksAndSubTasks(userId,true,name);
             for (TaskResponse type1 : list){
                 NamesResponse namesResponse = new NamesResponse(type1.getId(),type1.getName());
                 namesResponses.add(namesResponse);
             }
         }
         else if(type.equals("habit")){
-            List<HabitResponse> list = habitService.getAllActiveHabitsAndSubHabits(userId,true,name);
+            List<HabitResponse> list = habitService.getAllHabitsAndSubHabits(userId,true,name);
             for (HabitResponse type1 : list){
                 NamesResponse namesResponse = new NamesResponse(type1.getId(),type1.getName());
                 namesResponses.add(namesResponse);
             }
         }
         else if(type.equals("badHabit")){
-            List<BadHabitResponse> list = badHabitService.getAllActiveBadHabitsAndSubBadHabits(userId,true,name);
+            List<BadHabitResponse> list = badHabitService.getAllBadHabitsAndSubBadHabits(userId,true,name);
             for (BadHabitResponse type1 : list){
                 NamesResponse namesResponse = new NamesResponse(type1.getId(),type1.getName());
                 namesResponses.add(namesResponse);
             }
         }
         else if(type.equals("skill")){
-            List<SkillResponse> list = skillService.getAllSkillsAndSubSkills(userId,name);
+            List<SkillResponse> list = skillService.getAllSkillsAndSubSkills(userId,true,name);
             for (SkillResponse type1 : list){
                 NamesResponse namesResponse = new NamesResponse(type1.getId(),type1.getName());
                 namesResponses.add(namesResponse);

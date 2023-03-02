@@ -22,4 +22,5 @@ public class HabitCreateChildRequest {
     private Long every;
     private List<DayOfWeek> daysOfWeek;
     private String parentHabitName;
+    private Boolean active;
 }

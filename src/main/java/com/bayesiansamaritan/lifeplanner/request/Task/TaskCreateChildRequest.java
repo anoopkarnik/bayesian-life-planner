@@ -22,4 +22,5 @@ public class TaskCreateChildRequest {
     private Long every;
     private List<DayOfWeek> daysOfWeek;
     private String parentTaskName;
+    private Boolean active;
 }

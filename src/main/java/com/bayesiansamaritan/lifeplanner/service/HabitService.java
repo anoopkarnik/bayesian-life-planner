@@ -10,32 +10,32 @@ import java.util.List;
 
 public interface HabitService {
 
-    public List<HabitResponse> getAllActiveHabits(Long userId, Boolean active, String habitTypeName);
+    public List<HabitResponse> getAllHabits(Long userId, Boolean active, String habitTypeName);
 
-    public List<HabitResponse> getAllActiveHabitsAndSubHabits(Long userId, Boolean active, String habitTypeName);
+    public List<HabitResponse> getAllHabitsAndSubHabits(Long userId, Boolean active, String habitTypeName);
     public Habit createDailyRootHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate, Long every, String scheduleType,
-                           String habitTypeName);
+                           String habitTypeName, Boolean active);
 
     public Habit createWeeklyRootHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate,Long every, String scheduleType,
-                                  String habitTypeName, List<DayOfWeek> daysOfWeek);
+                                  String habitTypeName, List<DayOfWeek> daysOfWeek, Boolean active);
 
     public Habit createMonthlyRootHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate,Long every, String scheduleType,
-                                  String habitTypeName);
+                                  String habitTypeName, Boolean active);
 
     public Habit createYearlyRootHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate,Long every, String scheduleType,
-                                  String habitTypeName);
+                                  String habitTypeName, Boolean active);
 
     public Habit createDailyChildHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate, Long every, String scheduleType,
-                                  String habitTypeName, String parentName);
+                                  String habitTypeName, String parentName, Boolean active);
 
     public Habit createWeeklyChildHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate,Long every, String scheduleType,
-                                   String habitTypeName, List<DayOfWeek> daysOfWeek, String parentName);
+                                   String habitTypeName, List<DayOfWeek> daysOfWeek, String parentName, Boolean active);
 
     public Habit createMonthlyChildHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate,Long every, String scheduleType,
-                                    String habitTypeName, String parentName);
+                                    String habitTypeName, String parentName, Boolean active);
 
     public Habit createYearlyChildHabit(Long userId, String name,Date startDate,  Long timeTaken, Date dueDate,Long every, String scheduleType,
-                                   String habitTypeName, String parentName);
+                                   String habitTypeName, String parentName, Boolean active);
     public Habit completeHabit(Long userId, Long id);
 
 }

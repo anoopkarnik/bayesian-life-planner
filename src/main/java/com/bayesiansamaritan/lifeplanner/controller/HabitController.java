@@ -6,7 +6,7 @@ import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Habit.HabitCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.Habit.HabitCreateRootRequest;
-import com.bayesiansamaritan.lifeplanner.request.Habit.HabitDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.request.Habit.HabitModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.HabitResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.HabitService;
@@ -39,11 +39,12 @@ public class HabitController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<HabitResponse>> getAllHabits(HttpServletRequest request, @RequestParam("habitTypeName") String habitTypeName) {
+    public ResponseEntity<List<HabitResponse>> getAllHabits(HttpServletRequest request, @RequestParam("habitTypeName") String habitTypeName,
+                                                            @RequestParam("active") Boolean active) {
         String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
-            List<HabitResponse> habits = habitService.getAllActiveHabits(userId,true,habitTypeName);
+            List<HabitResponse> habits = habitService.getAllHabits(userId,active,habitTypeName);
             if (habits.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -65,22 +66,22 @@ public class HabitController {
             if(habitCreateRootRequest.getScheduleType().equals("daily")){
                 habit = habitService.createDailyRootHabit(userId, habitCreateRootRequest.getName(), habitCreateRootRequest.getStartDate(),
                         habitCreateRootRequest.getTimeTaken(), habitCreateRootRequest.getDueDate(), habitCreateRootRequest.getEvery(), habitCreateRootRequest.getScheduleType(),
-                        habitCreateRootRequest.getHabitTypeName());
+                        habitCreateRootRequest.getHabitTypeName(),habitCreateRootRequest.getActive());
             }
             else if(habitCreateRootRequest.getScheduleType().equals("monthly")){
                 habit = habitService.createMonthlyRootHabit(userId, habitCreateRootRequest.getName(), habitCreateRootRequest.getStartDate(),
                         habitCreateRootRequest.getTimeTaken(), habitCreateRootRequest.getDueDate(), habitCreateRootRequest.getEvery(), habitCreateRootRequest.getScheduleType(),
-                        habitCreateRootRequest.getHabitTypeName());
+                        habitCreateRootRequest.getHabitTypeName(),habitCreateRootRequest.getActive());
             }
             else if(habitCreateRootRequest.getScheduleType().equals("yearly")){
                 habit = habitService.createYearlyRootHabit(userId, habitCreateRootRequest.getName(), habitCreateRootRequest.getStartDate(),
                         habitCreateRootRequest.getTimeTaken(), habitCreateRootRequest.getDueDate(), habitCreateRootRequest.getEvery(), habitCreateRootRequest.getScheduleType(),
-                        habitCreateRootRequest.getHabitTypeName());
+                        habitCreateRootRequest.getHabitTypeName(),habitCreateRootRequest.getActive());
             }
             else{
                 habit = habitService.createWeeklyRootHabit(userId, habitCreateRootRequest.getName(), habitCreateRootRequest.getStartDate(),
                         habitCreateRootRequest.getTimeTaken(), habitCreateRootRequest.getDueDate(), habitCreateRootRequest.getEvery(), habitCreateRootRequest.getScheduleType(),
-                        habitCreateRootRequest.getHabitTypeName(), habitCreateRootRequest.getDaysOfWeek());
+                        habitCreateRootRequest.getHabitTypeName(), habitCreateRootRequest.getDaysOfWeek(),habitCreateRootRequest.getActive());
             }
             return new ResponseEntity<>(habit, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -99,22 +100,22 @@ public class HabitController {
             if(habitCreateChildRequest.getScheduleType().equals("daily")){
                 habit = habitService.createDailyChildHabit(userId, habitCreateChildRequest.getName(), habitCreateChildRequest.getStartDate(),
                         habitCreateChildRequest.getTimeTaken(), habitCreateChildRequest.getDueDate(), habitCreateChildRequest.getEvery(), habitCreateChildRequest.getScheduleType(),
-                        habitCreateChildRequest.getHabitTypeName(),habitCreateChildRequest.getParentHabitName());
+                        habitCreateChildRequest.getHabitTypeName(),habitCreateChildRequest.getParentHabitName(),habitCreateChildRequest.getActive());
             }
             else if(habitCreateChildRequest.getScheduleType().equals("monthly")){
                 habit = habitService.createMonthlyChildHabit(userId, habitCreateChildRequest.getName(), habitCreateChildRequest.getStartDate(),
                         habitCreateChildRequest.getTimeTaken(), habitCreateChildRequest.getDueDate(), habitCreateChildRequest.getEvery(), habitCreateChildRequest.getScheduleType(),
-                        habitCreateChildRequest.getHabitTypeName(),habitCreateChildRequest.getParentHabitName());
+                        habitCreateChildRequest.getHabitTypeName(),habitCreateChildRequest.getParentHabitName(),habitCreateChildRequest.getActive());
             }
             else if(habitCreateChildRequest.getScheduleType().equals("yearly")){
                 habit = habitService.createYearlyChildHabit(userId, habitCreateChildRequest.getName(), habitCreateChildRequest.getStartDate(),
                         habitCreateChildRequest.getTimeTaken(), habitCreateChildRequest.getDueDate(), habitCreateChildRequest.getEvery(), habitCreateChildRequest.getScheduleType(),
-                        habitCreateChildRequest.getHabitTypeName(),habitCreateChildRequest.getParentHabitName());
+                        habitCreateChildRequest.getHabitTypeName(),habitCreateChildRequest.getParentHabitName(),habitCreateChildRequest.getActive());
             }
             else{
                 habit = habitService.createWeeklyChildHabit(userId, habitCreateChildRequest.getName(), habitCreateChildRequest.getStartDate(),
                         habitCreateChildRequest.getTimeTaken(), habitCreateChildRequest.getDueDate(), habitCreateChildRequest.getEvery(), habitCreateChildRequest.getScheduleType(),
-                        habitCreateChildRequest.getHabitTypeName(), habitCreateChildRequest.getDaysOfWeek(),habitCreateChildRequest.getParentHabitName());
+                        habitCreateChildRequest.getHabitTypeName(), habitCreateChildRequest.getDaysOfWeek(),habitCreateChildRequest.getParentHabitName(),habitCreateChildRequest.getActive());
             }
             return new ResponseEntity<>(habit, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -136,11 +137,13 @@ public class HabitController {
         }
     }
 
-    @PatchMapping("/description")
+    @PatchMapping("/modifyParams")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void addDescription(@RequestBody HabitDescriptionRequest habitDescriptionRequest)
+    public void modifyParams(@RequestBody HabitModifyRequest habitModifyRequest)
     {
-        habitRepository.addDescription(habitDescriptionRequest.getId(),habitDescriptionRequest.getDescription());
+        habitRepository.modifyParams(habitModifyRequest.getId(),habitModifyRequest.getName(),habitModifyRequest.getStartDate(),habitModifyRequest.getDescription(),
+                habitModifyRequest.getActive(),habitModifyRequest.getHidden(),habitModifyRequest.getCompleted(),habitModifyRequest.getDueDate(),
+                habitModifyRequest.getTimeTaken(),habitModifyRequest.getStreak(),habitModifyRequest.getTotalTimes(),habitModifyRequest.getTotalTimeSpent());
     }
 
 

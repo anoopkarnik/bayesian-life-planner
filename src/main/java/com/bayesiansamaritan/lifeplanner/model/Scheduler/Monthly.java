@@ -1,6 +1,7 @@
 package com.bayesiansamaritan.lifeplanner.model.Scheduler;
 
 
+import com.bayesiansamaritan.lifeplanner.model.BaseModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,11 +14,7 @@ import java.util.List;
 @Table(name = "monthly",schema = "scheduler")
 @Getter
 @Setter
-public class Monthly {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
+public class Monthly extends BaseModel {
     @Column(name = "every")
     private Long every;
 

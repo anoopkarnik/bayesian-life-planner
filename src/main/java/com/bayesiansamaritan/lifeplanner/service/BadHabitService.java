@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface BadHabitService {
 
-    public List<BadHabitResponse> getAllActiveBadHabits(Long userId, Boolean active, String habitTypeName);
-    public List<BadHabitResponse> getAllActiveBadHabitsAndSubBadHabits(Long userId, Boolean active, String habitTypeName);
+    public List<BadHabitResponse> getAllBadHabits(Long userId, Boolean active, String habitTypeName);
+    public List<BadHabitResponse> getAllBadHabitsAndSubBadHabits(Long userId, Boolean active, String habitTypeName);
 
-    public BadHabit createRootBadHabit(Long userId, String name,Date startDate, String habitTypeName);
-    public BadHabit createChildBadHabit(Long userId, String name,Date startDate, String habitTypeName,String parentName);
+    public BadHabit createRootBadHabit(Long userId, String name,Date startDate, String habitTypeName,Boolean active);
+    public BadHabit createChildBadHabit(Long userId, String name,Date startDate, String habitTypeName,String parentName, Boolean active);
 
     public BadHabit carriedOutBadHabit(Long userId, Long id);
 

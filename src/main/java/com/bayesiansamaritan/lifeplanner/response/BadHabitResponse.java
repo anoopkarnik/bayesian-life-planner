@@ -18,9 +18,13 @@ public class BadHabitResponse {
     private String badHabitTypeName;
     private Long totalTimes;
     private String description;
+    private Boolean active;
+    private Boolean hidden;
+    private Boolean completed;
     private List<BadHabitResponse> badHabitResponses;
 
-    public BadHabitResponse(Long id, Date createdAt, Date updatedAt, String name, Date startDate, String badHabitTypeName, Long totalTimes, String description) {
+    public BadHabitResponse(Long id, Date createdAt, Date updatedAt, String name, Date startDate, String badHabitTypeName, Long totalTimes,
+                            String description,Boolean active, Boolean hidden, Boolean completed) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -29,5 +33,8 @@ public class BadHabitResponse {
         this.badHabitTypeName = badHabitTypeName;
         this.totalTimes = totalTimes;
         this.description = description;
+        this.active = active;
+        this.hidden = hidden;
+        this.completed = completed;
     }
 }

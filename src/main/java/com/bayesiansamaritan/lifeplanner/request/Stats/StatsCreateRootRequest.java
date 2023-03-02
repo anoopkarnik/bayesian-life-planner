@@ -13,5 +13,6 @@ public class StatsCreateRootRequest {
     private String statsTypeName;
     private Float value;
     private String description;
+    private Boolean active;
 
 }

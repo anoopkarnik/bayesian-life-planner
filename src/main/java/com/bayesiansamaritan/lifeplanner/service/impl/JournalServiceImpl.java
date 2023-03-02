@@ -29,7 +29,7 @@ public class JournalServiceImpl implements JournalService {
         List<JournalResponse> journalResponses = new ArrayList<>();
         for (Journal journal: journals){
             JournalResponse journalResponse = new JournalResponse(journal.getId(),journal.getCreatedAt(),journal.getUpdatedAt(),journal.getName(),journalTypeName,
-                    journal.getText());
+                    journal.getText(),journal.getActive(),journal.getHidden(),journal.getCompleted());
             journalResponses.add(journalResponse);
         }
         return journalResponses;
@@ -38,7 +38,6 @@ public class JournalServiceImpl implements JournalService {
     @Override
     public Journal createJournal(Long userId, String name, String journalTypeName, String text, Boolean hidden){
         JournalType journalType = journalTypeRepository.findByNameAndUserId(journalTypeName,userId);
-        Boolean active = true;
         Journal journal = journalRepository.save(new Journal(name,journalType.getId(),hidden,userId,text));
         return journal;
     };

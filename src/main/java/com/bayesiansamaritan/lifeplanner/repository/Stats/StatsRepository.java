@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,15 +32,19 @@ public interface StatsRepository extends JpaRepository<Stats, Long> {
 
    @Query("Select t from Stats t where t.userId=:userId and t.name=:name")
    Stats findByUserIdAndName(@Param("userId") Long userId, @Param("name") String name);
- 
-   @Transactional
-   @Modifying
-   @Query("update Stats set description=:description,updated_at=now() where id=:id")
-   public void addDescription(@Param("id") Long id, @Param("description") String description);
 
    @Transactional
    @Modifying
    @Query("update Stats set value=:value,updated_at=now() where id=:id")
-   public void addValue(@Param("id") Long id, @Param("value") Float value);
+   public void addValue(@Param("id") Long id, @Param("value") Long value);
+
+   void deleteById(Long id);
+   @Transactional
+   @Modifying
+   @Query("update Stats set name=:name,startDate=:startDate,description=:description,active=:active,hidden=:hidden,completed=:completed" +
+           ",value=:value,updated_at=now() where id=:id")
+   public void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("startDate") Date startDate, @Param("description") String description,
+                            @Param("active") Boolean active, @Param("hidden") Boolean hidden, @Param("completed") Boolean completed,
+                            @Param("value") Long value);
 
 }

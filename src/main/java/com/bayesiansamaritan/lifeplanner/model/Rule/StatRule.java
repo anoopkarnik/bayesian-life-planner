@@ -1,8 +1,9 @@
-package com.bayesiansamaritan.lifeplanner.model.Goal;
+package com.bayesiansamaritan.lifeplanner.model.Rule;
 
 import com.bayesiansamaritan.lifeplanner.enums.HabitEnum;
 import com.bayesiansamaritan.lifeplanner.enums.StatEnum;
 import com.bayesiansamaritan.lifeplanner.enums.TaskEnum;
+import com.bayesiansamaritan.lifeplanner.model.Base2Model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,36 +19,14 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @Table(name = "stat_rule",schema = "life_schema")
-public class StatRule {
+public class StatRule extends Base2Model {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", updatable = false)
-    protected Date createdAt;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    protected Date updatedAt;
-
-    @Column(name="name")
-    private String name;
 
     @Column(name="stat_id")
     private Long statId;
 
     @Column(name="goal_id")
     private Long goalId;
-
-    @Column(name="active")
-    private Boolean active;
-
-    @Column(name="user_id")
-    private Long userId;
     @Column(name="value")
     private Long value;
 
@@ -56,8 +35,6 @@ public class StatRule {
 
     @Column(name="stat_condition_type")
     private StatEnum statConditionType;
-    @Column(name="description",length = 10240)
-    private String description;
     @Column(name="rule_category")
     private String ruleCategory;
     public StatRule(String name, Long statId, Long goalId, Boolean active, Long userId,  StatEnum statConditionType,Long value,Float weightage,

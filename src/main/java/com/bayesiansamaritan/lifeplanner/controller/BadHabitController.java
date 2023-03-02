@@ -6,7 +6,7 @@ import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.BadHabit.BadHabitCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.BadHabit.BadHabitCreateRootRequest;
-import com.bayesiansamaritan.lifeplanner.request.BadHabit.BadHabitDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.request.BadHabit.BadHabitModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.BadHabitResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.BadHabitService;
@@ -39,11 +39,12 @@ public class BadHabitController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<BadHabitResponse>> getAllBadHabits(HttpServletRequest request, @RequestParam("habitTypeName") String habitTypeName) {
+    public ResponseEntity<List<BadHabitResponse>> getAllBadHabits(HttpServletRequest request, @RequestParam("habitTypeName") String habitTypeName,
+                                                                  @RequestParam("active") Boolean active) {
         try {
             String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
             Long userId = userProfileRepository.findByName(username).get().getId();
-            List<BadHabitResponse> habits = habitService.getAllActiveBadHabits(userId,true,habitTypeName);
+            List<BadHabitResponse> habits = habitService.getAllBadHabits(userId,active,habitTypeName);
             if (habits.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -62,7 +63,7 @@ public class BadHabitController {
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
              BadHabit habit = habitService.createChildBadHabit(userId,habitCreateRequest.getName(),habitCreateRequest.getStartDate(),
-                        habitCreateRequest.getHabitTypeName(),habitCreateRequest.getParentBadHabitName());
+                        habitCreateRequest.getBadHabitTypeName(),habitCreateRequest.getParentBadHabitName(),habitCreateRequest.getActive());
             return new ResponseEntity<>(habit, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -77,7 +78,7 @@ public class BadHabitController {
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             BadHabit habit = habitService.createRootBadHabit(userId,habitCreateRequest.getName(),habitCreateRequest.getStartDate(),
-                    habitCreateRequest.getHabitTypeName());
+                    habitCreateRequest.getBadHabitTypeName(),habitCreateRequest.getActive());
             return new ResponseEntity<>(habit, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -98,11 +99,13 @@ public class BadHabitController {
         }
     }
 
-    @PatchMapping("/description")
+    @PatchMapping("/modifyParams")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void addDescription(@RequestBody BadHabitDescriptionRequest habitDescriptionRequest)
+    public void modifyParams(@RequestBody BadHabitModifyRequest badHabitModifyRequest )
     {
-        habitRepository.addDescription(habitDescriptionRequest.getId(),habitDescriptionRequest.getDescription());
+        habitRepository.modifyParams(badHabitModifyRequest.getId(), badHabitModifyRequest.getName(),badHabitModifyRequest.getStartDate(),
+                badHabitModifyRequest.getDescription(),badHabitModifyRequest.getActive(),badHabitModifyRequest.getHidden(),badHabitModifyRequest.getCompleted(),
+                badHabitModifyRequest.getTotalTimes());
     }
 
 

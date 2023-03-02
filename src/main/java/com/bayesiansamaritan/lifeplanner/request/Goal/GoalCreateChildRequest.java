@@ -15,4 +15,5 @@ public class GoalCreateChildRequest {
     private Date dueDate;
     private String goalTypeName;
     private String parentGoalName;
+    private Boolean active;
 }

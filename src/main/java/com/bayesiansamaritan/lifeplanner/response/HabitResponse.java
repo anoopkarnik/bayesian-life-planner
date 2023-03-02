@@ -23,10 +23,13 @@ public class HabitResponse {
     private Long totalTimes;
     private String description;
     private List<HabitResponse> habitResponses;
+    private Boolean active;
+    private Boolean hidden;
+    private Boolean completed;
 
     public HabitResponse(Long id, Date createdAt, Date updatedAt, String name, String scheduleType, Long timeTaken,
                          Date startDate, Date dueDate, String habitTypeName, String description, Long streak,
-                         Long totalTimes) {
+                         Long totalTimes,Boolean active, Boolean hidden, Boolean completed) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -39,5 +42,8 @@ public class HabitResponse {
         this.description = description;
         this.streak = streak;
         this.totalTimes = totalTimes;
+        this.active = active;
+        this.hidden = hidden;
+        this.completed = completed;
     }
 }

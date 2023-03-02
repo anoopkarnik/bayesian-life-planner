@@ -14,4 +14,5 @@ public class StatsCreateChildRequest {
     private Float value;
     private String description;
     private String parentStatsName;
+    private Boolean active;
 }

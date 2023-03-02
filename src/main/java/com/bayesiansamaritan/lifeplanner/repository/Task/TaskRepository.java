@@ -18,19 +18,15 @@ import java.util.Optional;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
 
-   @Query("Select t from Task t where t.userId=:userId and t.active=:active and t.taskTypeId=:taskTypeId and t.startDate<=now() and t.parentId=0 order by t.dueDate asc")
+   @Query("Select t from Task t where t.userId=:userId and t.active=:active and t.taskTypeId=:taskTypeId and t.startDate<=now() and t.parentId=0" +
+           " and t.completed=false order by t.dueDate asc")
    List<Task> findRootTasksByUserIdAndActiveAndTaskTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                  @Param("taskTypeId") Long taskTypeId);
 
-   @Query("Select t from Task t where t.userId=:userId and t.active=:active and t.taskTypeId=:taskTypeId and t.startDate<=now() order by t.dueDate asc")
-   List<Task> findAllTasksByUserIdAndActiveAndTaskTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
-                                                          @Param("taskTypeId") Long taskTypeId);
-
-   @Query("Select t from Task t where t.userId=:userId and t.active=:active and t.parentId=:parentTaskId and t.startDate<=now()order by t.dueDate asc")
+   @Query("Select t from Task t where t.userId=:userId and t.active=:active and t.parentId=:parentTaskId and t.startDate<=now() " +
+           "and t.completed=false order by t.dueDate asc")
    Optional<List<Task>> findChildTasksByUserIdAndActiveAndParentTaskId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                                       @Param("parentTaskId") Long parentTaskId);
-
-   void deleteById(Long id);
 
    Task findByUserIdAndId(@Param("userId") Long userId, @Param("id") Long id);
 
@@ -39,18 +35,21 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
    @Transactional
    @Modifying
-   @Query("update Task set active=:active,updated_at=now() where id=:id")
-   public void completeTask(@Param("id") Long id, @Param("active") Boolean active);
-
-   @Transactional
-   @Modifying
-   @Query("update Task set description=:description,updated_at=now() where id=:id")
-   public void addDescription(@Param("id") Long id, @Param("description") String description);
+   @Query("update Task set completed=:completed,updated_at=now() where id=:id")
+   public void completeTask(@Param("id") Long id, @Param("completed") Boolean completed);
 
    @Transactional
    @Modifying
    @Query("update Task set dueDate=:dueDate,updated_at=now() where id=:id")
    public void modifyDueDate(@Param("id") Long id, @Param("dueDate") Date dueDate);
 
+   void deleteById(Long id);
+   @Transactional
+   @Modifying
+   @Query("update Task set name=:name,startDate=:startDate,description=:description,active=:active,hidden=:hidden,completed=:completed" +
+           ",timeTaken=:timeTaken, dueDate=:dueDate, text=:text,updated_at=now() where id=:id")
+   public void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("startDate") Date startDate, @Param("description") String description,
+                            @Param("active") Boolean active, @Param("hidden") Boolean hidden, @Param("completed") Boolean completed,
+                            @Param("timeTaken") Long timeTaken,@Param("dueDate") Date dueDate);
 
 }

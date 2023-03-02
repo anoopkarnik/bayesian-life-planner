@@ -1,7 +1,8 @@
-package com.bayesiansamaritan.lifeplanner.model.Goal;
+package com.bayesiansamaritan.lifeplanner.model.Rule;
 
 import com.bayesiansamaritan.lifeplanner.enums.BadHabitEnum;
 import com.bayesiansamaritan.lifeplanner.enums.HabitEnum;
+import com.bayesiansamaritan.lifeplanner.model.Base2Model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,36 +18,13 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @Table(name = "bad_habit_rule",schema = "life_schema")
-public class BadHabitRule {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", updatable = false)
-    protected Date createdAt;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    protected Date updatedAt;
-
-    @Column(name="name")
-    private String name;
+public class BadHabitRule extends Base2Model {
 
     @Column(name="bad_habit_id")
     private Long badHabitId;
 
     @Column(name="goal_id")
     private Long goalId;
-
-    @Column(name="active")
-    private Boolean active;
-
-    @Column(name="user_id")
-    private Long userId;
     @Column(name="weightage")
     private Float weightage;
 
@@ -54,8 +32,6 @@ public class BadHabitRule {
     private Long value;
     @Column(name="bad_habit_condition_type")
     private BadHabitEnum badHabitConditionType;
-    @Column(name="description",length = 10240)
-    private String description;
     @Column(name="rule_category")
     private String ruleCategory;
 

@@ -11,4 +11,5 @@ public class SkillCreateRootRequest {
     private String name;
     private Long timeTaken;
     private String skillTypeName;
+    private Boolean active;
 }

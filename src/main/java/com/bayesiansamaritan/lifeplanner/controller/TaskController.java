@@ -6,7 +6,7 @@ import com.bayesiansamaritan.lifeplanner.repository.Task.TaskRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Task.TaskCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.Task.TaskCreateRootRequest;
-import com.bayesiansamaritan.lifeplanner.request.Task.TaskDescriptionRequest;
+import com.bayesiansamaritan.lifeplanner.request.Task.TaskModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.TaskResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.TaskService;
@@ -39,11 +39,12 @@ public class TaskController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<List<TaskResponse>> getAllTasks(HttpServletRequest request, @RequestParam("taskTypeName") String taskTypeName) {
+    public ResponseEntity<List<TaskResponse>> getAllTasks(HttpServletRequest request, @RequestParam("taskTypeName") String taskTypeName,
+                                                          @RequestParam("active") Boolean active) {
         String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
-            List<TaskResponse> taskResponses = taskService.getAllActiveTasks(userId,true,taskTypeName);
+            List<TaskResponse> taskResponses = taskService.getAllTasks(userId,active,taskTypeName);
             if (taskResponses.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -65,27 +66,27 @@ public class TaskController {
             if (taskCreateRootRequest.getScheduleType().equals("daily")){
                 task = taskService.createDailyRootTask(userId, taskCreateRootRequest.getName(), taskCreateRootRequest.getStartDate(),
                         taskCreateRootRequest.getTimeTaken(), taskCreateRootRequest.getDueDate(), taskCreateRootRequest.getEvery(), taskCreateRootRequest.getScheduleType(),
-                        taskCreateRootRequest.getTaskTypeName());
+                        taskCreateRootRequest.getTaskTypeName(),taskCreateRootRequest.getActive());
             }
             else if(taskCreateRootRequest.getScheduleType().equals("monthly")){
                 task = taskService.createMonthlyRootTask(userId, taskCreateRootRequest.getName(), taskCreateRootRequest.getStartDate(),
                         taskCreateRootRequest.getTimeTaken(), taskCreateRootRequest.getDueDate(), taskCreateRootRequest.getEvery(), taskCreateRootRequest.getScheduleType(),
-                        taskCreateRootRequest.getTaskTypeName());
+                        taskCreateRootRequest.getTaskTypeName(),taskCreateRootRequest.getActive());
             }
             else if(taskCreateRootRequest.getScheduleType().equals("yearly")){
                 task = taskService.createYearlyRootTask(userId, taskCreateRootRequest.getName(), taskCreateRootRequest.getStartDate(),
                         taskCreateRootRequest.getTimeTaken(), taskCreateRootRequest.getDueDate(), taskCreateRootRequest.getEvery(), taskCreateRootRequest.getScheduleType(),
-                        taskCreateRootRequest.getTaskTypeName());
+                        taskCreateRootRequest.getTaskTypeName(),taskCreateRootRequest.getActive());
             }
             else if(taskCreateRootRequest.getScheduleType().equals("onetime")){
                 task = taskService.createOneTimeRootTask(userId, taskCreateRootRequest.getName(), taskCreateRootRequest.getStartDate(),
                         taskCreateRootRequest.getTimeTaken(), taskCreateRootRequest.getDueDate(), taskCreateRootRequest.getEvery(), taskCreateRootRequest.getScheduleType(),
-                        taskCreateRootRequest.getTaskTypeName());
+                        taskCreateRootRequest.getTaskTypeName(),taskCreateRootRequest.getActive());
             }
             else{
                 task = taskService.createWeeklyRootTask(userId, taskCreateRootRequest.getName(), taskCreateRootRequest.getStartDate(),
                         taskCreateRootRequest.getTimeTaken(), taskCreateRootRequest.getDueDate(), taskCreateRootRequest.getEvery(), taskCreateRootRequest.getScheduleType(),
-                        taskCreateRootRequest.getTaskTypeName(), taskCreateRootRequest.getDaysOfWeek());
+                        taskCreateRootRequest.getTaskTypeName(), taskCreateRootRequest.getDaysOfWeek(),taskCreateRootRequest.getActive());
             }
             return new ResponseEntity<>(task, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -104,27 +105,28 @@ public class TaskController {
             if (taskCreateChildRequest.getScheduleType().equals("daily")){
                 task = taskService.createDailyChildTask(userId, taskCreateChildRequest.getName(), taskCreateChildRequest.getStartDate(),
                         taskCreateChildRequest.getTimeTaken(), taskCreateChildRequest.getDueDate(), taskCreateChildRequest.getEvery(), taskCreateChildRequest.getScheduleType(),
-                        taskCreateChildRequest.getTaskTypeName(),taskCreateChildRequest.getParentTaskName());
+                        taskCreateChildRequest.getTaskTypeName(),taskCreateChildRequest.getParentTaskName(),taskCreateChildRequest.getActive());
             }
             else if(taskCreateChildRequest.getScheduleType().equals("monthly")){
                 task = taskService.createMonthlyChildTask(userId, taskCreateChildRequest.getName(), taskCreateChildRequest.getStartDate(),
                         taskCreateChildRequest.getTimeTaken(), taskCreateChildRequest.getDueDate(), taskCreateChildRequest.getEvery(), taskCreateChildRequest.getScheduleType(),
-                        taskCreateChildRequest.getTaskTypeName(),taskCreateChildRequest.getParentTaskName());
+                        taskCreateChildRequest.getTaskTypeName(),taskCreateChildRequest.getParentTaskName(),taskCreateChildRequest.getActive());
             }
             else if(taskCreateChildRequest.getScheduleType().equals("yearly")){
                 task = taskService.createYearlyChildTask(userId, taskCreateChildRequest.getName(), taskCreateChildRequest.getStartDate(),
                         taskCreateChildRequest.getTimeTaken(), taskCreateChildRequest.getDueDate(), taskCreateChildRequest.getEvery(), taskCreateChildRequest.getScheduleType(),
-                        taskCreateChildRequest.getTaskTypeName(),taskCreateChildRequest.getParentTaskName());
+                        taskCreateChildRequest.getTaskTypeName(),taskCreateChildRequest.getParentTaskName(),taskCreateChildRequest.getActive());
             }
             else if(taskCreateChildRequest.getScheduleType().equals("onetime")){
                 task = taskService.createOneTimeChildTask(userId, taskCreateChildRequest.getName(), taskCreateChildRequest.getStartDate(),
                         taskCreateChildRequest.getTimeTaken(), taskCreateChildRequest.getDueDate(), taskCreateChildRequest.getEvery(), taskCreateChildRequest.getScheduleType(),
-                        taskCreateChildRequest.getTaskTypeName(),taskCreateChildRequest.getParentTaskName());
+                        taskCreateChildRequest.getTaskTypeName(),taskCreateChildRequest.getParentTaskName(),taskCreateChildRequest.getActive());
             }
             else{
                 task = taskService.createWeeklyChildTask(userId, taskCreateChildRequest.getName(), taskCreateChildRequest.getStartDate(),
                         taskCreateChildRequest.getTimeTaken(), taskCreateChildRequest.getDueDate(), taskCreateChildRequest.getEvery(), taskCreateChildRequest.getScheduleType(),
-                        taskCreateChildRequest.getTaskTypeName(), taskCreateChildRequest.getDaysOfWeek(),taskCreateChildRequest.getParentTaskName());
+                        taskCreateChildRequest.getTaskTypeName(), taskCreateChildRequest.getDaysOfWeek(),taskCreateChildRequest.getParentTaskName()
+                        ,taskCreateChildRequest.getActive());
             }
             return new ResponseEntity<>(task, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -146,11 +148,13 @@ public class TaskController {
         }
     }
 
-    @PatchMapping("/description")
+    @PatchMapping("/modifyParams")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void addDescription(@RequestBody TaskDescriptionRequest taskDescriptionRequest)
+    public void modifyParams(@RequestBody TaskModifyRequest taskModifyRequest)
     {
-        taskRepository.addDescription(taskDescriptionRequest.getId(),taskDescriptionRequest.getDescription());
+        taskRepository.modifyParams(taskModifyRequest.getId(),taskModifyRequest.getName(),taskModifyRequest.getStartDate(),taskModifyRequest.getDescription(),
+                taskModifyRequest.getActive(),taskModifyRequest.getHidden(),taskModifyRequest.getCompleted(),taskModifyRequest.getTimeTaken(),
+                taskModifyRequest.getDueDate());
     }
 
     @DeleteMapping

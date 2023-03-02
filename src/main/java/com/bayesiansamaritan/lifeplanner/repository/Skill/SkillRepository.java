@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,17 +19,15 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
 
    @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.skillTypeId=:skillTypeId and t.parentId=0")
    List<Skill> findRootSkillsByUserIdAndActiveAndSkillTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
-                                                 @Param("skillTypeId") Long skillTypeId);
+                                                             @Param("skillTypeId") Long skillTypeId);
 
    @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.skillTypeId=:skillTypeId")
    List<Skill> findAllSkillsByUserIdAndActiveAndSkillTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
-                                                             @Param("skillTypeId") Long skillTypeId);
+                                                            @Param("skillTypeId") Long skillTypeId);
 
    @Query("Select t from Skill t where t.userId=:userId and t.active=:active and t.parentId=:parentSkillId")
    Optional<List<Skill>> findSkillsByUserIdAndActiveAndParentSkillId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                                      @Param("parentSkillId") Long parentSkillId);
-
-   void deleteById(Long id);
 
    Skill findByUserIdAndId(@Param("userId") Long userId, @Param("id") Long id);
 
@@ -37,11 +36,16 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
 
    @Transactional
    @Modifying
-   @Query("update Skill set completed=true,updated_at=now() where id=:id")
-   public void completeSkill(@Param("id") Long id);
+   @Query("update Skill set completed=:completed,updated_at=now() where id=:id")
+   public void completeSkill(@Param("id") Long id, @Param("completed") Boolean completed);
+
+   void deleteById(Long id);
 
    @Transactional
    @Modifying
-   @Query("update Skill set description=:description,updated_at=now() where id=:id")
-   public void addDescription(@Param("id") Long id, @Param("description") String description);
+   @Query("update Skill set name=:name,startDate=:startDate,description=:description,active=:active,hidden=:hidden,completed=:completed" +
+           ",timeTaken=:timeTaken,updated_at=now() where id=:id")
+   public void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("startDate") Date startDate, @Param("description") String description,
+                            @Param("active") Boolean active, @Param("hidden") Boolean hidden, @Param("completed") Boolean completed,
+                            @Param("timeTaken") Long timeTaken);
 }

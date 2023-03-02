@@ -3,13 +3,13 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 import com.bayesiansamaritan.lifeplanner.model.Stats.Stats;
 import com.bayesiansamaritan.lifeplanner.model.Stats.StatsTransaction;
+import com.bayesiansamaritan.lifeplanner.repository.Rule.StatRuleRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsTransactionRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Stats.StatsCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.Stats.StatsCreateRootRequest;
-import com.bayesiansamaritan.lifeplanner.request.Stats.StatsDescriptionRequest;
-import com.bayesiansamaritan.lifeplanner.request.Stats.StatsValueRequest;
+import com.bayesiansamaritan.lifeplanner.request.Stats.StatsModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.StatsResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.StatsService;
@@ -29,6 +29,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/stats")
 public class StatsController {
+    @Autowired
+    private StatRuleRepository statRuleRepository;
     @Autowired
     private StatsTransactionRepository statsTransactionRepository;
     @Autowired
@@ -69,7 +71,8 @@ public class StatsController {
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             Stats stats = statsService.createRootStats(userId,statsCreateRootRequest.getName(),
-                    statsCreateRootRequest.getStatsTypeName(),statsCreateRootRequest.getValue(),statsCreateRootRequest.getDescription());
+                    statsCreateRootRequest.getStatsTypeName(),statsCreateRootRequest.getValue(),statsCreateRootRequest.getDescription(),
+                    statsCreateRootRequest.getActive());
             statsTransactionRepository.save(new StatsTransaction(stats.getName(),stats.getStatsTypeId(),stats.getUserId(),
                     stats.getValue(),stats.getDescription(),stats.getId()));
             return new ResponseEntity<>(stats, HttpStatus.CREATED);
@@ -86,7 +89,8 @@ public class StatsController {
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
             Stats stats = statsService.createChildStats(userId, statsCreateChildRequest.getName(), statsCreateChildRequest.getStatsTypeName(),
-                    statsCreateChildRequest.getValue(), statsCreateChildRequest.getDescription(),statsCreateChildRequest.getParentStatsName());
+                    statsCreateChildRequest.getValue(), statsCreateChildRequest.getDescription(),statsCreateChildRequest.getParentStatsName(),
+                    statsCreateChildRequest.getActive());
             statsTransactionRepository.save(new StatsTransaction(stats.getName(),stats.getStatsTypeId(),stats.getUserId(),
                     stats.getValue(),stats.getDescription(),stats.getId()));
             return new ResponseEntity<>(stats, HttpStatus.CREATED);
@@ -96,19 +100,21 @@ public class StatsController {
     }
 
 
-    @PatchMapping("/description")
+    @PatchMapping("/modifyParams")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void addDescription(@RequestBody StatsDescriptionRequest statsDescriptionRequest)
+    public void modifyParams(@RequestBody StatsModifyRequest statsModifyRequest)
     {
-        statsRepository.addDescription(statsDescriptionRequest.getId(),statsDescriptionRequest.getDescription());
+        statsRepository.modifyParams(statsModifyRequest.getId(),statsModifyRequest.getName(),statsModifyRequest.getStartDate(),
+                statsModifyRequest.getDescription(),statsModifyRequest.getActive(),statsModifyRequest.getHidden(),statsModifyRequest.getCompleted(),
+                statsModifyRequest.getValue());
     }
 
     @PatchMapping("/value")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void addValue(@RequestBody StatsValueRequest statsValueRequest)
+    public void addValue(@RequestBody StatsModifyRequest statsModifyRequest)
     {
-        statsRepository.addValue(statsValueRequest.getId(),statsValueRequest.getValue());
-        Optional<Stats> stats = statsRepository.findById(statsValueRequest.getId());
+        statsRepository.addValue(statsModifyRequest.getId(),statsModifyRequest.getValue());
+        Optional<Stats> stats = statsRepository.findById(statsModifyRequest.getId());
         statsTransactionRepository.save(new StatsTransaction(stats.get().getName(),stats.get().getStatsTypeId(),stats.get().getUserId(),
                 stats.get().getValue(),stats.get().getDescription(),stats.get().getId()));
     }

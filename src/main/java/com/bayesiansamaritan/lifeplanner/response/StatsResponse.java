@@ -18,8 +18,11 @@ public class StatsResponse {
     private Float value;
     private String description;
     private List<StatsResponse> statsResponses;
+    private Boolean active;
+    private Boolean hidden;
+    private Boolean completed;
 
-    public StatsResponse(Long id, Date createdAt, Date updatedAt, String name, String statsTypeName, Float value, String description) {
+    public StatsResponse(Long id, Date createdAt, Date updatedAt, String name, String statsTypeName, Float value, String description,Boolean active, Boolean hidden, Boolean completed) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -27,5 +30,8 @@ public class StatsResponse {
         this.statsTypeName = statsTypeName;
         this.value = value;
         this.description = description;
+        this.active = active;
+        this.hidden = hidden;
+        this.completed = completed;
     }
 }

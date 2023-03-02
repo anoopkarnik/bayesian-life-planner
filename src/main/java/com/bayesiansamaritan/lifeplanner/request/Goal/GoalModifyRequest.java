@@ -9,9 +9,16 @@ import java.util.Date;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GoalCreateRootRequest {
+public class GoalModifyRequest {
+
+    private Long id;
     private String name;
-    private Date dueDate;
-    private String goalTypeName;
+    private Date startDate;
+    private String description;
     private Boolean active;
+    private Boolean hidden;
+    private Boolean completed;
+    private Long goalTypeName;
+    private Date dueDate;
+    private Long timeTaken;
 }

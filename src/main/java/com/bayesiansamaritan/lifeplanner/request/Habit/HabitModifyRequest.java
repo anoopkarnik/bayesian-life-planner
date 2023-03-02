@@ -4,22 +4,24 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HabitCreateRootRequest {
+public class HabitModifyRequest {
 
+    private Long id;
     private String name;
-    private String scheduleType;
-    private Long timeTaken;
     private Date startDate;
-    private Date dueDate;
-    private String habitTypeName;
-    private Long every;
-    private List<DayOfWeek> daysOfWeek;
+    private String description;
     private Boolean active;
+    private Boolean hidden;
+    private Boolean completed;
+    private Long habitTypeName;
+    private Date dueDate;
+    private Long timeTaken;
+    private Long streak;
+    private Long totalTimes;
+    private Long totalTimeSpent;
 }

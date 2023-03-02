@@ -31,8 +31,6 @@ public interface HabitRepository extends JpaRepository<Habit, Long> {
    Optional<List<Habit>> findChildHabitsByUserIdAndActiveAndParentHabitId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                                    @Param("parentHabitId") Long parentHabitId);
 
-   void deleteById(Long id);
-
    Habit findByUserIdAndId(@Param("userId") Long userId, @Param("id") Long id);
 
    @Query("Select t from Habit t where t.userId=:userId and t.name=:name")
@@ -53,9 +51,15 @@ public interface HabitRepository extends JpaRepository<Habit, Long> {
    @Query("update Habit set dueDate=:dueDate,updated_at=now() where id=:id")
    public void modifyDueDate(@Param("id") Long id, @Param("dueDate") Date dueDate);
 
+   void deleteById(Long id);
    @Transactional
    @Modifying
-   @Query("update Habit set description=:description,updated_at=now() where id=:id")
-   public void addDescription(@Param("id") Long id, @Param("description") String description);
+   @Query("update Goal set name=:name,startDate=:startDate,description=:description,active=:active,hidden=:hidden,completed=:completed" +
+           ",dueDate=:dueDate,timeTaken=:timeTaken,streak=:streak,totalTimes=:totalTimes," +
+           "totalTimeSpent=:totalTimeSpent,updated_at=now() where id=:id")
+   public void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("startDate") Date startDate, @Param("description") String description,
+                            @Param("active") Boolean active, @Param("hidden") Boolean hidden, @Param("completed") Boolean completed,
+                            @Param("dueDate") Date dueDate,@Param("timeTaken") Long timeTaken,
+                            @Param("streak") Long streak, @Param("totalTimes") Long totalTimes, @Param("totalTimeSpent") Long totalTimeSpent);
 
 }

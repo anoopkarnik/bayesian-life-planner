@@ -21,4 +21,5 @@ public class TaskCreateRootRequest {
     private String taskTypeName;
     private Long every;
     private List<DayOfWeek> daysOfWeek;
+    private Boolean active;
 }

@@ -1,24 +1,8 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
-import com.bayesiansamaritan.lifeplanner.enums.BadHabitEnum;
-import com.bayesiansamaritan.lifeplanner.enums.HabitEnum;
-import com.bayesiansamaritan.lifeplanner.enums.TaskEnum;
-import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
-import com.bayesiansamaritan.lifeplanner.model.Goal.*;
-import com.bayesiansamaritan.lifeplanner.model.Habit.HabitType;
-import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
-import com.bayesiansamaritan.lifeplanner.model.Stats.StatsType;
-import com.bayesiansamaritan.lifeplanner.model.Task.Task;
-import com.bayesiansamaritan.lifeplanner.model.Task.TaskType;
-import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTypeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.Goal.*;
-import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitTypeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
-import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillTypeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsTypeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.Task.TaskTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Rule.*;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
-import com.bayesiansamaritan.lifeplanner.request.Goal.*;
+import com.bayesiansamaritan.lifeplanner.request.Rule.RuleCreateRequest;
 import com.bayesiansamaritan.lifeplanner.response.*;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.*;
@@ -27,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)

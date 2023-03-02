@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,15 +21,9 @@ public interface BadHabitRepository extends JpaRepository<BadHabit, Long> {
    @Query("Select t from BadHabit t where t.userId=:userId and t.active=:active and t.badHabitTypeId=:habitTypeId  and t.startDate<=now() and t.parentId=0 order by t.updatedAt asc")
    List<BadHabit> findRootBadHabitsByUserIdAndActiveAndHabitTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                  @Param("habitTypeId") Long habitTypeId);
-   @Query("Select t from BadHabit t where t.userId=:userId and t.active=:active and t.badHabitTypeId=:habitTypeId  and t.startDate<=now() order by t.updatedAt asc")
-   List<BadHabit> findAllBadHabitsByUserIdAndActiveAndHabitTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
-                                                                   @Param("habitTypeId") Long habitTypeId);
-
    @Query("Select t from BadHabit t where t.userId=:userId and t.active=:active and  t.startDate<=now() and t.parentId=:parentBadHabitId order by t.updatedAt asc")
    Optional<List<BadHabit>> findChildBadHabitsByUserIdAndActiveAndParentBadHabitId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                                              @Param("parentBadHabitId") Long parentBadHabitId);
-
-   void deleteById(Long id);
 
    public BadHabit findByUserIdAndId(@Param("userId") Long userId, @Param("id") Long id);
    @Query("Select t from BadHabit t where t.userId=:userId and t.name=:name")
@@ -39,9 +34,14 @@ public interface BadHabitRepository extends JpaRepository<BadHabit, Long> {
    @Query("update BadHabit set totalTimes=totalTimes+1,updated_at=now() where id=:id")
    public void carriedOutBadHabit(@Param("id") Long id);
 
-
+   void deleteById(Long id);
    @Transactional
    @Modifying
-   @Query("update BadHabit set description=:description where id=:id")
-   public void addDescription(@Param("id") Long id, @Param("description") String description);
+   @Query("update BadHabit set name=:name,startDate=:startDate,description=:description,active=:active,hidden=:hidden,completed=:completed" +
+           ",totalTimes=:totalTimes where id=:id")
+   public void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("startDate") Date startDate, @Param("description") String description,
+                            @Param("active") Boolean active, @Param("hidden") Boolean hidden, @Param("completed") Boolean completed,
+                            @Param("totalTimes") Long totalTimes);
+
+
 }

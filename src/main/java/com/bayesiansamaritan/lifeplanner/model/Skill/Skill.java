@@ -1,5 +1,6 @@
 package com.bayesiansamaritan.lifeplanner.model.Skill;
 
+import com.bayesiansamaritan.lifeplanner.model.Base2Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,42 +27,12 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Skill {
-
-    @Id
-    @Getter
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @EqualsAndHashCode.Include
-    private long id;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", updatable = false)
-    protected Date createdAt;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    protected Date updatedAt;
-
-    @Column(name="name")
-    private String name;
+public class Skill extends Base2Model {
 
     @Column(name="time_taken")
     private Long timeTaken;
     @Column(name="skill_type_id")
     private Long skillTypeId;
-
-    @Column(name="active")
-    private Boolean active;
-    @Column(name="user_id")
-    private Long userId;
-    @Column(name="description",length = 10240)
-    private String description;
-
-    @Column(name="completed")
-    private Boolean completed;
-
     @Column(name="parent_id")
     private long parentId=0L;
 

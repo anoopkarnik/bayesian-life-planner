@@ -9,6 +9,6 @@ public interface StatsService {
 
     public List<StatsResponse> getAllStats(Long userId, String statsTypeName);
     public List<StatsResponse> getAllStatsAndSubStats(Long userId, String statsTypeName);
-    public Stats createRootStats(Long userId, String name, String statsTypeName, Float value, String description);
-    public Stats createChildStats(Long userId, String name, String statsTypeName, Float value, String description, String parentName);
+    public Stats createRootStats(Long userId, String name, String statsTypeName, Float value, String description, Boolean active);
+    public Stats createChildStats(Long userId, String name, String statsTypeName, Float value, String description, String parentName, Boolean active);
 }

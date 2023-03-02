@@ -2,6 +2,7 @@ package com.bayesiansamaritan.lifeplanner.model.Scheduler;
 
 
 import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
+import com.bayesiansamaritan.lifeplanner.model.BaseModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,11 +15,7 @@ import java.util.List;
 @Table(name = "weekly",schema = "scheduler")
 @Getter
 @Setter
-public class Weekly {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
+public class Weekly extends BaseModel {
     @Column(name = "every")
     private Long every;
 

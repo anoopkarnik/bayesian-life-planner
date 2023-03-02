@@ -1,4 +1,4 @@
-package com.bayesiansamaritan.lifeplanner.request.Goal;
+package com.bayesiansamaritan.lifeplanner.request.Rule;
 
 import com.bayesiansamaritan.lifeplanner.enums.HabitEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;

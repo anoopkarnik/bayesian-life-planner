@@ -13,4 +13,6 @@ public class SkillCreateChildRequest {
     private Long timeTaken;
     private String skillTypeName;
     private String parentSkillName;
+    private Boolean active;
+
 }
