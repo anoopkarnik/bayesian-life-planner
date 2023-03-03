@@ -47,7 +47,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
    @Transactional
    @Modifying
    @Query("update Task set name=:name,startDate=:startDate,description=:description,active=:active,hidden=:hidden,completed=:completed" +
-           ",timeTaken=:timeTaken, dueDate=:dueDate, text=:text,updated_at=now() where id=:id")
+           ",timeTaken=:timeTaken, dueDate=:dueDate,updated_at=now() where id=:id")
    public void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("startDate") Date startDate, @Param("description") String description,
                             @Param("active") Boolean active, @Param("hidden") Boolean hidden, @Param("completed") Boolean completed,
                             @Param("timeTaken") Long timeTaken,@Param("dueDate") Date dueDate);
