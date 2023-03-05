@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 
@@ -38,10 +39,14 @@ public class HabitTransaction extends Base2Model {
     @Column(name="schedule_type")
     private String scheduleType;
 
+    @Column(name="time_of_day")
+    private Long timeOfDay;
+
+
     public HabitTransaction(){};
 
     public HabitTransaction(String name,  Long timeTaken, Date startDate, Date dueDate, Long habitTypeId,  Long userId,
-                 Long streak, Long totalTimes, String scheduleType,Long habitId) {
+                 Long streak, Long totalTimes, String scheduleType,Long habitId,Long timeOfDay) {
         this.name = name;
         this.timeTaken = timeTaken;
         this.startDate = startDate;
@@ -52,6 +57,7 @@ public class HabitTransaction extends Base2Model {
         this.totalTimes = totalTimes;
         this.scheduleType = scheduleType;
         this.habitId = habitId;
+        this.timeOfDay = timeOfDay;
     }
 
 }

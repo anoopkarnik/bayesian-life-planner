@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.time.LocalTime;
 
 
 @Entity
@@ -42,31 +43,34 @@ public class Habit extends Base2Model {
 
     @Column(name="parent_id")
     private long parentId=0L;
+    @Column(name="time_of_day")
+    private Long timeOfDay;
 
-    public Habit(String name,  Long timeTaken, Date startDate, Date dueDate, Long habitTypeId, Boolean active, Long userId,
-                 Long streak, Long totalTimes, String scheduleType) {
+
+    public Habit(String name,  Long timeOfDay, Date startDate, Date dueDate, Long habitTypeId, Boolean active, Long userId,
+                 Long streak, Long totalTimes,  String scheduleType) {
         this.name = name;
-        this.timeTaken = timeTaken;
         this.startDate = startDate;
         this.dueDate = dueDate;
         this.habitTypeId = habitTypeId;
         this.active = active;
         this.userId = userId;
         this.streak = streak;
-        this.totalTimes = totalTimes;
+        this.timeOfDay = timeOfDay;
         this.scheduleType = scheduleType;
+        this.totalTimes = totalTimes;
     }
 
-    public Habit(String name,  Long timeTaken, Date startDate, Date dueDate, Long habitTypeId, Boolean active, Long userId,
-                 Long streak, Long totalTimes, String scheduleType, Long parentId) {
+    public Habit(String name,  Long timeOfDay, Date startDate, Date dueDate, Long habitTypeId, Boolean active, Long userId,
+                 Long streak,Long totalTimes, String scheduleType, Long parentId) {
         this.name = name;
-        this.timeTaken = timeTaken;
         this.startDate = startDate;
         this.dueDate = dueDate;
         this.habitTypeId = habitTypeId;
         this.active = active;
         this.userId = userId;
         this.streak = streak;
+        this.timeOfDay = timeOfDay;
         this.totalTimes = totalTimes;
         this.scheduleType = scheduleType;
         this.parentId = parentId;

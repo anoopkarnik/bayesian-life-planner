@@ -4,6 +4,7 @@ package com.bayesiansamaritan.lifeplanner.controller;
 import com.bayesiansamaritan.lifeplanner.model.Task.Task;
 import com.bayesiansamaritan.lifeplanner.repository.Task.TaskRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
+import com.bayesiansamaritan.lifeplanner.request.Habit.HabitScheduleRequest;
 import com.bayesiansamaritan.lifeplanner.request.Task.TaskCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.Task.TaskCreateRootRequest;
 import com.bayesiansamaritan.lifeplanner.request.Task.TaskModifyRequest;
@@ -155,6 +156,16 @@ public class TaskController {
         taskRepository.modifyParams(taskModifyRequest.getId(),taskModifyRequest.getName(),taskModifyRequest.getStartDate(),taskModifyRequest.getDescription(),
                 taskModifyRequest.getActive(),taskModifyRequest.getHidden(),taskModifyRequest.getCompleted(),taskModifyRequest.getTimeTaken(),
                 taskModifyRequest.getDueDate());
+    }
+
+    @PatchMapping("/modifyScheduleType")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void modifyScheduleType(HttpServletRequest request,@RequestBody HabitScheduleRequest taskScheduleRequest)
+    {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        taskService.modifySchedule(userId,taskScheduleRequest.getId(),taskScheduleRequest.getScheduleType(),taskScheduleRequest.getEvery(),
+                taskScheduleRequest.getDaysOfWeek());
     }
 
     @DeleteMapping

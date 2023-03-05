@@ -1,4 +1,4 @@
-package com.bayesiansamaritan.lifeplanner.request.Habit;
+package com.bayesiansamaritan.lifeplanner.request.Task;
 
 import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -11,16 +11,10 @@ import java.util.List;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HabitCreateChildRequest {
+public class TaskScheduleRequest {
 
-    private String name;
+    private Long id;
     private String scheduleType;
-    private Long timeOfDay;
-    private Date startDate;
-    private Date dueDate;
-    private String habitTypeName;
     private Long every;
     private List<DayOfWeek> daysOfWeek;
-    private String parentHabitName;
-    private Boolean active;
 }

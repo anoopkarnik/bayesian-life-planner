@@ -29,9 +29,11 @@ public class TaskResponse {
     private Boolean active;
     private Boolean hidden;
     private Boolean completed;
+    private Long every;
+    private List<String> daysOfWeek;
 
     public TaskResponse(Long id,Date createdAt, Date updatedAt, String name, String scheduleType, Long timeTaken,
-                        Date startDate, Date dueDate, String taskTypeName, String description,Boolean active, Boolean hidden, Boolean completed) {
+                        Date startDate, Date dueDate, String taskTypeName, String description,Boolean active, Boolean hidden, Boolean completed,Long every) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -45,5 +47,26 @@ public class TaskResponse {
         this.active = active;
         this.hidden = hidden;
         this.completed = completed;
+        this.every = every;
+    }
+
+    public TaskResponse(Long id,Date createdAt, Date updatedAt, String name, String scheduleType, Long timeTaken,
+                        Date startDate, Date dueDate, String taskTypeName, String description,Boolean active, Boolean hidden, Boolean completed,Long every,
+                        List<String> daysOfWeek) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.name = name;
+        this.scheduleType = scheduleType;
+        this.timeTaken = timeTaken;
+        this.startDate = startDate;
+        this.dueDate = dueDate;
+        this.taskTypeName = taskTypeName;
+        this.description = description;
+        this.active = active;
+        this.hidden = hidden;
+        this.completed = completed;
+        this.every = every;
+        this.daysOfWeek = daysOfWeek;
     }
 }

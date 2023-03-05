@@ -15,7 +15,7 @@ public class HabitCreateRootRequest {
 
     private String name;
     private String scheduleType;
-    private Long timeTaken;
+    private Long timeOfDay;
     private Date startDate;
     private Date dueDate;
     private String habitTypeName;

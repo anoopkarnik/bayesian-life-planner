@@ -15,9 +15,4 @@ public interface WeeklyRepository extends JpaRepository<Weekly, Long> {
 
     Weekly findByReferenceId(String referenceId);
 
-    @Transactional
-    @Modifying
-    @Query("update Weekly set referenceId=:referenceId where id=:id")
-    public void modifyReferenceId(@Param("id") Long id, @Param("referenceId") String referenceId);
-
 }

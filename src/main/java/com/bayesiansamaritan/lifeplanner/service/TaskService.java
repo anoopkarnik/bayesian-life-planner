@@ -1,5 +1,6 @@
 package com.bayesiansamaritan.lifeplanner.service;
 
+import com.bayesiansamaritan.lifeplanner.model.Habit.Habit;
 import com.bayesiansamaritan.lifeplanner.model.Task.Task;
 
 import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
@@ -42,5 +43,6 @@ public interface TaskService {
                                  String taskTypeName, String parentName, Boolean active);
 
     public Task completeTask(Long userId, Long id);
+    public void modifySchedule(Long userId, Long id, String scheduleType, Long every, List<DayOfWeek> daysOfWeek);
 
 }

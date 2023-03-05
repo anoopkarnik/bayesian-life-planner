@@ -34,7 +34,7 @@ public class Task extends Base2Model {
 
     public Task(){};
 
-    public Task(String name, Long timeTaken, Date startDate, Date dueDate, Long taskTypeId, Boolean active, Long userId,String scheduleType) {
+    public Task(String name, Long timeTaken, Date startDate, Date dueDate, Long taskTypeId, Boolean active, Long userId,String scheduleType, Boolean completed) {
         this.name = name;
         this.timeTaken = timeTaken;
         this.startDate = startDate;
@@ -43,9 +43,10 @@ public class Task extends Base2Model {
         this.active = active;
         this.userId = userId;
         this.scheduleType = scheduleType;
+        this.completed = completed;
     }
 
-    public Task(String name, Long timeTaken, Date startDate, Date dueDate, Long taskTypeId, Boolean active, Long userId,String scheduleType, Long parentId) {
+    public Task(String name, Long timeTaken, Date startDate, Date dueDate, Long taskTypeId, Boolean active, Long userId,String scheduleType, Long parentId, Boolean completed) {
         this.name = name;
         this.timeTaken = timeTaken;
         this.startDate = startDate;
@@ -55,6 +56,7 @@ public class Task extends Base2Model {
         this.userId = userId;
         this.scheduleType = scheduleType;
         this.parentId = parentId;
+        this.completed = completed;
     }
 
 }

@@ -5,22 +5,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
 import java.util.List;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HabitCreateChildRequest {
+public class HabitScheduleRequest {
 
-    private String name;
+    private Long id;
     private String scheduleType;
-    private Long timeOfDay;
-    private Date startDate;
-    private Date dueDate;
-    private String habitTypeName;
     private Long every;
     private List<DayOfWeek> daysOfWeek;
-    private String parentHabitName;
-    private Boolean active;
 }

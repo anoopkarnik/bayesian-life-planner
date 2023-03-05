@@ -43,6 +43,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
    @Query("update Task set dueDate=:dueDate,updated_at=now() where id=:id")
    public void modifyDueDate(@Param("id") Long id, @Param("dueDate") Date dueDate);
 
+   @Transactional
+   @Modifying
+   @Query("update Task set scheduleType=:scheduleType,updated_at=now() where id=:id")
+   public void modifyScheduleType(@Param("id") Long id, @Param("scheduleType") String scheduleType);
+
    void deleteById(Long id);
    @Transactional
    @Modifying

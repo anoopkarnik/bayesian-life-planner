@@ -18,16 +18,16 @@ import java.util.Optional;
 public interface HabitRepository extends JpaRepository<Habit, Long> {
 
 
-   @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.habitTypeId=:habitTypeId  and t.startDate<=now() and t.parentId=0 order by t.dueDate asc")
+   @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.habitTypeId=:habitTypeId  and t.startDate<=now() and t.parentId=0 order by t.dueDate asc,t.timeOfDay asc")
    List<Habit> findRootHabitByUserIdAndActiveAndHabitTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                  @Param("habitTypeId") Long habitTypeId);
 
-   @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.habitTypeId=:habitTypeId  and t.startDate<=now() order by t.dueDate asc")
+   @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.habitTypeId=:habitTypeId  and t.startDate<=now() order by t.dueDate asc,t.timeOfDay asc")
    List<Habit> findAllHabitByUserIdAndActiveAndHabitTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                             @Param("habitTypeId") Long habitTypeId);
 
 
-   @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.startDate<=now() and t.parentId=:parentHabitId order by t.dueDate asc")
+   @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.startDate<=now() and t.parentId=:parentHabitId order by t.dueDate asc,t.timeOfDay asc")
    Optional<List<Habit>> findChildHabitsByUserIdAndActiveAndParentHabitId(@Param("userId") Long userId, @Param("active") Boolean active,
                                                                    @Param("parentHabitId") Long parentHabitId);
 
@@ -51,15 +51,21 @@ public interface HabitRepository extends JpaRepository<Habit, Long> {
    @Query("update Habit set dueDate=:dueDate,updated_at=now() where id=:id")
    public void modifyDueDate(@Param("id") Long id, @Param("dueDate") Date dueDate);
 
+   @Transactional
+   @Modifying
+   @Query("update Habit set scheduleType=:scheduleType,updated_at=now() where id=:id")
+   public void modifyScheduleType(@Param("id") Long id, @Param("scheduleType") String scheduleType);
+
    void deleteById(Long id);
    @Transactional
    @Modifying
-   @Query("update Goal set name=:name,startDate=:startDate,description=:description,active=:active,hidden=:hidden,completed=:completed" +
+   @Query("update Habit set name=:name,startDate=:startDate,description=:description,active=:active,hidden=:hidden,completed=:completed" +
            ",dueDate=:dueDate,timeTaken=:timeTaken,streak=:streak,totalTimes=:totalTimes," +
-           "totalTimeSpent=:totalTimeSpent,updated_at=now() where id=:id")
+           "totalTimeSpent=:totalTimeSpent,timeOfDay=:timeOfDay,updated_at=now() where id=:id")
    public void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("startDate") Date startDate, @Param("description") String description,
                             @Param("active") Boolean active, @Param("hidden") Boolean hidden, @Param("completed") Boolean completed,
                             @Param("dueDate") Date dueDate,@Param("timeTaken") Long timeTaken,
-                            @Param("streak") Long streak, @Param("totalTimes") Long totalTimes, @Param("totalTimeSpent") Long totalTimeSpent);
+                            @Param("streak") Long streak, @Param("totalTimes") Long totalTimes, @Param("totalTimeSpent") Long totalTimeSpent,
+                            @Param("timeOfDay") Long timeOfDay);
 
 }

@@ -24,4 +24,5 @@ public class HabitModifyRequest {
     private Long streak;
     private Long totalTimes;
     private Long totalTimeSpent;
+    private Long timeOfDay;
 }
