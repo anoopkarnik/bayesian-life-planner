@@ -10,6 +10,7 @@ import com.bayesiansamaritan.lifeplanner.repository.User.RoleRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Task.TaskTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.User.LoginRequest;
+import com.bayesiansamaritan.lifeplanner.request.User.ModifyPasswordRequest;
 import com.bayesiansamaritan.lifeplanner.request.User.SignupRequest;
 import com.bayesiansamaritan.lifeplanner.response.JwtResponse;
 import com.bayesiansamaritan.lifeplanner.response.MessageResponse;
@@ -137,6 +138,19 @@ public class AuthController {
 
 
         return ResponseEntity.ok(new MessageResponse("User registered"));
+    }
+
+    @PatchMapping("/changePassword")
+    public ResponseEntity<?> registerUser(@RequestBody ModifyPasswordRequest modifyPasswordRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(modifyPasswordRequest.getName(), modifyPasswordRequest.getOldPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtUtils.generateJwtToken(authentication);
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        userRepository.modifyPassword(userDetails.getId(),encoder.encode(modifyPasswordRequest.getNewPassword()));
+        return ResponseEntity.ok(new MessageResponse("Password Modified"));
     }
 
 }

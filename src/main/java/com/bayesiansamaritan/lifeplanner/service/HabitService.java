@@ -38,6 +38,6 @@ public interface HabitService {
                                    String habitTypeName, String parentName, Boolean active);
     public Habit completeHabit(Long userId, Long id);
 
-    public void modifySchedule(Long userId, Long id,String scheduleType,Long every, List<DayOfWeek> daysOfWeek);
+    public void modifySchedule(Long userId, Long id,String oldScheduleType, String scheduleType,Long every, List<DayOfWeek> daysOfWeek);
 
 }

@@ -13,6 +13,7 @@ import java.util.List;
 public class HabitScheduleRequest {
 
     private Long id;
+    private String oldScheduleType;
     private String scheduleType;
     private Long every;
     private List<DayOfWeek> daysOfWeek;

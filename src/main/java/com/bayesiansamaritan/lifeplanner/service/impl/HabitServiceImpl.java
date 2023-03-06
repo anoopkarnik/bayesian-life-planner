@@ -388,8 +388,10 @@ public class HabitServiceImpl implements HabitService {
 
     List<Habit> removeRootStreak(List<Habit> habits){
         Date date = new Date();
+        Date date2 = new Date(date.getYear(),date.getMonth(),date.getDate());
         for (Habit habit : habits){
-            if (habit.getDueDate().compareTo(date)<=0){
+            Date newDueDate = new Date(habit.getDueDate().getYear(),habit.getDueDate().getMonth(),habit.getDueDate().getDate());
+            if (newDueDate.compareTo(date2)<0){
                 habitRepository.removeStreak(habit.getId());
             }
         }
@@ -400,8 +402,10 @@ public class HabitServiceImpl implements HabitService {
 
     List<Habit> removeChildStreak(List<Habit> habits){
         Date date = new Date();
+        Date date2 = new Date(date.getYear(),date.getMonth(),date.getDate());
         for (Habit habit : habits){
-            if (habit.getDueDate().compareTo(date)<=0){
+            Date newDueDate = new Date(habit.getDueDate().getYear(),habit.getDueDate().getMonth(),habit.getDueDate().getDate());
+            if (newDueDate.compareTo(date2)<0){
                 habitRepository.removeStreak(habit.getId());
             }
         }
@@ -411,27 +415,36 @@ public class HabitServiceImpl implements HabitService {
     }
 
     @Override
-    public void modifySchedule(Long userId, Long id,String scheduleType,Long every, List<DayOfWeek> daysOfWeek){
+    public void modifySchedule(Long userId, Long id,String oldScheduleType,String scheduleType,Long every, List<DayOfWeek> daysOfWeek){
         habitRepository.modifyScheduleType(id,scheduleType);
         Habit habit = habitRepository.findByUserIdAndId(userId,id);
-        if(scheduleType.equals("daily")){
+        if(oldScheduleType.equals("daily")){
             Daily daily = dailyRepository.findByReferenceId("habit/"+habit.getId());
             dailyRepository.deleteById(daily.getId());
+        }
+        else if(oldScheduleType.equals("monthly")){
+            Monthly monthly = monthlyRepository.findByReferenceId("habit/"+habit.getId());
+            monthlyRepository.deleteById(monthly.getId());
+        }
+        else if(oldScheduleType.equals("yearly")){
+            Yearly yearly = yearlyRepository.findByReferenceId("habit/"+habit.getId());
+            yearlyRepository.deleteById(yearly.getId());
+        }
+        else if(oldScheduleType.equals("weekly")){
+            Weekly weekly = weeklyRepository.findByReferenceId("habit/"+habit.getId());
+            weeklyRepository.deleteById(weekly.getId());
+        }
+
+        if(oldScheduleType.equals("daily")){
             dailyRepository.save(new Daily(every,"habit/"+habit.getId()));
         }
         else if(scheduleType.equals("monthly")){
-            Monthly monthly = monthlyRepository.findByReferenceId("habit/"+habit.getId());
-            monthlyRepository.deleteById(monthly.getId());
             monthlyRepository.save(new Monthly(every,"habit/"+habit.getId()));
         }
         else if(scheduleType.equals("yearly")){
-            Yearly yearly = yearlyRepository.findByReferenceId("habit/"+habit.getId());
-            yearlyRepository.deleteById(yearly.getId());
             yearlyRepository.save(new Yearly(every,"habit/"+habit.getId()));
         }
         else if(scheduleType.equals("weekly")){
-            Weekly weekly = weeklyRepository.findByReferenceId("habit/"+habit.getId());
-            weeklyRepository.deleteById(weekly.getId());
             weeklyRepository.save(new Weekly(every,"habit/"+habit.getId(),daysOfWeek));
         }
     }

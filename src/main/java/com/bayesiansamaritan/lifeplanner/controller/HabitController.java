@@ -154,7 +154,7 @@ public class HabitController {
     {
         String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
         Long userId = userProfileRepository.findByName(username).get().getId();
-        habitService.modifySchedule(userId,habitScheduleRequest.getId(),habitScheduleRequest.getScheduleType(),habitScheduleRequest.getEvery(),
+        habitService.modifySchedule(userId,habitScheduleRequest.getId(),habitScheduleRequest.getOldScheduleType(),habitScheduleRequest.getScheduleType(),habitScheduleRequest.getEvery(),
                 habitScheduleRequest.getDaysOfWeek());
     }
 
