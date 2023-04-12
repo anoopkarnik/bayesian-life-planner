@@ -11,6 +11,7 @@ import com.bayesiansamaritan.lifeplanner.request.Task.TaskModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.TaskResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.TaskService;
+import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -35,6 +37,8 @@ public class TaskController {
     private UserProfileRepository userProfileRepository;
     @Autowired
     JwtUtils jwtUtils;
+    @Autowired
+    DateUtils dateUtils;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
 
@@ -153,9 +157,10 @@ public class TaskController {
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public void modifyParams(@RequestBody TaskModifyRequest taskModifyRequest)
     {
+        Date newDueDate = dateUtils.getEndOfDay(taskModifyRequest.getDueDate());
         taskRepository.modifyParams(taskModifyRequest.getId(),taskModifyRequest.getName(),taskModifyRequest.getStartDate(),taskModifyRequest.getDescription(),
                 taskModifyRequest.getActive(),taskModifyRequest.getHidden(),taskModifyRequest.getCompleted(),taskModifyRequest.getTimeTaken(),
-                taskModifyRequest.getDueDate());
+                newDueDate);
     }
 
     @PatchMapping("/modifyScheduleType")

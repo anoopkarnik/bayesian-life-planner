@@ -10,6 +10,7 @@ import com.bayesiansamaritan.lifeplanner.request.Goal.GoalModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.GoalResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.GoalService;
+import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -35,6 +37,8 @@ public class GoalController {
     private UserProfileRepository userProfileRepository;
     @Autowired
     JwtUtils jwtUtils;
+    @Autowired
+    DateUtils dateUtils;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
 
@@ -93,8 +97,9 @@ public class GoalController {
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public void modifyParams(@RequestBody GoalModifyRequest goalModifyRequest)
     {
+        Date newDueDate = dateUtils.getEndOfDay(goalModifyRequest.getDueDate());
         goalRepository.modifyParams(goalModifyRequest.getId(),goalModifyRequest.getName(),goalModifyRequest.getStartDate(),goalModifyRequest.getDescription(),
-                goalModifyRequest.getActive(),goalModifyRequest.getHidden(),goalModifyRequest.getCompleted(),goalModifyRequest.getDueDate(),
+                goalModifyRequest.getActive(),goalModifyRequest.getHidden(),goalModifyRequest.getCompleted(),newDueDate,
                 goalModifyRequest.getTimeTaken());
     }
 

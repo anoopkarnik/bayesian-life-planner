@@ -11,6 +11,7 @@ import com.bayesiansamaritan.lifeplanner.request.Habit.HabitScheduleRequest;
 import com.bayesiansamaritan.lifeplanner.response.HabitResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.HabitService;
+import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -35,6 +37,8 @@ public class HabitController {
     private UserProfileRepository userProfileRepository;
     @Autowired
     JwtUtils jwtUtils;
+    @Autowired
+    DateUtils dateUtils;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
 
@@ -142,8 +146,9 @@ public class HabitController {
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public void modifyParams(@RequestBody HabitModifyRequest habitModifyRequest)
     {
+        Date newDueDate = dateUtils.getEndOfDay(habitModifyRequest.getDueDate());
         habitRepository.modifyParams(habitModifyRequest.getId(),habitModifyRequest.getName(),habitModifyRequest.getStartDate(),habitModifyRequest.getDescription(),
-                habitModifyRequest.getActive(),habitModifyRequest.getHidden(),habitModifyRequest.getCompleted(),habitModifyRequest.getDueDate(),
+                habitModifyRequest.getActive(),habitModifyRequest.getHidden(),habitModifyRequest.getCompleted(),newDueDate,
                 habitModifyRequest.getTimeTaken(),habitModifyRequest.getStreak(),habitModifyRequest.getTotalTimes(),habitModifyRequest.getTotalTimeSpent(),
                 habitModifyRequest.getTimeOfDay());
     }

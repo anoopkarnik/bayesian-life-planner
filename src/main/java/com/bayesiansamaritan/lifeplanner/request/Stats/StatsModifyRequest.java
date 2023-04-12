@@ -19,5 +19,5 @@ public class StatsModifyRequest {
     private Boolean hidden;
     private Boolean completed;
     private String statsTypeName;
-    private Long value;
+    private float value;
 }

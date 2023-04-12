@@ -36,7 +36,7 @@ public interface StatsRepository extends JpaRepository<Stats, Long> {
    @Transactional
    @Modifying
    @Query("update Stats set value=:value,updated_at=now() where id=:id")
-   public void addValue(@Param("id") Long id, @Param("value") Long value);
+   public void addValue(@Param("id") Long id, @Param("value") float value);
 
    void deleteById(Long id);
    @Transactional
@@ -45,6 +45,6 @@ public interface StatsRepository extends JpaRepository<Stats, Long> {
            ",value=:value,updated_at=now() where id=:id")
    public void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("startDate") Date startDate, @Param("description") String description,
                             @Param("active") Boolean active, @Param("hidden") Boolean hidden, @Param("completed") Boolean completed,
-                            @Param("value") Long value);
+                            @Param("value") float value);
 
 }
