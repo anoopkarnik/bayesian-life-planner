@@ -1,5 +1,13 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
+import com.bayesiansamaritan.lifeplanner.model.Financial.AccountType;
+import com.bayesiansamaritan.lifeplanner.model.Financial.CategoryType;
+import com.bayesiansamaritan.lifeplanner.model.Financial.ExpenseType;
+import com.bayesiansamaritan.lifeplanner.model.Financial.SubCategoryType;
+import com.bayesiansamaritan.lifeplanner.repository.Financial.AccountTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Financial.CategoryTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Financial.ExpenseTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Financial.SubCategoryTypeRepository;
 import com.bayesiansamaritan.lifeplanner.model.User.UserProfile;
 import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
 import com.bayesiansamaritan.lifeplanner.model.Goal.GoalType;
@@ -64,9 +72,214 @@ public class CommonsController {
 	@Autowired
 	private UserProfileRepository userProfileRepository;
 	@Autowired
+	AccountTypeRepository accountTypeRepository;
+	@Autowired
+	ExpenseTypeRepository expenseTypeRepository;
+	@Autowired
+	CategoryTypeRepository categoryTypeRepository;
+	@Autowired
+	SubCategoryTypeRepository subCategoryTypeRepository;
+	@Autowired
 	JwtUtils jwtUtils;
 	static final String HEADER_STRING = "Authorization";
 	static final String TOKEN_PREFIX = "Bearer";
+
+	@GetMapping("/accounts")
+	public ResponseEntity<List<AccountType>> getAllAccounts(HttpServletRequest request) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
+		try {
+			List<AccountType> accountTypes =commonsService.findAccountTypeByUserId(userId);
+			if (accountTypes.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			return new ResponseEntity<>(accountTypes, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	@PostMapping("/accounts")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<AccountType> createAccountType(HttpServletRequest request,@RequestBody AccountType accountType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
+		try {
+			AccountType _accountType = accountTypeRepository.save(new AccountType(accountType.getName(),userId));
+			return new ResponseEntity<>(_accountType, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@DeleteMapping("/accounts")
+	@PreAuthorize("hasRole('ADMIN')")
+	public void deleteAccountType(@RequestParam Long id) {
+		try {
+			accountTypeRepository.deleteById(id);
+		} catch (Exception e) {
+
+		}
+	}
+	@PatchMapping("/accounts")
+	@PreAuthorize("hasRole('ADMIN')")
+	public void modifyAccountType(@RequestParam Long id,@RequestParam String name) {
+		try {
+			accountTypeRepository.modifyName(id,name);
+		} catch (Exception e) {
+
+		}
+	}
+
+	@GetMapping("/categories")
+	public ResponseEntity<List<CategoryType>> getAllCategories(HttpServletRequest request) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
+		try {
+			List<CategoryType> categoryTypes = commonsService.findCategoryTypeByUserId(userId);
+			if (categoryTypes.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			return new ResponseEntity<>(categoryTypes, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PostMapping("/categories")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<CategoryType> createCategoryType(HttpServletRequest request,@RequestBody CategoryType categoryType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
+		try {
+			CategoryType _categoryType = categoryTypeRepository.save(new CategoryType(categoryType.getName(),userId));
+			return new ResponseEntity<>(_categoryType, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@DeleteMapping("/categories")
+	@PreAuthorize("hasRole('ADMIN')")
+	public void deleteCategoryType(@RequestParam Long id) {
+		try {
+			categoryTypeRepository.deleteById(id);
+		} catch (Exception e) {
+
+		}
+	}
+
+	@PatchMapping("/categories")
+	@PreAuthorize("hasRole('ADMIN')")
+	public void modifyCategoryType(@RequestParam Long id,@RequestParam String name) {
+		try {
+			categoryTypeRepository.modifyName(id,name);
+		} catch (Exception e) {
+
+		}
+	}
+
+
+	@GetMapping("/subCategories")
+	public ResponseEntity<List<SubCategoryType>> getAllSubCategories(HttpServletRequest request) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
+		try {
+			List<SubCategoryType> subCategoryTypes = commonsService.findSubCategoryTypeByUserId(userId);
+			if (subCategoryTypes .isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			return new ResponseEntity<>(subCategoryTypes, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PostMapping("/subCategories")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<SubCategoryType> createSubCategoryType(HttpServletRequest request,@RequestBody SubCategoryType subCategoryType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
+		try {
+			SubCategoryType _subCategoryType = subCategoryTypeRepository.save(new SubCategoryType(subCategoryType.getName(),userId));
+			return new ResponseEntity<>(_subCategoryType, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@DeleteMapping("/subCategories")
+	@PreAuthorize("hasRole('ADMIN')")
+	public void deleteSubCategoryType(@RequestParam Long id) {
+		try {
+			subCategoryTypeRepository.deleteById(id);
+		} catch (Exception e) {
+
+		}
+	}
+
+	@PatchMapping("/subCategories")
+	@PreAuthorize("hasRole('ADMIN')")
+	public void modifySubCategoryType(@RequestParam Long id,@RequestParam String name) {
+		try {
+			subCategoryTypeRepository.modifyName(id,name);
+		} catch (Exception e) {
+
+		}
+	}
+
+
+	@GetMapping("/expenses")
+	public ResponseEntity<List<ExpenseType>> getAllExpenses(HttpServletRequest request) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
+		try {
+			List<ExpenseType> expenseTypes = commonsService.findExpenseTypeByUserId(userId);
+			if (expenseTypes.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			return new ResponseEntity<>(expenseTypes, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PostMapping("/expenses")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<ExpenseType> createExpenseType(HttpServletRequest request,@RequestBody ExpenseType expenseType) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
+		try {
+			ExpenseType _expenseType = expenseTypeRepository.save(new ExpenseType(expenseType.getName(),userId));
+			return new ResponseEntity<>(_expenseType, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@DeleteMapping("/expenses")
+	@PreAuthorize("hasRole('ADMIN')")
+	public void deleteExpenseType(@RequestParam Long id) {
+		try {
+			expenseTypeRepository.deleteById(id);
+		} catch (Exception e) {
+
+		}
+	}
+
+	@PatchMapping("/expenses")
+	@PreAuthorize("hasRole('ADMIN')")
+	public void modifyExpenseType(@RequestParam Long id,@RequestParam String name) {
+		try {
+			expenseTypeRepository.modifyName(id,name);
+		} catch (Exception e) {
+
+		}
+	}
 
 
 	@GetMapping("/user")

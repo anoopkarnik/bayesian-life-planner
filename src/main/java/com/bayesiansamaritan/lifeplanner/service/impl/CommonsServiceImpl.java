@@ -1,5 +1,7 @@
 package com.bayesiansamaritan.lifeplanner.service.impl;
 
+import com.bayesiansamaritan.lifeplanner.model.Financial.*;
+import com.bayesiansamaritan.lifeplanner.repository.Financial.*;
 import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabit;
 import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
 import com.bayesiansamaritan.lifeplanner.model.Goal.Goal;
@@ -64,6 +66,20 @@ public class CommonsServiceImpl implements CommonsService {
     private GoalTypeRepository goalTypeRepository;
     @Autowired
     private GoalRepository goalRepository;
+    @Autowired
+    AccountTypeRepository accountTypeRepository;
+    @Autowired
+    CategoryTypeRepository categoryTypeRepository;
+
+    @Autowired
+    ExpenseTypeRepository expenseTypeRepository;
+
+    @Autowired
+    SubCategoryTypeRepository subCategoryTypeRepository;
+
+    @Autowired
+    AccountRepository accountRepository;
+
     @Override
     public List<HabitType> findHabitTypeByUserId(Long userId){
 
@@ -134,5 +150,34 @@ public class CommonsServiceImpl implements CommonsService {
         }
         return goalTypeRepository.findByUserId(userId);
     };
+
+    @Override
+    public List<AccountType> findAccountTypeByUserId(Long userId){
+        List<AccountType> accountTypes = accountTypeRepository.findByUserId(userId);
+        for(AccountType accountType:accountTypes){
+            List<Account> accountList = accountRepository.findByUserIdAndAccountTypeId(userId,accountType.getId());
+            accountTypeRepository.updateCount(accountType.getId(),(long) accountList.size());
+        }
+        return accountTypes;
+    }
+
+
+    @Override
+    public List<CategoryType> findCategoryTypeByUserId(Long userId){
+        List<CategoryType> categoryTypes = categoryTypeRepository.findByUserId(userId);
+        return categoryTypes;
+    }
+
+    @Override
+    public List<ExpenseType> findExpenseTypeByUserId(Long userId){
+        List<ExpenseType> expenseTypes = expenseTypeRepository.findByUserId(userId);
+        return expenseTypes;
+    }
+
+    @Override
+    public List<SubCategoryType> findSubCategoryTypeByUserId(Long userId){
+        List<SubCategoryType> subCategoryTypes = subCategoryTypeRepository.findByUserId(userId);
+        return subCategoryTypes;
+    }
 
 }
