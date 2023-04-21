@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.Objects.isNull;
+
 @Service
 public class BudgetServiceImpl implements BudgetService {
 
@@ -155,6 +158,10 @@ public class BudgetServiceImpl implements BudgetService {
                 totalTransactions+=transaction.getCost();
             }
             BudgetPlan budgetPlan = budgetPlanRepository.findByUserIdAndExpenseTypeId(userId, expenseType.getId());
+            if(isNull(budgetPlan)){
+                budgetPlanRepository.save(new BudgetPlan(0L,expenseType.getId(),userId));
+                budgetPlan = budgetPlanRepository.findByUserIdAndExpenseTypeId(userId, expenseType.getId());
+            }
             Long transactionPercentage = totalTransactions * 100 / totalIncome;
             BudgetPlanResponse budgetPlanResponse = new BudgetPlanResponse();
             try{
