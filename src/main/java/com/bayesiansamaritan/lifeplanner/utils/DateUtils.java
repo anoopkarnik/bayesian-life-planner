@@ -113,10 +113,64 @@ public class DateUtils {
         }
     }
 
+    public Date getDueDate(Date currentDueDate, String scheduleTypeName, String reference){
+        if (scheduleTypeName.equals("daily")){
+            Daily daily = dailyRepository.findByReferenceId(reference);
+            Date newDueDate = new Date(getEndOfDay(currentDueDate).getTime() + 24*60*60*1000*daily.getEvery());
+            return newDueDate;
+        }
+        else if(scheduleTypeName.equals("monthly")){
+            Monthly monthly = monthlyRepository.findByReferenceId(reference);
+            LocalDate localDueDate = LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(currentDueDate));
+            LocalDate newLocalDueDate = localDueDate.plusMonths(monthly.getEvery());
+            Date currentDate = new Date();
+            Date newDueDate = Date.from(newLocalDueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            return newDueDate;
+        }
+        else if(scheduleTypeName.equals("yearly")){
+            Yearly yearly = yearlyRepository.findByReferenceId(reference);
+            LocalDate localDueDate = LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(currentDueDate));
+            LocalDate newLocalDueDate = localDueDate.plusYears(yearly.getEvery());
+            Date newDueDate = Date.from(newLocalDueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            return newDueDate;
+        }
+//        Weekly every scenario case left when not done on correct day
+        else if(scheduleTypeName.equals("weekly")){
+            Weekly weekly = weeklyRepository.findByReferenceId(reference);
+            List<DayOfWeek> daysOfWeek = weekly.getDaysOfWeek();
+            LocalDate localDueDate = LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(currentDueDate));
+            Boolean match = false;
+            while (!match) {
+                DayOfWeek dayOfWeek = DayOfWeek.valueOf(localDueDate.getDayOfWeek().toString());
+                if (dayOfWeek.equals(dayOfWeek.SUNDAY)) {
+                    localDueDate = localDueDate.plusDays(7L * (weekly.getEvery()-1));
+                }
+                localDueDate = localDueDate.plusDays(1L);
+                Date newDueDate = Date.from(localDueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                Date currentDate = new Date();
+                if (currentDate.compareTo(getStartOfMorning(newDueDate))>=0){
+                }
+                else {
+                    for (DayOfWeek dayOfWeek1 : daysOfWeek) {
+                        if (dayOfWeek1.name().equals(localDueDate.getDayOfWeek().name())) {
+                            match = true;
+                        }
+                    }
+                }
+            }
+            Date newDueDate = Date.from(localDueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            Date newDueDate1 = getEndOfDay(newDueDate);
+            return newDueDate1;
+        }
+        else{
+            return currentDueDate;
+        }
+    }
+
 
     public Boolean keepStreak(Long referenceId,String scheduleTypeName, Date dueDate){
         String reference = "habit/"+referenceId;
-        Date newDueDate = getNextDueDate(dueDate,scheduleTypeName,reference);
+        Date newDueDate = getDueDate(dueDate,scheduleTypeName,reference);
         Date currentDate = new Date();
         if (currentDate.compareTo(getStartOfMorning(newDueDate))>=0){
             habitRepository.removeStreak(referenceId);
