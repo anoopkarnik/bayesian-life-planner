@@ -85,6 +85,7 @@ public class CommonsController {
 	static final String TOKEN_PREFIX = "Bearer";
 
 	@GetMapping("/accounts")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<AccountType>> getAllAccounts(HttpServletRequest request) {
 		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
 		Long userId = userProfileRepository.findByName(username).get().getId();
@@ -102,7 +103,7 @@ public class CommonsController {
 
 
 	@PostMapping("/accounts")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<AccountType> createAccountType(HttpServletRequest request,@RequestBody AccountType accountType) {
 		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
 		Long userId = userProfileRepository.findByName(username).get().getId();
@@ -114,7 +115,7 @@ public class CommonsController {
 		}
 	}
 	@DeleteMapping("/accounts")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public void deleteAccountType(@RequestParam Long id) {
 		try {
 			accountTypeRepository.deleteById(id);
@@ -123,7 +124,7 @@ public class CommonsController {
 		}
 	}
 	@PatchMapping("/accounts")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public void modifyAccountType(@RequestParam Long id,@RequestParam String name) {
 		try {
 			accountTypeRepository.modifyName(id,name);
@@ -133,6 +134,7 @@ public class CommonsController {
 	}
 
 	@GetMapping("/categories")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<CategoryType>> getAllCategories(HttpServletRequest request) {
 		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
 		Long userId = userProfileRepository.findByName(username).get().getId();
@@ -149,7 +151,7 @@ public class CommonsController {
 	}
 
 	@PostMapping("/categories")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<CategoryType> createCategoryType(HttpServletRequest request,@RequestBody CategoryType categoryType) {
 		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
 		Long userId = userProfileRepository.findByName(username).get().getId();
@@ -162,7 +164,7 @@ public class CommonsController {
 	}
 
 	@DeleteMapping("/categories")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public void deleteCategoryType(@RequestParam Long id) {
 		try {
 			categoryTypeRepository.deleteById(id);
@@ -172,7 +174,7 @@ public class CommonsController {
 	}
 
 	@PatchMapping("/categories")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public void modifyCategoryType(@RequestParam Long id,@RequestParam String name) {
 		try {
 			categoryTypeRepository.modifyName(id,name);
@@ -183,6 +185,7 @@ public class CommonsController {
 
 
 	@GetMapping("/subCategories")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<SubCategoryType>> getAllSubCategories(HttpServletRequest request) {
 		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
 		Long userId = userProfileRepository.findByName(username).get().getId();
@@ -199,7 +202,7 @@ public class CommonsController {
 	}
 
 	@PostMapping("/subCategories")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<SubCategoryType> createSubCategoryType(HttpServletRequest request,@RequestBody SubCategoryType subCategoryType) {
 		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
 		Long userId = userProfileRepository.findByName(username).get().getId();
@@ -212,7 +215,7 @@ public class CommonsController {
 	}
 
 	@DeleteMapping("/subCategories")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public void deleteSubCategoryType(@RequestParam Long id) {
 		try {
 			subCategoryTypeRepository.deleteById(id);
@@ -222,7 +225,7 @@ public class CommonsController {
 	}
 
 	@PatchMapping("/subCategories")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public void modifySubCategoryType(@RequestParam Long id,@RequestParam String name) {
 		try {
 			subCategoryTypeRepository.modifyName(id,name);
@@ -233,6 +236,7 @@ public class CommonsController {
 
 
 	@GetMapping("/expenses")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<ExpenseType>> getAllExpenses(HttpServletRequest request) {
 		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
 		Long userId = userProfileRepository.findByName(username).get().getId();
@@ -249,7 +253,7 @@ public class CommonsController {
 	}
 
 	@PostMapping("/expenses")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<ExpenseType> createExpenseType(HttpServletRequest request,@RequestBody ExpenseType expenseType) {
 		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
 		Long userId = userProfileRepository.findByName(username).get().getId();
@@ -262,7 +266,7 @@ public class CommonsController {
 	}
 
 	@DeleteMapping("/expenses")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public void deleteExpenseType(@RequestParam Long id) {
 		try {
 			expenseTypeRepository.deleteById(id);
@@ -272,7 +276,7 @@ public class CommonsController {
 	}
 
 	@PatchMapping("/expenses")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public void modifyExpenseType(@RequestParam Long id,@RequestParam String name) {
 		try {
 			expenseTypeRepository.modifyName(id,name);
@@ -292,6 +296,7 @@ public class CommonsController {
 
 
 	@GetMapping("/task")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<TaskType>> getAllTasks(HttpServletRequest request) {
 		try {
 			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
@@ -340,6 +345,7 @@ public class CommonsController {
 	}
 
 	@GetMapping("/habit")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<HabitType>> getAllHabits(HttpServletRequest request) {
 		try {
 			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
@@ -388,6 +394,7 @@ public class CommonsController {
 	}
 
 	@GetMapping("/journal")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<JournalType>> getAllJournals(HttpServletRequest request) {
 		try {
 			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
@@ -436,6 +443,7 @@ public class CommonsController {
 	}
 
 	@GetMapping("/stats")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<StatsType>> getAllStats(HttpServletRequest request) {
 		try {
 			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
@@ -484,6 +492,7 @@ public class CommonsController {
 	}
 
 	@GetMapping("/skill")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<SkillType>> getAllSkill(HttpServletRequest request) {
 		try {
 			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
@@ -532,6 +541,7 @@ public class CommonsController {
 	}
 
 	@GetMapping("/goal")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<GoalType>> getAllGoal(HttpServletRequest request) {
 		try {
 			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
@@ -580,6 +590,7 @@ public class CommonsController {
 	}
 
 	@GetMapping("/badHabit")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<BadHabitType>> getAllBadHabits(HttpServletRequest request) {
 		try {
 			String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
