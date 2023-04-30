@@ -86,7 +86,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<AccountBalanceResponse> getAllAccountBalances(Long userId){
         List<AccountType> accountTypes = new ArrayList<>();
-        accountTypeRepository.findAll().forEach(accountTypes::add);
+        accountTypeRepository.findByUserId(userId).forEach(accountTypes::add);
         List<AccountBalanceResponse> accountBalances = new ArrayList<>();
         for (AccountType accountType:accountTypes){
             List<Account> accounts = accountRepository.findByUserIdAndAccountTypeId(userId,accountType.getId());
