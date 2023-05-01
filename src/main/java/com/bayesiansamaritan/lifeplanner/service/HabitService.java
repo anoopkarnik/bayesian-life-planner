@@ -36,7 +36,7 @@ public interface HabitService {
 
     public Habit createYearlyChildHabit(Long userId, String name,Date startDate,  Long timeOfDay, Date dueDate,Long every, String scheduleType,
                                    String habitTypeName, String parentName, Boolean active);
-    public Habit completeHabit(Long userId, Long id);
+    public Habit completeHabit(Long userId, Long id, String habitCompletionType);
 
     public void modifySchedule(Long userId, Long id,String oldScheduleType, String scheduleType,Long every, List<DayOfWeek> daysOfWeek);
 

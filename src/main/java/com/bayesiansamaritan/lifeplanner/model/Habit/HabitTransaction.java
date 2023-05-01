@@ -42,11 +42,14 @@ public class HabitTransaction extends Base2Model {
     @Column(name="time_of_day")
     private Long timeOfDay;
 
+    @Column(name="habit_completion_type")
+    private String habitCompletionType;
+
 
     public HabitTransaction(){};
 
     public HabitTransaction(String name,  Long timeTaken, Date startDate, Date dueDate, Long habitTypeId,  Long userId,
-                 Long streak, Long totalTimes, String scheduleType,Long habitId,Long timeOfDay) {
+                 Long streak, Long totalTimes, String scheduleType,Long habitId,Long timeOfDay, String habitCompletionType) {
         this.name = name;
         this.timeTaken = timeTaken;
         this.startDate = startDate;
@@ -58,6 +61,7 @@ public class HabitTransaction extends Base2Model {
         this.scheduleType = scheduleType;
         this.habitId = habitId;
         this.timeOfDay = timeOfDay;
+        this.habitCompletionType = habitCompletionType;
     }
 
 }

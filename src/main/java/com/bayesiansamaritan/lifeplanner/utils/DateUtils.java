@@ -148,13 +148,9 @@ public class DateUtils {
                 localDueDate = localDueDate.plusDays(1L);
                 Date newDueDate = Date.from(localDueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
                 Date currentDate = new Date();
-                if (currentDate.compareTo(getStartOfMorning(newDueDate))>=0){
-                }
-                else {
-                    for (DayOfWeek dayOfWeek1 : daysOfWeek) {
-                        if (dayOfWeek1.name().equals(localDueDate.getDayOfWeek().name())) {
-                            match = true;
-                        }
+                for (DayOfWeek dayOfWeek1 : daysOfWeek) {
+                    if (dayOfWeek1.name().equals(localDueDate.getDayOfWeek().name())) {
+                        match = true;
                     }
                 }
             }

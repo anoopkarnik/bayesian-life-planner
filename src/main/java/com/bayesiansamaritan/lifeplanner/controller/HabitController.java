@@ -130,12 +130,12 @@ public class HabitController {
 
     @PatchMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<Habit> completeHabit(HttpServletRequest request,@RequestParam("id") Long id)
+    public ResponseEntity<Habit> completeHabit(HttpServletRequest request,@RequestParam("id") Long id,@RequestParam("completion") String completionType)
     {
         String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
         Long userId = userProfileRepository.findByName(username).get().getId();
         try {
-            Habit habit = habitService.completeHabit(userId,id);
+            Habit habit = habitService.completeHabit(userId,id,completionType);
             return new ResponseEntity<>(habit, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

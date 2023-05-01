@@ -22,10 +22,6 @@ import org.springframework.stereotype.Service;
 
 import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -340,14 +336,28 @@ public class HabitServiceImpl implements HabitService {
     };
 
     @Override
-    public Habit completeHabit(Long userId, Long id){
+    public Habit completeHabit(Long userId, Long id, String habitCompletionType){
         Habit oldHabit = habitRepository.findByUserIdAndId(userId,id);
         String scheduleTypeName = oldHabit .getScheduleType();
         Date dueDate = oldHabit.getDueDate();
-        habitRepository.completeHabit(oldHabit.getId());
-        Habit habit = habitRepository.findByUserIdAndId(userId,id);
-        habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),dueDate,
-                habit.getHabitTypeId(),userId,habit.getStreak(),habit.getTotalTimes(),habit.getScheduleType(),habit.getId(),habit.getTimeOfDay()));
+        Habit habit = oldHabit;
+        if (habitCompletionType.equals("Complete")){
+            habitRepository.completeHabit(oldHabit.getId());
+            habit = habitRepository.findByUserIdAndId(userId,id);
+            habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),dueDate,
+                    habit.getHabitTypeId(),userId,habit.getStreak(),habit.getTotalTimes(),habit.getScheduleType(),habit.getId(),habit.getTimeOfDay(),habitCompletionType));
+        }
+        else if (habitCompletionType.equals("Atomic")){
+            habit = habitRepository.findByUserIdAndId(userId,id);
+            habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),dueDate,
+                    habit.getHabitTypeId(),userId,habit.getStreak(),habit.getTotalTimes(),habit.getScheduleType(),habit.getId(),habit.getTimeOfDay(),habitCompletionType));
+        }
+        else if (habitCompletionType.equals("Condition")){
+            habit = habitRepository.findByUserIdAndId(userId,id);
+            habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),dueDate,
+                    habit.getHabitTypeId(),userId,habit.getStreak(),habit.getTotalTimes(),habit.getScheduleType(),habit.getId(),habit.getTimeOfDay(),habitCompletionType));
+        }
+
         String referenceId = "habit/"+habit.getId();
         Date nextDueDate = dateUtils.getNextDueDate(dueDate,scheduleTypeName,referenceId);
         habitRepository.modifyDueDate(habit.getId(),nextDueDate);
