@@ -52,7 +52,7 @@ public class AccountServiceImpl implements AccountService {
             AccountResponse accountResponse = new AccountResponse(account.getId(),account.getCreatedAt(),account.getUpdatedAt(),
                     account.getName(),account.getStartDate(),accountTypeName,account.getBalance(),account.getLiquidity(),
                     account.getFreeLiquidity(),account.getDescription(),account.getActive(),account.getHidden(),account.getCompleted(),
-                    userId);
+                    userId,account.getNomineeName(),account.getMaturityDate(),account.getStockCode(),account.getSchemeCode());
             accountResponses.add(accountResponse);
         }
         return accountResponses;
@@ -108,7 +108,9 @@ public class AccountServiceImpl implements AccountService {
                 accountResponse.getUserId());
         accountRepository.modifyParams(accountResponse.getId(),accountResponse.getName(),accountResponse.getStartDate(),
                 accountResponse.getDescription(),accountType.getId(),accountResponse.getActive(),accountResponse.getHidden(),
-                accountResponse.getCompleted(),accountResponse.getBalance(),accountResponse.getLiquidity(),accountResponse.getFreeLiquidity());
+                accountResponse.getCompleted(),accountResponse.getBalance(),accountResponse.getLiquidity(),accountResponse.getFreeLiquidity(),
+                accountResponse.getNomineeName(),accountResponse.getMaturityDate(),accountResponse.getStockCode(),
+                accountResponse.getSchemeCode());
     }
 
 

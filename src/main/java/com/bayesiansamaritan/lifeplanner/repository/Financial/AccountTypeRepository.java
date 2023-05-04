@@ -32,5 +32,10 @@ public interface AccountTypeRepository extends JpaRepository<AccountType, Long> 
     @Query(value = "update AccountType t set t.count =:count where t.id=:id")
     public void updateCount(@Param("id") Long id, @Param("count") Long count);
 
+    @Transactional
+    @Modifying
+    @Query("update AccountType set description=:description,updated_at=now() where id=:id")
+    public void modifyParams(@Param("id") Long id, @Param("description") String description);
+
 
 }

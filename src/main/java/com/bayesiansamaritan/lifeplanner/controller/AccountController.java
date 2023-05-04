@@ -2,10 +2,9 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 import com.bayesiansamaritan.lifeplanner.model.Financial.Account;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
-import com.bayesiansamaritan.lifeplanner.request.Financial.SubAccountTypeRequest;
+import com.bayesiansamaritan.lifeplanner.request.Financial.AccountRequest;
 import com.bayesiansamaritan.lifeplanner.response.AccountBalanceResponse;
 import com.bayesiansamaritan.lifeplanner.response.AccountResponse;
-import com.bayesiansamaritan.lifeplanner.response.TransactionResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.AccountService;
 import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
@@ -40,13 +39,13 @@ public class AccountController {
 
 	@PostMapping
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	public ResponseEntity<Account> createSubAccountType(HttpServletRequest request, @RequestBody SubAccountTypeRequest subAccountTypeRequest)
+	public ResponseEntity<Account> createSubAccountType(HttpServletRequest request, @RequestBody AccountRequest accountRequest)
 	{
 		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
 		Long userId = userProfileRepository.findByName(username).get().getId();
 		try {
-			Account _Account = accountService.createSubAccount(subAccountTypeRequest.getAccountName(),subAccountTypeRequest.getBalance(),
-					subAccountTypeRequest.getFreeLiquidity(),subAccountTypeRequest.getLiquidity(),subAccountTypeRequest.getName(),userId);
+			Account _Account = accountService.createSubAccount(accountRequest.getAccountName(), accountRequest.getBalance(),
+					accountRequest.getFreeLiquidity(), accountRequest.getLiquidity(), accountRequest.getName(),userId);
 			return new ResponseEntity<>(_Account, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

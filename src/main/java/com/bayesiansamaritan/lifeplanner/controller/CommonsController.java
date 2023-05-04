@@ -24,7 +24,9 @@ import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Task.TaskTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
+import com.bayesiansamaritan.lifeplanner.request.Financial.AccountTypeRequest;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
+import com.bayesiansamaritan.lifeplanner.service.AccountTypeService;
 import com.bayesiansamaritan.lifeplanner.service.CommonsService;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -80,6 +82,8 @@ public class CommonsController {
 	@Autowired
 	SubCategoryTypeRepository subCategoryTypeRepository;
 	@Autowired
+	AccountTypeService accountTypeService;
+	@Autowired
 	JwtUtils jwtUtils;
 	static final String HEADER_STRING = "Authorization";
 	static final String TOKEN_PREFIX = "Bearer";
@@ -131,6 +135,14 @@ public class CommonsController {
 		} catch (Exception e) {
 
 		}
+	}
+
+	@PatchMapping("/accounts/modifyParams")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public void modifyAccountParams(HttpServletRequest request, @RequestBody AccountTypeRequest accountTypeRequest) {
+		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+		Long userId = userProfileRepository.findByName(username).get().getId();
+		accountTypeService.modifyParams(accountTypeRequest);
 	}
 
 	@GetMapping("/categories")

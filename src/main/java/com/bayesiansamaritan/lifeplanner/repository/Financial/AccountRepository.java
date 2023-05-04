@@ -36,9 +36,12 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
   @Transactional
   @Modifying
   @Query("update Account set name=:name,startDate=:startDate,description=:description,active=:active,hidden=:hidden,completed=:completed" +
-          ",accountTypeId=:accountTypeId,balance=:balance,liquidity=:liquidity,freeLiquidity=:freeLiquidity,updated_at=now() where id=:id")
+          ",accountTypeId=:accountTypeId,balance=:balance,liquidity=:liquidity,freeLiquidity=:freeLiquidity," +
+          "nomineeName=:nomineeName, maturityDate=:maturityDate,stockCode=:stockCode,schemeCode=:schemeCode,updated_at=now() where id=:id")
   void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("startDate") Date startDate,
                     @Param("description") String description, @Param("accountTypeId") Long accountTypeId,
                     @Param("active") Boolean active, @Param("hidden") Boolean hidden, @Param("completed") Boolean completed,
-                    @Param("balance") Long balance, @Param("liquidity") Boolean liquidity, @Param("freeLiquidity") Boolean freeLiquidity);
+                    @Param("balance") Long balance, @Param("liquidity") Boolean liquidity, @Param("freeLiquidity") Boolean freeLiquidity,
+                    @Param("nomineeName") String nomineeName, @Param("maturityDate") Date maturityDate,
+                    @Param("stockCode") String stockCode, @Param("schemeCode") String schemeCode);
 }

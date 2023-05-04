@@ -28,6 +28,18 @@ public class Account extends Base2Model {
     @Column(name="free_liquidity")
     private Boolean freeLiquidity;
 
+    @Column(name="nominee_name")
+    private String nomineeName;
+
+    @Column(name="maturity_date")
+    private Date maturityDate;
+
+    @Column(name="stock_code")
+    private String stockCode;
+
+    @Column(name="scheme_code")
+    private String schemeCode;
+
     public Account() {
     }
     public Account(String name, Long balance, Long accountTypeId, Long userId, Boolean liquidity, Boolean freeLiquidity) {

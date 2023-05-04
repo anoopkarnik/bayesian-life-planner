@@ -24,10 +24,16 @@ public class AccountResponse {
     private Boolean hidden;
     private Boolean completed;
     private Long userId;
+    private String nomineeName;
+    private Date maturityDate;
+    private String stockCode;
+    private String schemeCode;
+
 
     public AccountResponse(Long id, Date createdAt, Date updatedAt, String name, Date startDate,String accountTypeName,
                            Long balance,Boolean liquidity, Boolean freeLiquidity,
-                           String description, Boolean active, Boolean hidden, Boolean completed, Long userId) {
+                           String description, Boolean active, Boolean hidden, Boolean completed, Long userId,
+                           String nomineeName, Date maturityDate, String stockCode, String schemeCode) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -42,5 +48,9 @@ public class AccountResponse {
         this.hidden = hidden;
         this.completed = completed;
         this.userId = userId;
+        this.nomineeName = nomineeName;
+        this.maturityDate = maturityDate;
+        this.stockCode = stockCode;
+        this.schemeCode = schemeCode;
     }
 }

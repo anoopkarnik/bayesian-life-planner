@@ -19,6 +19,9 @@ public class AccountType extends BaseModel {
     @Column(name="count")
     private Long count=0L;
 
+    @Column(name="description",length = 10240)
+    public String description;
+
     public AccountType() {
     }
 
@@ -26,7 +29,6 @@ public class AccountType extends BaseModel {
 
         this.name = name;
         this.userId = userId;
-
     }
 
 

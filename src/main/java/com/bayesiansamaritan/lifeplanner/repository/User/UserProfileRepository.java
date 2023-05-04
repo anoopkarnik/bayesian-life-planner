@@ -22,4 +22,9 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
   @Query("update UserProfile set password=:password,updated_at=now() where id=:id")
   public void modifyPassword(@Param("id") Long id, @Param("password") String password);
 
+  @Transactional
+  @Modifying
+  @Query("update UserProfile set panNo=:panNo,updated_at=now() where id=:id")
+  public void modifyParams(@Param("id") Long id, @Param("panNo") String panNo);
+
 }

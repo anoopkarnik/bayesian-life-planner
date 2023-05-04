@@ -12,10 +12,14 @@ import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.User.LoginRequest;
 import com.bayesiansamaritan.lifeplanner.request.User.ModifyPasswordRequest;
 import com.bayesiansamaritan.lifeplanner.request.User.SignupRequest;
+import com.bayesiansamaritan.lifeplanner.request.User.UserProfileRequest;
+import com.bayesiansamaritan.lifeplanner.response.BudgetResponse;
 import com.bayesiansamaritan.lifeplanner.response.JwtResponse;
 import com.bayesiansamaritan.lifeplanner.response.MessageResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.security.services.UserDetailsImpl;
+import com.bayesiansamaritan.lifeplanner.service.ProfileService;
+import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,6 +46,8 @@ public class AuthController {
 
     @Autowired
     UserProfileRepository userRepository;
+    @Autowired
+    ProfileService profileService;
 
     @Autowired
     RoleRepository roleRepository;
@@ -52,9 +58,15 @@ public class AuthController {
 
     @Autowired
     HabitTypeRepository habitTypeRepository;
+    @Autowired
+    private UserProfileRepository userProfileRepository;
 
     @Autowired
     TaskTypeRepository taskTypeRepository;
+    @Autowired
+    DateUtils dateUtils;
+    static final String HEADER_STRING = "Authorization";
+    static final String TOKEN_PREFIX = "Bearer";
 
 
 
@@ -76,6 +88,7 @@ public class AuthController {
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
+                userDetails.getPanNo(),
                 roles));
     }
 
@@ -151,6 +164,16 @@ public class AuthController {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         userRepository.modifyPassword(userDetails.getId(),encoder.encode(modifyPasswordRequest.getNewPassword()));
         return ResponseEntity.ok(new MessageResponse("Password Modified"));
+    }
+
+    @PatchMapping("/modifyParams")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void modifyParams(HttpServletRequest request,@RequestBody UserProfileRequest userProfileRequest)
+    {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        userProfileRequest.setId(userId);
+        profileService.modifyParams(userProfileRequest);
     }
 
 }
