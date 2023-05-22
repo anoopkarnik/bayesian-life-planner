@@ -20,5 +20,14 @@ public interface RuleEngineService {
     public void createRule(RuleRequest ruleRequest);
     public void createRuleSet(RuleSetRequest ruleSetRequest);
 
+    public void modifyCriteriaSet(CriteriaSetModifyRequest criteriaSetModifyRequest);
+    public void modifyRule(RulesModifyRequest ruleModifyRequest);
+    public void modifyRuleSet(RuleSetModifyRequest ruleSetModifyRequest);
+
+    public List<TypesResponse> getAllTypes(Long userId, String type);
+    public List<NamesResponse> getAllNames(Long userId, String type, String name);
+    public Float getCompletedPercentage(Long userId, Long goalId);
+    public Float getWorkPercentage(Long userId, Long goalId);
+
 
 }

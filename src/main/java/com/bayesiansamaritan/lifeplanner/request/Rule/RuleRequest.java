@@ -13,6 +13,5 @@ import java.util.Set;
 public class RuleRequest {
 
     private String name;
-    private Set<Long> criteriaSetIds;
     private Long userId;
 }

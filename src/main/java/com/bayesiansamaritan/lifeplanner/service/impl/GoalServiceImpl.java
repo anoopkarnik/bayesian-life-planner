@@ -6,7 +6,7 @@ import com.bayesiansamaritan.lifeplanner.repository.Goal.GoalRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Goal.GoalTypeRepository;
 import com.bayesiansamaritan.lifeplanner.response.GoalResponse;
 import com.bayesiansamaritan.lifeplanner.service.GoalService;
-import com.bayesiansamaritan.lifeplanner.service.RuleService;
+import com.bayesiansamaritan.lifeplanner.service.RuleEngineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class GoalServiceImpl implements GoalService {
     @Autowired
     GoalTypeRepository goalTypeRepository;
     @Autowired
-    RuleService ruleService;
+    RuleEngineService ruleEngineService;
 
     @Override
     public List<GoalResponse> getAllGoals(Long userId, Boolean active, String goalTypeName){
@@ -34,9 +34,9 @@ public class GoalServiceImpl implements GoalService {
         List<GoalResponse> goalResponses = new ArrayList<>();
         for (Goal goal: goals){
             Optional<List<Goal>> childGoals1 =  goalRepository.findGoalsByUserIdAndActiveAndParentGoalId(userId,active,goal.getId());
-            Float completedPercentage = ruleService.getCompletedPercentage(userId,goal.getId());
+            Float completedPercentage = ruleEngineService.getCompletedPercentage(userId,goal.getId());
             goalRepository.modifyCompletedPercentage(goal.getId(),completedPercentage);
-            Float workPercentage = ruleService.getWorkPercentage(userId,goal.getId());
+            Float workPercentage = ruleEngineService.getWorkPercentage(userId,goal.getId());
             goalRepository.modifyWorkPercentage(goal.getId(),workPercentage);
             GoalResponse goalResponse = new GoalResponse(goal.getId(),goal.getCreatedAt(),
                     goal.getUpdatedAt(),goal.getName(),goal.getDueDate(),goalType.getName(),
@@ -46,9 +46,9 @@ public class GoalServiceImpl implements GoalService {
                 List<GoalResponse> childGoalResponses1 = new ArrayList<>();
                 for(Goal childGoal1 : childGoals1.get()) {
                     Optional<GoalType> childGoalType1 = goalTypeRepository.findById(childGoal1.getGoalTypeId());
-                    Float child1CompletedPercentage = ruleService.getCompletedPercentage(userId,childGoal1.getId());
+                    Float child1CompletedPercentage = ruleEngineService.getCompletedPercentage(userId,childGoal1.getId());
                     goalRepository.modifyCompletedPercentage(childGoal1.getId(),child1CompletedPercentage);
-                    Float child1WorkPercentage = ruleService.getWorkPercentage(userId,childGoal1.getId());
+                    Float child1WorkPercentage = ruleEngineService.getWorkPercentage(userId,childGoal1.getId());
                     goalRepository.modifyWorkPercentage(childGoal1.getId(),child1WorkPercentage);
                     Optional<List<Goal>> childGoals2 =  goalRepository.findGoalsByUserIdAndActiveAndParentGoalId(userId,active,childGoal1.getId());
                     GoalResponse childGoalResponse1 = new GoalResponse(childGoal1.getId(), childGoal1.getCreatedAt(),
@@ -60,9 +60,9 @@ public class GoalServiceImpl implements GoalService {
                         List<GoalResponse> childGoalResponses2 = new ArrayList<>();
                         for(Goal childGoal2 : childGoals2.get()){
                             Optional<GoalType>  childGoalType2 = goalTypeRepository.findById(childGoal2.getGoalTypeId());
-                            Float child2CompletedPercentage = ruleService.getCompletedPercentage(userId,childGoal2.getId());
+                            Float child2CompletedPercentage = ruleEngineService.getCompletedPercentage(userId,childGoal2.getId());
                             goalRepository.modifyCompletedPercentage(childGoal2.getId(),child2CompletedPercentage);
-                            Float child2WorkPercentage = ruleService.getWorkPercentage(userId,childGoal2.getId());
+                            Float child2WorkPercentage = ruleEngineService.getWorkPercentage(userId,childGoal2.getId());
                             goalRepository.modifyWorkPercentage(childGoal2.getId(),child2WorkPercentage);
                             Optional<List<Goal>> childGoals3 =  goalRepository.findGoalsByUserIdAndActiveAndParentGoalId(userId,active,childGoal2.getId());
                             GoalResponse childGoalResponse2 = new GoalResponse(childGoal2.getId(), childGoal2.getCreatedAt(),
@@ -73,9 +73,9 @@ public class GoalServiceImpl implements GoalService {
                                 List<GoalResponse> childGoalResponses3 = new ArrayList<>();
                                 for(Goal childGoal3 : childGoals3.get()){
                                     Optional<GoalType>  childGoalType3 = goalTypeRepository.findById(childGoal2.getGoalTypeId());
-                                    Float child3CompletedPercentage = ruleService.getCompletedPercentage(userId,childGoal3.getId());
+                                    Float child3CompletedPercentage = ruleEngineService.getCompletedPercentage(userId,childGoal3.getId());
                                     goalRepository.modifyCompletedPercentage(childGoal3.getId(),child3CompletedPercentage);
-                                    Float child3WorkPercentage = ruleService.getWorkPercentage(userId,childGoal3.getId());
+                                    Float child3WorkPercentage = ruleEngineService.getWorkPercentage(userId,childGoal3.getId());
                                     goalRepository.modifyWorkPercentage(childGoal3.getId(),child3WorkPercentage);
                                     Optional<List<Goal>> childGoals4 =  goalRepository.findGoalsByUserIdAndActiveAndParentGoalId(userId,active,childGoal3.getId());
                                     GoalResponse childGoalResponse3 = new GoalResponse(childGoal3.getId(), childGoal3.getCreatedAt(),
@@ -86,9 +86,9 @@ public class GoalServiceImpl implements GoalService {
                                         List<GoalResponse> childGoalResponses4 = new ArrayList<>();
                                         for(Goal childGoal4 : childGoals4.get()){
                                             Optional<GoalType>  childGoalType4 = goalTypeRepository.findById(childGoal3.getGoalTypeId());
-                                            Float child4CompletedPercentage = ruleService.getCompletedPercentage(userId,childGoal4.getId());
+                                            Float child4CompletedPercentage = ruleEngineService.getCompletedPercentage(userId,childGoal4.getId());
                                             goalRepository.modifyCompletedPercentage(childGoal4.getId(),child4CompletedPercentage);
-                                            Float child4WorkPercentage = ruleService.getWorkPercentage(userId,childGoal4.getId());
+                                            Float child4WorkPercentage = ruleEngineService.getWorkPercentage(userId,childGoal4.getId());
                                             goalRepository.modifyWorkPercentage(childGoal4.getId(),child4WorkPercentage);
                                             Optional<List<Goal>> childGoals5 =  goalRepository.findGoalsByUserIdAndActiveAndParentGoalId(userId,active,childGoal4.getId());
                                             GoalResponse childGoalResponse4 = new GoalResponse(childGoal4.getId(), childGoal4.getCreatedAt(),

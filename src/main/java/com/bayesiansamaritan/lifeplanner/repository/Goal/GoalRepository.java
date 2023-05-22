@@ -47,6 +47,17 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
    @Query("update Goal set timeRemainingPercentage=:timeRemainingPercentage,updated_at=now() where id=:id")
    public void modifyTimeRemainingPercentage(@Param("id") Long id, @Param("timeRemainingPercentage") Float timeRemainingPercentage);
 
+   @Transactional
+   @Modifying
+   @Query("update Goal set completedRuleEngineReference=:completedRuleEngineReference,updated_at=now() where id=:id")
+   public void addCompletedRule(@Param("id") Long id, @Param("completedRuleEngineReference") String completedRuleEngineReference);
+
+   @Transactional
+   @Modifying
+   @Query("update Goal set workRuleEngineReference=:workRuleEngineReference,updated_at=now() where id=:id")
+   public void addWorkRule(@Param("id") Long id, @Param("workRuleEngineReference") String workRuleEngineReference);
+
+
    void deleteById(Long id);
    @Transactional
    @Modifying

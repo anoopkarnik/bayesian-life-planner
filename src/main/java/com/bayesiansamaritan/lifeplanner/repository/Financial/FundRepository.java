@@ -1,4 +1,5 @@
 package com.bayesiansamaritan.lifeplanner.repository.Financial;
+import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabit;
 import com.bayesiansamaritan.lifeplanner.model.Financial.Fund;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,6 +15,9 @@ import java.util.List;
 public interface FundRepository extends JpaRepository<Fund, Long> {
 
     List<Fund> findByUserId(Long userId);
+
+    @Query("Select t from Fund t where t.userId=:userId and t.name=:name")
+    Fund findByUserIdAndName(@Param("userId") Long userId, @Param("name") String name);
 
     @Transactional
     @Modifying

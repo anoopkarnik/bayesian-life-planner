@@ -19,7 +19,6 @@ import java.util.Set;
 @NoArgsConstructor
 public class Goal extends Base2Model {
 
-
     @Column(name="time_taken")
     private Long timeTaken;
     @Column(name="due_date")
@@ -36,6 +35,10 @@ public class Goal extends Base2Model {
     private Float timeRemainingPercentage=0F;
     @Column(name="parent_id")
     private long parentId=0L;
+    @Column(name="work_rule_engine_reference")
+    private String workRuleEngineReference;
+    @Column(name="completed_rule_engine_reference")
+    private String completedRuleEngineReference;
 
     public Goal(String name, Date dueDate, Long goalTypeId, Boolean active, Long userId, Boolean completed) {
         this.name = name;

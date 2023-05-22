@@ -3,7 +3,6 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 import com.bayesiansamaritan.lifeplanner.model.Stats.Stats;
 import com.bayesiansamaritan.lifeplanner.model.Stats.StatsTransaction;
-import com.bayesiansamaritan.lifeplanner.repository.Rule.StatRuleRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsTransactionRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
@@ -29,8 +28,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/stats")
 public class StatsController {
-    @Autowired
-    private StatRuleRepository statRuleRepository;
+
     @Autowired
     private StatsTransactionRepository statsTransactionRepository;
     @Autowired

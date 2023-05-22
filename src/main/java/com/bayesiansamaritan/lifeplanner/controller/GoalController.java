@@ -2,12 +2,22 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 
 import com.bayesiansamaritan.lifeplanner.model.Goal.Goal;
+import com.bayesiansamaritan.lifeplanner.model.Rule.Criteria;
+import com.bayesiansamaritan.lifeplanner.model.Rule.CriteriaSet;
+import com.bayesiansamaritan.lifeplanner.model.Rule.Rule;
+import com.bayesiansamaritan.lifeplanner.model.Rule.RuleSet;
 import com.bayesiansamaritan.lifeplanner.repository.Goal.GoalRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Rule.CriteriaRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Rule.CriteriaSetRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Rule.RuleRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Rule.RuleSetRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Goal.GoalCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.Goal.GoalCreateRootRequest;
 import com.bayesiansamaritan.lifeplanner.request.Goal.GoalModifyRequest;
+import com.bayesiansamaritan.lifeplanner.request.Rule.AddRuleRequest;
 import com.bayesiansamaritan.lifeplanner.response.GoalResponse;
+import com.bayesiansamaritan.lifeplanner.response.RuleEngineResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.GoalService;
 import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
@@ -21,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -35,6 +46,14 @@ public class GoalController {
     private GoalService goalService;
     @Autowired
     private UserProfileRepository userProfileRepository;
+    @Autowired
+    private CriteriaRepository criteriaRepository;
+    @Autowired
+    private CriteriaSetRepository criteriaSetRepository;
+    @Autowired
+    private RuleRepository ruleRepository;
+    @Autowired
+    private RuleSetRepository ruleSetRepository;
     @Autowired
     JwtUtils jwtUtils;
     @Autowired
@@ -56,6 +75,45 @@ public class GoalController {
             }
 
             return new ResponseEntity<>(goal, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/rule")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public ResponseEntity<RuleEngineResponse> getWorkRule(@RequestParam("id") Long id,@RequestParam("ruleType") String ruleType) {
+        Optional<Goal> goal = goalRepository.findById(id);
+        try {
+            String str;
+            if(ruleType.equals("Work")){
+                str = goal.get().getWorkRuleEngineReference();
+            }
+            else{
+                str = goal.get().getCompletedRuleEngineReference();
+            }
+            String[] arrOfStr = str.split("/");
+            String ruleReferenceType = arrOfStr[0];
+            String ruleReferenceId = arrOfStr[1];
+            RuleEngineResponse ruleEngineResponse = new RuleEngineResponse();
+            if(ruleReferenceType.equals("Criteria")) {
+                Optional<Criteria> criteria = criteriaRepository.findById(Long.valueOf(ruleReferenceId));
+                ruleEngineResponse.setId(criteria.get().getId());
+                ruleEngineResponse.setName(criteria.get().getName());
+            } else if (ruleReferenceType.equals("Criteria Set")) {
+                Optional<CriteriaSet> criteria = criteriaSetRepository.findById(Long.valueOf(ruleReferenceId));
+                ruleEngineResponse.setId(criteria.get().getId());
+                ruleEngineResponse.setName(criteria.get().getName());
+            }else if (ruleReferenceType.equals("Criteria")) {
+                Optional<Rule> criteria = ruleRepository.findById(Long.valueOf(ruleReferenceId));
+                ruleEngineResponse.setId(criteria.get().getId());
+                ruleEngineResponse.setName(criteria.get().getName());
+            }else if (ruleReferenceType.equals("Criteria")) {
+                Optional<RuleSet> criteria = ruleSetRepository.findById(Long.valueOf(ruleReferenceId));
+                ruleEngineResponse.setId(criteria.get().getId());
+                ruleEngineResponse.setName(criteria.get().getName());
+            }
+            return new ResponseEntity<>(ruleEngineResponse , HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -92,6 +150,33 @@ public class GoalController {
         }
     }
 
+    @PatchMapping("/addCompletedRule")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void addCompletedRule(@RequestBody AddRuleRequest addRuleRequest)
+    {
+        goalRepository.addCompletedRule(addRuleRequest.getId(),addRuleRequest.getRuleEngineReference());
+    }
+
+    @PatchMapping("/addWorkRule")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void addWorkRule(@RequestBody AddRuleRequest addRuleRequest)
+    {
+        goalRepository.addWorkRule(addRuleRequest.getId(),addRuleRequest.getRuleEngineReference());
+    }
+
+    @DeleteMapping("/completedRule/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void completedRule(@PathVariable Long id)
+    {
+        goalRepository.addCompletedRule(id,null);
+    }
+
+    @DeleteMapping("/workRule/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void workRule(@PathVariable Long id)
+    {
+        goalRepository.addWorkRule(id,null);
+    }
 
     @PatchMapping("/modifyParams")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

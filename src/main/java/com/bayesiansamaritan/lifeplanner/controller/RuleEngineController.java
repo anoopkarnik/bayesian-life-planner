@@ -1,7 +1,6 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 import com.bayesiansamaritan.lifeplanner.enums.CriteriaEnum;
-import com.bayesiansamaritan.lifeplanner.model.Rule.Criteria;
 import com.bayesiansamaritan.lifeplanner.model.Rule.CriteriaSet;
 import com.bayesiansamaritan.lifeplanner.model.Rule.Rule;
 import com.bayesiansamaritan.lifeplanner.model.Rule.RuleSet;
@@ -11,7 +10,6 @@ import com.bayesiansamaritan.lifeplanner.request.Rule.*;
 import com.bayesiansamaritan.lifeplanner.response.*;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.RuleEngineService;
-import com.bayesiansamaritan.lifeplanner.service.RuleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -151,4 +149,76 @@ public class RuleEngineController {
 
         }
     }
+
+    @PatchMapping("/criteria")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void modifyParams(@RequestBody CriteriaRequest criteriaRequest)
+    {
+        criteriaRepository.modifyParams(criteriaRequest.getId(),criteriaRequest.getName(),criteriaRequest.getCriteriaType(),
+                criteriaRequest.getCondition(),criteriaRequest.getCategory(),criteriaRequest.getWeightage(),criteriaRequest.getValue(),
+                criteriaRequest.getCategoryName());
+    }
+    @PatchMapping("/criteriaSet")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void modifyParams(HttpServletRequest request, @RequestBody CriteriaSetModifyRequest criteriaSetModifyRequest)
+    {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        criteriaSetModifyRequest.setUserId(userId);
+        ruleEngineService.modifyCriteriaSet(criteriaSetModifyRequest);
+    }
+    @PatchMapping("/rule")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void modifyParams(HttpServletRequest request, @RequestBody RulesModifyRequest ruleModifyRequest)
+    {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        ruleModifyRequest.setUserId(userId);
+        ruleEngineService.modifyRule(ruleModifyRequest);
+    }
+    @PatchMapping("/ruleSet")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void modifyParams(HttpServletRequest request, @RequestBody RuleSetModifyRequest ruleSetModifyRequest)
+    {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        ruleSetModifyRequest.setUserId(userId);
+        ruleEngineService.modifyRuleSet(ruleSetModifyRequest);
+    }
+
+    @GetMapping("/types")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public List<TypesResponse> getAllTypes(HttpServletRequest request, @RequestParam("type") String type) {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX, ""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        List<TypesResponse> typesResponses = ruleEngineService.getAllTypes(userId,type);
+        return typesResponses;
+    };
+
+    @GetMapping("/names")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public List<NamesResponse> getAllNames(HttpServletRequest request, @RequestParam("type") String type, @RequestParam("name") String name) {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX, ""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        List<NamesResponse> namesResponses = ruleEngineService.getAllNames(userId,type,name);
+        return namesResponses;
+    };
+
+//    @GetMapping("/completedPercentage")
+//    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+//    public Float getCompletedPercentage(HttpServletRequest request, @RequestParam("goalId") Long goalId) {
+//        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+//        Long userId = userProfileRepository.findByName(username).get().getId();
+//        Float completedPercentage = ruleEngineService.getCompletedPercentage(userId,goalId);
+//        return completedPercentage;
+//    };
+//
+//    @GetMapping("/workPercentage")
+//    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+//    public Float getWorkPercentage(HttpServletRequest request, @RequestParam("goalId") Long goalId) {
+//        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+//        Long userId = userProfileRepository.findByName(username).get().getId();
+//        Float workPercentage = ruleEngineService.getWorkPercentage(userId,goalId);
+//        return workPercentage;
+//    };
 }
