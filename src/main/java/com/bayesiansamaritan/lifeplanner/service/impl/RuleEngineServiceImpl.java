@@ -325,6 +325,9 @@ public class RuleEngineServiceImpl implements RuleEngineService {
     public Float getRuleEnginePercentage(Long userId, Long goalId){
         Optional<Goal> goal = goalRepository.findById(goalId);
         String reference = goal.get().getCompletedRuleEngineReference();
+        if(reference==null){
+            return 0F;
+        }
         String[] referenceList = reference.split("/");
         String referenceType = referenceList[0];
         String referenceId = referenceList[1];

@@ -14,6 +14,6 @@ import java.util.List;
 public interface HabitTransactionRepository extends JpaRepository<HabitTransaction, Long> {
 
     @Query("Select t from HabitTransaction t where t.habitId=:habitId and t.createdAt>=:createdAt")
-    List<HabitTransaction> findByHabitIdAndCreatedAt(Long habitIawd, Date createdAt);
+    List<HabitTransaction> findByHabitIdAndCreatedAt(Long habitId, Date createdAt);
 
 }
