@@ -70,7 +70,7 @@ public class BudgetController {
 		String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
 		Long userId = userProfileRepository.findByName(username).get().getId();
 		try {
-			List<BudgetResponse> monthlyBudgets = budgetService.getMonthlyBudget(expenseType,userId);
+			List<BudgetResponse> monthlyBudgets = budgetService.getMonthlyBudgets(expenseType,userId);
 			if (monthlyBudgets.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}

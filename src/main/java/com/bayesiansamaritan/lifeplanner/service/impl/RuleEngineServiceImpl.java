@@ -4,9 +4,7 @@ import com.bayesiansamaritan.lifeplanner.enums.*;
 import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabit;
 import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitTransaction;
 import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
-import com.bayesiansamaritan.lifeplanner.model.Financial.Account;
-import com.bayesiansamaritan.lifeplanner.model.Financial.AccountType;
-import com.bayesiansamaritan.lifeplanner.model.Financial.Fund;
+import com.bayesiansamaritan.lifeplanner.model.Financial.*;
 import com.bayesiansamaritan.lifeplanner.model.Goal.Goal;
 import com.bayesiansamaritan.lifeplanner.model.Habit.Habit;
 import com.bayesiansamaritan.lifeplanner.model.Habit.HabitTransaction;
@@ -24,6 +22,7 @@ import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTransaction
 import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Financial.AccountRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Financial.AccountTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Financial.ExpenseTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Financial.FundRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Goal.GoalRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitRepository;
@@ -45,6 +44,7 @@ import com.bayesiansamaritan.lifeplanner.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -111,6 +111,13 @@ public class RuleEngineServiceImpl implements RuleEngineService {
     private AccountTypeRepository accountTypeRepository;
     @Autowired
     private FundRepository fundRepository;
+    @Autowired
+    private ExpenseTypeRepository expenseTypeRepository;
+    @Autowired
+    private BudgetService budgetService;
+    @Autowired
+    private AccountService accountService;
+
 
     @Override
     public List<CriteriaResponse> getAllCriteria(Long userId, CriteriaEnum criteriaType){
@@ -267,11 +274,38 @@ public class RuleEngineServiceImpl implements RuleEngineService {
                 typesResponses.add(typesResponse);
             }
         }
+        else if(type.equals("ACCOUNT")){
+            List<AccountType> list = accountTypeRepository.findByUserId(userId);
+            for (AccountType type1 :list){
+                TypesResponse typesResponse = new TypesResponse();
+                typesResponse.setLabel(type1.getName());
+                typesResponse.setValue(type1.getName());
+                typesResponses.add(typesResponse);
+            }
+        }
+        else if(type.equals("FUND")){
+            List<Fund> list = fundRepository.findByUserId(userId);
+            for (Fund type1 : list){
+                TypesResponse typesResponse = new TypesResponse();
+                typesResponse.setLabel(type1.getName());
+                typesResponse.setValue(type1.getName());
+                typesResponses.add(typesResponse);
+            }
+        }
+        else if(type.equals("BUDGET")){
+            List<ExpenseType> list = expenseTypeRepository.findByUserId(userId);
+            for (ExpenseType type1 : list){
+                TypesResponse typesResponse = new TypesResponse();
+                typesResponse.setLabel(type1.getName());
+                typesResponse.setValue(type1.getName());
+                typesResponses.add(typesResponse);
+            }
+        }
         return typesResponses;
     }
 
     @Override
-    public List<NamesResponse> getAllNames(Long userId, String type, String name){
+    public List<NamesResponse> getAllNames(Long userId, String type, String name) throws ParseException {
 
         List<NamesResponse> namesResponses = new ArrayList<>();
         if (type.equals("TASK")){
@@ -309,22 +343,31 @@ public class RuleEngineServiceImpl implements RuleEngineService {
                 namesResponses.add(namesResponse);
             }
         }
+        else if(type.equals("BUDGET")){
+            List<BudgetResponse> list = budgetService.getMonthlyBudgets(name,userId);
+            for (BudgetResponse type1 : list){
+                NamesResponse namesResponse = new NamesResponse(type1.getId(),type1.getCategoryName()+'-'+type1.getSubCategoryName());
+                namesResponses.add(namesResponse);
+            }
+        }
         return namesResponses;
 
     }
 
     @Override
-    public Float getCompletedPercentage(Long userId, Long goalId){
-        return getRuleEnginePercentage(userId,goalId);
-    }
-    @Override
-    public Float getWorkPercentage(Long userId, Long goalId){
-        return getRuleEnginePercentage(userId,goalId);
-    }
-
-    public Float getRuleEnginePercentage(Long userId, Long goalId){
+    public Float getCompletedPercentage(Long userId, Long goalId) throws ParseException {
         Optional<Goal> goal = goalRepository.findById(goalId);
         String reference = goal.get().getCompletedRuleEngineReference();
+        return getRuleEnginePercentage(userId,reference);
+    }
+    @Override
+    public Float getWorkPercentage(Long userId, Long goalId) throws ParseException {
+        Optional<Goal> goal = goalRepository.findById(goalId);
+        String reference = goal.get().getWorkRuleEngineReference();
+        return getRuleEnginePercentage(userId,reference);
+    }
+
+    public Float getRuleEnginePercentage(Long userId, String reference) throws ParseException {
         if(reference==null){
             return 0F;
         }
@@ -397,10 +440,10 @@ public class RuleEngineServiceImpl implements RuleEngineService {
         return 0F;
     }
 
-    public Float getPercentage(Long userId,Criteria criteriaResponse){
+    public Float getPercentage(Long userId,Criteria criteriaResponse) throws ParseException {
         CriteriaEnum criteriaEnum = criteriaResponse.getCriteriaType();
         Float weightage = criteriaResponse.getWeightage();
-        if(criteriaEnum.equals("TASK")){
+        if(criteriaEnum.equals(CriteriaEnum.TASK)){
             TaskEnum taskEnum = TaskEnum.valueOf(criteriaResponse.getCondition());
             Task task = taskRepository.findByUserIdAndName(userId,criteriaResponse.getCategoryName());
             if(taskEnum.equals(TaskEnum.TASK_COMPLETED)){
@@ -412,10 +455,10 @@ public class RuleEngineServiceImpl implements RuleEngineService {
                 }
             }
         }
-        else if(criteriaEnum.equals("HABIT")){
+        else if(criteriaEnum.equals(CriteriaEnum.HABIT)){
             Long value = criteriaResponse.getValue();
             HabitEnum habitEnum = HabitEnum.valueOf(criteriaResponse.getCondition());
-            Habit habit = habitRepository.findByUserIdAndName(userId,criteriaResponse.getCategoryName());
+            Habit habit = habitRepository.findById(Long.valueOf(criteriaResponse.getCategoryName())).get();
             if(habitEnum.equals(HabitEnum.HABIT_STREAK)){
                 return (float) (habit.getStreak()*100/value);
             }
@@ -438,7 +481,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
                 return (float) (habitTransactions.size()*100/value);
             }
         }
-        else if(criteriaEnum.equals("BAD_HABIT")){
+        else if(criteriaEnum.equals(CriteriaEnum.BAD_HABIT)){
             Long value = criteriaResponse.getValue();
             BadHabitEnum badHabitEnum = BadHabitEnum.valueOf(criteriaResponse.getCondition());
             BadHabit badHabit = badHabitRepository.findByUserIdAndName(userId,criteriaResponse.getCategoryName());
@@ -461,7 +504,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
                 return (float) ((value-badHabitTransactions.size())*100/value);
             }
         }
-        else if(criteriaEnum.equals("SKILL")){
+        else if(criteriaEnum.equals(CriteriaEnum.SKILL)){
             Long value = criteriaResponse.getValue();
             SkillEnum skillEnum = SkillEnum.valueOf(criteriaResponse.getCondition());
             Skill skill = skillRepository.findByUserIdAndName(userId,criteriaResponse.getCategoryName());
@@ -477,10 +520,10 @@ public class RuleEngineServiceImpl implements RuleEngineService {
                 return ((float) skill.getTimeTaken()*100/value);
             }
         }
-        else if(criteriaEnum.equals("STAT")){
+        else if(criteriaEnum.equals(CriteriaEnum.STAT)){
             Long value = criteriaResponse.getValue();
             StatEnum statEnum = StatEnum.valueOf(criteriaResponse.getCondition());
-            Stats stat = statsRepository.findByUserIdAndName(userId,criteriaResponse.getCategoryName());
+            Stats stat = statsRepository.findById(Long.valueOf(criteriaResponse.getCategoryName())).get();
             StatsTransaction statsTransaction = statsTransactionRepository.findByStatId(stat.getId()).get(0);
             if(statEnum.equals(StatEnum.STAT_HIGHER_PREFERRED)){
                 Float totalProgress = value - statsTransaction.getValue();
@@ -493,19 +536,35 @@ public class RuleEngineServiceImpl implements RuleEngineService {
                 return currentProgress*100/totalProgress;
             }
         }
-        else if(criteriaEnum.equals("ACCOUNT")){
+        else if(criteriaEnum.equals(CriteriaEnum.ACCOUNT)){
             Long value = criteriaResponse.getValue();
+            Long balance = 0L;
             AccountEnum accountEnum = AccountEnum.valueOf(criteriaResponse.getCondition());
-            Account account = accountRepository.findByNameAndUserId(criteriaResponse.getCategoryName(),userId);
+            List<AccountBalanceResponse> accountBalances = accountService.getAllAccountBalances(userId);
+            for (AccountBalanceResponse accountBalanceResponse :accountBalances){
+                if (accountBalanceResponse.getName().equals(criteriaResponse.getCategory())){
+                    balance = accountBalanceResponse.getBalance();
+                }
+            }
             if(accountEnum.equals(AccountEnum.ACCOUNT_REACHED)){
-                return ((float) account.getBalance())*100/value;
+                return ((float) balance)*100/value;
             }
         }
-        else if(criteriaEnum.equals("FUND")){
+        else if(criteriaEnum.equals(CriteriaEnum.FUND)){
             FundEnum fundEnum = FundEnum.valueOf(criteriaResponse.getCondition());
-            Fund fund = fundRepository.findByUserIdAndName(userId,criteriaResponse.getCategoryName());
+            Fund fund = fundRepository.findByUserIdAndName(userId,criteriaResponse.getCategory());
             if(fundEnum.equals(FundEnum.FUND_REACHED)){
                 return ((float) fund.getAmountAllocated()*100/fund.getAmountNeeded());
+            }
+        }
+        else if(criteriaEnum.equals(CriteriaEnum.BUDGET)){
+            BudgetEnum budgetEnum = BudgetEnum.valueOf(criteriaResponse.getCondition());
+            BudgetResponse budgetResponse = budgetService.getMonthlyBudget(Long.valueOf(criteriaResponse.getCategoryName()));
+            if(budgetEnum.equals(BudgetEnum.BUDGET_HIGHER_PREFERRED)){
+                return ((float) budgetResponse.getAmountSpent()*100/budgetResponse.getBudgetAmount());
+            }
+            else if(budgetEnum.equals(BudgetEnum.BUDGET_LOWER_PREFERRED)){
+                return ((float) (budgetResponse.getBudgetAmount()-budgetResponse.getAmountSpent())*100/budgetResponse.getBudgetAmount());
             }
         }
         return 0F;

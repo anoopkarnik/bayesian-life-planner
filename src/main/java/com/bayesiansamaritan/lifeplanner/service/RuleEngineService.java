@@ -7,6 +7,7 @@ import com.bayesiansamaritan.lifeplanner.model.Rule.RuleSet;
 import com.bayesiansamaritan.lifeplanner.request.Rule.*;
 import com.bayesiansamaritan.lifeplanner.response.*;
 
+import java.text.ParseException;
 import java.util.List;
 
 public interface RuleEngineService {
@@ -25,9 +26,9 @@ public interface RuleEngineService {
     public void modifyRuleSet(RuleSetModifyRequest ruleSetModifyRequest);
 
     public List<TypesResponse> getAllTypes(Long userId, String type);
-    public List<NamesResponse> getAllNames(Long userId, String type, String name);
-    public Float getCompletedPercentage(Long userId, Long goalId);
-    public Float getWorkPercentage(Long userId, Long goalId);
+    public List<NamesResponse> getAllNames(Long userId, String type, String name) throws ParseException;
+    public Float getCompletedPercentage(Long userId, Long goalId) throws ParseException;
+    public Float getWorkPercentage(Long userId, Long goalId) throws ParseException;
 
 
 }

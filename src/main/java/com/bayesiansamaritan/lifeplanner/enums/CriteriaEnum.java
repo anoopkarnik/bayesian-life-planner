@@ -9,7 +9,5 @@ public enum CriteriaEnum {
     BAD_HABIT,
     ACCOUNT,
     FUND,
-    BUDGET_PLAN,
-    TRANSACTION,
-    MONTHLY_BUDGET
+    BUDGET
 }

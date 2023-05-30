@@ -10,6 +10,7 @@ import com.bayesiansamaritan.lifeplanner.service.RuleEngineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +28,7 @@ public class GoalServiceImpl implements GoalService {
     RuleEngineService ruleEngineService;
 
     @Override
-    public List<GoalResponse> getAllGoals(Long userId, Boolean active, String goalTypeName){
+    public List<GoalResponse> getAllGoals(Long userId, Boolean active, String goalTypeName) throws ParseException {
 
         GoalType goalType = goalTypeRepository.findByNameAndUserId(goalTypeName,userId);
         List<Goal> goals = goalRepository.findRootGoalsByUserIdAndActiveAndGoalTypeId(userId,active,goalType.getId());

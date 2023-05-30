@@ -104,11 +104,11 @@ public class GoalController {
                 Optional<CriteriaSet> criteria = criteriaSetRepository.findById(Long.valueOf(ruleReferenceId));
                 ruleEngineResponse.setId(criteria.get().getId());
                 ruleEngineResponse.setName(criteria.get().getName());
-            }else if (ruleReferenceType.equals("Criteria")) {
+            }else if (ruleReferenceType.equals("Rule")) {
                 Optional<Rule> criteria = ruleRepository.findById(Long.valueOf(ruleReferenceId));
                 ruleEngineResponse.setId(criteria.get().getId());
                 ruleEngineResponse.setName(criteria.get().getName());
-            }else if (ruleReferenceType.equals("Criteria")) {
+            }else if (ruleReferenceType.equals("Rule Set")) {
                 Optional<RuleSet> criteria = ruleSetRepository.findById(Long.valueOf(ruleReferenceId));
                 ruleEngineResponse.setId(criteria.get().getId());
                 ruleEngineResponse.setName(criteria.get().getName());

@@ -68,7 +68,7 @@ public class BudgetServiceImpl implements BudgetService {
     };
 
     @Override
-    public List<BudgetResponse> getMonthlyBudget(String expenseName, Long userId) throws ParseException {
+    public List<BudgetResponse> getMonthlyBudgets(String expenseName, Long userId) throws ParseException {
         ExpenseType expenseType = expenseTypeRepository.findByNameAndUserId(expenseName,userId);
         Long expenseTypeId = expenseType.getId();
 
@@ -98,6 +98,28 @@ public class BudgetServiceImpl implements BudgetService {
         return monthlyBudgetResponses;
     };
 
+    @Override
+    public BudgetResponse getMonthlyBudget(Long id) throws ParseException {
+        MonthlyBudget monthlyBudget = monthlyBudgetRepository.findById(id).get();
+        LocalDate todayDate = LocalDate.now();
+        Date startDate =  new SimpleDateFormat("yyyy-MM-dd").parse(todayDate.with(TemporalAdjusters.firstDayOfMonth()).toString());
+        Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(todayDate.with(TemporalAdjusters.firstDayOfNextMonth()).toString());
+        Optional<CategoryType> categoryType = categoryTypeRepository.findById(monthlyBudget.getCategoryTypeId());
+        Optional<SubCategoryType> subCategoryType = subCategoryTypeRepository.findById(monthlyBudget.getSubCategoryTypeId());
+        List<Transactions> transactions = transactionsRepository.findBySome(monthlyBudget.getUserId(),monthlyBudget.getExpenseTypeId(),
+                monthlyBudget.getCategoryTypeId(),monthlyBudget.getSubCategoryTypeId(),startDate,endDate);
+        Long amountSpent = 0L;
+        for (Transactions transaction:transactions){
+            amountSpent+=transaction.getCost();
+        }
+        BudgetResponse monthlyBudgetResponse = new BudgetResponse(monthlyBudget.getId(),monthlyBudget.getCreatedAt(),
+                monthlyBudget.getUpdatedAt(),monthlyBudget.getName(),monthlyBudget.getStartDate(),categoryType.get().getName(),
+                null,subCategoryType.get().getName(),monthlyBudget.getDescription(),monthlyBudget.getActive(),
+                monthlyBudget.getHidden(),monthlyBudget.getCompleted(),monthlyBudget.getCost(),monthlyBudget.getUserId(),
+                monthlyBudget.getCost(),amountSpent);
+        return monthlyBudgetResponse;
+    };
+
 
     @Override
     public BudgetPlan createBudgetPlan(String expenseName, Long planPercentage, Long userId){
@@ -111,10 +133,10 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     public List<BudgetPlanResponse> getBudgetPlans(Long userId) throws ParseException {
 
-        List<ExpenseType> expenseTypes = expenseTypeRepository.findAll();
-        List<AccountType> accountTypes = accountTypeRepository.findAll();
-        List<CategoryType> categoryTypes = categoryTypeRepository.findAll();
-        List<SubCategoryType> subCategoryTypes = subCategoryTypeRepository.findAll();
+        List<ExpenseType> expenseTypes = expenseTypeRepository.findByUserId(userId);
+        List<AccountType> accountTypes = accountTypeRepository.findByUserId(userId);
+        List<CategoryType> categoryTypes = categoryTypeRepository.findByUserId(userId);
+        List<SubCategoryType> subCategoryTypes = subCategoryTypeRepository.findByUserId(userId);
 
         List<Long> accountTypeIds = new ArrayList<>();
         List<Long> categoryTypeIds = new ArrayList<>();
@@ -175,14 +197,14 @@ public class BudgetServiceImpl implements BudgetService {
                 budgetPlanResponses.add(budgetPlanResponse);
             }
             catch(Exception e){
-                budgetPlanResponse.setId(9999L);
-                budgetPlanResponse.setExpenseName(expenseType.getName());
-                budgetPlanResponse.setPlanPercentage(0L);
-                budgetPlanResponse.setTransactionTotal(totalTransactions);
-                budgetPlanResponse.setTransactionPercentage(transactionPercentage);
-                budgetPlanResponse.setPlanTotal(0L* totalIncome / 100);
-                budgetPlanResponse.setAllottedTotal(allottedTotal);
-                budgetPlanResponses.add(budgetPlanResponse);
+//                budgetPlanResponse.setId(9999L);
+//                budgetPlanResponse.setExpenseName(expenseType.getName());
+//                budgetPlanResponse.setPlanPercentage(0L);
+//                budgetPlanResponse.setTransactionTotal(totalTransactions);
+//                budgetPlanResponse.setTransactionPercentage(transactionPercentage);
+//                budgetPlanResponse.setPlanTotal(0L* totalIncome / 100);
+//                budgetPlanResponse.setAllottedTotal(allottedTotal);
+//                budgetPlanResponses.add(budgetPlanResponse);
             }
 
         }

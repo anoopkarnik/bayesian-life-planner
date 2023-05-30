@@ -19,6 +19,13 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
   List<Account> findByUserId(Long userId);
 
+  @Query("Select t from Account t where t.userId=:userId and t.freeLiquidity=true")
+  List<Account> findByUserIdAndFreeLiquidity(Long userId);
+
+  @Query("Select t from Account t where t.userId=:userId and (t.freeLiquidity=true or t.liquidity=true)")
+  List<Account> findByUserIdAndLiquidity(Long userId);
+
+  @Query("Select t from Account t where t.userId=:userId and t.name=:name")
   Account findByNameAndUserId(String name, Long userId);
 
   @Transactional

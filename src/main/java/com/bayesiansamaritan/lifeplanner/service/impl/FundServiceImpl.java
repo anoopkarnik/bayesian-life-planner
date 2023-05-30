@@ -35,19 +35,25 @@ public class FundServiceImpl implements FundService {
 
     @Override
     public FundSummaryResponse getFundSummary(Long userId){
-        String accountName = "investments";
-        AccountType accountType = accountTypeRepository.findByNameAndUserId(accountName,userId);
-        List<Account> accounts = accountRepository.findByUserIdAndAccountTypeId(userId,accountType.getId());
+        List<Account> freeLiquidAccounts = accountRepository.findByUserIdAndFreeLiquidity(userId);
+        List<Account> portfolioAccounts = accountRepository.findByUserId(userId);
+        List<Account> liquidAccounts = accountRepository.findByUserIdAndLiquidity(userId);
         Long totalAmount = 0L;
-        Long amountAvailable = 0L;
+        Long emergencyAmountAvailable = 0L;
+        Long fundsAmountAvailable = 0L;
         Long amountAllocated = 0L;
         Long amountNeeded = 0L;
 
-        for(Account account : accounts){
+        for(Account account : portfolioAccounts){
             totalAmount+= account.getBalance();
-            if(account.getFreeLiquidity() || account.getLiquidity()){
-                amountAvailable+= account.getBalance();
-            }
+        }
+
+        for(Account account : liquidAccounts){
+            emergencyAmountAvailable+= account.getBalance();
+        }
+
+        for(Account account : freeLiquidAccounts){
+            fundsAmountAvailable+= account.getBalance();
         }
 
         List<Fund> funds = fundRepository.findByUserId(userId);
@@ -55,8 +61,10 @@ public class FundServiceImpl implements FundService {
             amountAllocated+=fund.getAmountAllocated();
             amountNeeded+=fund.getAmountNeeded();
         }
+        emergencyAmountAvailable-=amountAllocated;
+        fundsAmountAvailable-=amountAllocated;
 
-        String expenseName = "savings";
+        String expenseName = "Savings";
         ExpenseType expenseType = expenseTypeRepository.findByNameAndUserId(expenseName,userId);
         BudgetPlan budgetPlan = budgetPlanRepository.findByUserIdAndExpenseTypeId(userId,expenseType.getId());
         List<Income> incomes = incomeRepository.findByUserId(userId);
@@ -72,7 +80,8 @@ public class FundServiceImpl implements FundService {
         Long timeLeft = financialIndependenceAmountLeft/savingsPerMonth/12;
         FundSummaryResponse fundSummaryResponse = new FundSummaryResponse();
         fundSummaryResponse.setAmountAllocated(amountAllocated);
-        fundSummaryResponse.setAmountAvailable(amountAvailable);
+        fundSummaryResponse.setFundsAmountAvailable(fundsAmountAvailable);
+        fundSummaryResponse.setEmergencyAmountAvailable(emergencyAmountAvailable);
         fundSummaryResponse.setTotalAmount(totalAmount);
         fundSummaryResponse.setFinancialIndependenceAmount(financialIndependenceAmount);
         fundSummaryResponse.setFinancialIndependencePercentage(financialIndependencePercentage);

@@ -8,7 +8,8 @@ import lombok.Setter;
 public class FundSummaryResponse {
 
     private Long totalAmount;
-    private Long amountAvailable;
+    private Long emergencyAmountAvailable;
+    private Long fundsAmountAvailable;
     private Long amountAllocated;
 
     private Long financialIndependenceAmount;

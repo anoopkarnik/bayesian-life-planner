@@ -12,7 +12,8 @@ public interface BudgetService {
 
     public MonthlyBudget createMonthlyBudget(Long cost, String expenseName, String categoryName, String SubCategoryName, Long userId);
 
-    public List<BudgetResponse> getMonthlyBudget(String expenseName, Long userId) throws ParseException;
+    public List<BudgetResponse> getMonthlyBudgets(String expenseName, Long userId) throws ParseException;
+    public BudgetResponse getMonthlyBudget(Long id) throws ParseException;
 
     public BudgetPlan createBudgetPlan(String expenseName, Long planPercentage, Long userId);
 

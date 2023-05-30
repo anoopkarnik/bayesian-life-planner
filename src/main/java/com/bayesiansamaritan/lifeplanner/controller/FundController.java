@@ -119,7 +119,8 @@ public class FundController {
 		} catch (Exception e) {
 			FundSummaryResponse fund = new FundSummaryResponse();
 			fund.setAmountAllocated(0L);
-			fund.setAmountAvailable(0L);
+			fund.setFundsAmountAvailable(0L);
+			fund.setEmergencyAmountAvailable(0L);
 			fund.setTimeLeft(100L);
 			fund.setTotalAmount(0L);
 			fund.setFinancialIndependenceAmount(50000000L);

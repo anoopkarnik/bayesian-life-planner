@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
 import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -197,28 +198,28 @@ public class RuleEngineController {
 
     @GetMapping("/names")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public List<NamesResponse> getAllNames(HttpServletRequest request, @RequestParam("type") String type, @RequestParam("name") String name) {
+    public List<NamesResponse> getAllNames(HttpServletRequest request, @RequestParam("type") String type, @RequestParam("name") String name) throws ParseException {
         String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX, ""));
         Long userId = userProfileRepository.findByName(username).get().getId();
         List<NamesResponse> namesResponses = ruleEngineService.getAllNames(userId,type,name);
         return namesResponses;
     };
 
-//    @GetMapping("/completedPercentage")
-//    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-//    public Float getCompletedPercentage(HttpServletRequest request, @RequestParam("goalId") Long goalId) {
-//        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
-//        Long userId = userProfileRepository.findByName(username).get().getId();
-//        Float completedPercentage = ruleEngineService.getCompletedPercentage(userId,goalId);
-//        return completedPercentage;
-//    };
-//
-//    @GetMapping("/workPercentage")
-//    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-//    public Float getWorkPercentage(HttpServletRequest request, @RequestParam("goalId") Long goalId) {
-//        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
-//        Long userId = userProfileRepository.findByName(username).get().getId();
-//        Float workPercentage = ruleEngineService.getWorkPercentage(userId,goalId);
-//        return workPercentage;
-//    };
+    @GetMapping("/completedPercentage")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public Float getCompletedPercentage(HttpServletRequest request, @RequestParam("goalId") Long goalId) throws ParseException {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        Float completedPercentage = ruleEngineService.getCompletedPercentage(userId,goalId);
+        return completedPercentage;
+    };
+
+    @GetMapping("/workPercentage")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public Float getWorkPercentage(HttpServletRequest request, @RequestParam("goalId") Long goalId) throws ParseException {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        Float workPercentage = ruleEngineService.getWorkPercentage(userId,goalId);
+        return workPercentage;
+    };
 }
