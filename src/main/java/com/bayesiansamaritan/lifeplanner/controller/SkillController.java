@@ -2,14 +2,17 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 
 import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
+import com.bayesiansamaritan.lifeplanner.model.Topic;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Skill.SkillCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.Skill.SkillCreateRootRequest;
 import com.bayesiansamaritan.lifeplanner.request.Skill.SkillModifyRequest;
+import com.bayesiansamaritan.lifeplanner.request.Skill.TopicCreateRequest;
 import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.SkillService;
+import com.bayesiansamaritan.lifeplanner.service.TopicService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +36,8 @@ public class SkillController {
     private SkillService skillService;
     @Autowired
     private UserProfileRepository userProfileRepository;
+    @Autowired
+    private TopicService topicService;
     @Autowired
     JwtUtils jwtUtils;
     static final String HEADER_STRING = "Authorization";
@@ -87,7 +92,6 @@ public class SkillController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @PatchMapping("/modifyParams")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
