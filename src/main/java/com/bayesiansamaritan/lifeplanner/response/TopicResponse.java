@@ -20,6 +20,7 @@ public class TopicResponse {
     private String name;
     private TopicTypeEnum topicTypeEnum;
     private String paragraph;
+    private String skillTypeName;
     private Set<ItemResponse> itemResponses;
 
 }

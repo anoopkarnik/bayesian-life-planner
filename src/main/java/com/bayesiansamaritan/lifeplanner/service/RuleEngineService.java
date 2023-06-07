@@ -20,10 +20,12 @@ public interface RuleEngineService {
     public void createCriteriaSet(CriteriaSetRequest criteriaSetRequest);
     public void createRule(RuleRequest ruleRequest);
     public void createRuleSet(RuleSetRequest ruleSetRequest);
-
-    public void modifyCriteriaSet(CriteriaSetModifyRequest criteriaSetModifyRequest);
-    public void modifyRule(RulesModifyRequest ruleModifyRequest);
-    public void modifyRuleSet(RuleSetModifyRequest ruleSetModifyRequest);
+    public void deleteCriteriaInCriteriaSet(Long criteriaSetId, Long criteriaId);
+    public void deleteCriteriaSetInRule(Long ruleId, Long criteriaSetId);
+    public void deleteRuleInRuleSet(Long ruleSetId, Long ruleId);
+    public void addCriteriaInCriteriaSet(Long criteriaSetId, Long criteriaId);
+    public void addCriteriaSetInRule(Long ruleId, Long criteriaSetId);
+    public void addRuleInRuleSet(Long ruleSetId, Long ruleId);
 
     public List<TypesResponse> getAllTypes(Long userId, String type);
     public List<NamesResponse> getAllNames(Long userId, String type, String name) throws ParseException;

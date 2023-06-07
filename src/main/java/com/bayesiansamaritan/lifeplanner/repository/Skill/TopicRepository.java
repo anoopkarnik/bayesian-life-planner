@@ -22,6 +22,9 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     @Query("Select t from Topic t where t.userId=:userId")
     List<Topic> findTopicByUserId(@Param("userId") Long userId);
 
+    @Query("Select t from Topic t where t.userId=:userId and t.skillTypeId=:skillTypeId")
+    List<Topic> findTopicByUserIdAndSkillTypeId(@Param("userId") Long userId,@Param("skillTypeId") Long skillTypeId);
+
     @Transactional
     @Modifying
     @Query("update Topic t set t.items=:items where t.userId=:userId and t.id=:topicId")

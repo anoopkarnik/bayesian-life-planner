@@ -13,7 +13,7 @@ import java.util.Set;
 
 public interface TopicService {
 
-    public Set<TopicResponse> getAllTopics(Long userId);
+    public Set<TopicResponse> getAllTopics(Long userId,String skillTypeName);
     public Topic createTopic(Long userId, TopicCreateRequest topicCreateRequest);
 
     public void updateItemInTopic(Long userId, Long topicId, String itemName);

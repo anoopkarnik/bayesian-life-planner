@@ -6,18 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TopicCreateRequest {
+public class SkillAddTopicRequest {
 
-    private Long id;
-    private String name;
-    private TopicTypeEnum topicTypeEnum;
-    private String skillTypeName;
-    public List<String> items;
-    public String paragraph;
+    private Long skillId;
+    private Long topicId;
 
 }

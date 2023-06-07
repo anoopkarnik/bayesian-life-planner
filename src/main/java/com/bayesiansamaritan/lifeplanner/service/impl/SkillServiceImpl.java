@@ -1,17 +1,20 @@
 package com.bayesiansamaritan.lifeplanner.service.impl;
 
+import com.bayesiansamaritan.lifeplanner.model.Item;
 import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
 import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
+import com.bayesiansamaritan.lifeplanner.model.Topic;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Skill.TopicRepository;
+import com.bayesiansamaritan.lifeplanner.response.ItemResponse;
 import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
+import com.bayesiansamaritan.lifeplanner.response.TopicResponse;
 import com.bayesiansamaritan.lifeplanner.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class SkillServiceImpl implements SkillService {
@@ -21,6 +24,9 @@ public class SkillServiceImpl implements SkillService {
 
     @Autowired
     SkillTypeRepository skillTypeRepository;
+
+    @Autowired
+    TopicRepository topicRepository;
 
     @Override
     public List<SkillResponse> getAllSkills(Long userId,Boolean active, String skillTypeName){
@@ -154,6 +160,37 @@ public class SkillServiceImpl implements SkillService {
         Skill skill = skillRepository.findByUserIdAndName(userId,parentName);
         Skill newSkill = skillRepository.save(new Skill(name,timeTaken,skillType.getId(),active,userId,false,skill.getId()));
         return newSkill;
+    }
+
+    @Override
+    public void addTopic(Long skillId, Long topicId){
+        Topic topic = topicRepository.findById(topicId).get();
+        Skill skill = skillRepository.findById(skillId).get();
+        skill.getTopicSet().add(topic);
+        skillRepository.save(skill);
+    }
+
+    @Override
+    public void removeTopic(Long skillId, Long topicId){
+        Topic topic = topicRepository.findById(topicId).get();
+        Skill skill = skillRepository.findById(skillId).get();
+        skill.getTopicSet().remove(topic);
+        skillRepository.save(skill);
+    }
+
+    @Override
+    public Set<TopicResponse> getTopicsFromSkills(Long skillId){
+        Skill skill = skillRepository.findById(skillId).get();
+        Set<TopicResponse> topicResponses = new HashSet<>();
+        for (Topic topic : skill.getTopicSet()) {
+            Set<ItemResponse> itemResponses = new HashSet<>();
+            for (Item item : topic.getItems()) {
+                itemResponses.add(new ItemResponse(item.getId(), item.getCreatedAt(), item.getUpdatedAt(), item.getText()));
+            }
+            topicResponses.add(new TopicResponse(topic.getId(), topic.getCreatedAt(), topic.getUpdatedAt(), topic.getName(), topic.getTopicTypeEnum(), topic.getParagraph(),
+                    skill.getName(), itemResponses));
+        }
+        return topicResponses;
     }
 
 }

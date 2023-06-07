@@ -25,6 +25,9 @@ public class Topic extends BaseModel{
     @Enumerated(EnumType.STRING)
     @Column(name="type")
     public TopicTypeEnum topicTypeEnum;
+    @Column(name="skill_type_id")
+    private Long skillTypeId;
+
 
     @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
     @JoinTable(name="topic_to_item",joinColumns = @JoinColumn(name="topic_id"),
@@ -33,22 +36,21 @@ public class Topic extends BaseModel{
     @Column(name="item")
     public Set<Item> items = new HashSet<>();
 
-    @ManyToMany(mappedBy = "topicSet", cascade = CascadeType.PERSIST)
-    private Set<Skill> skills = new HashSet<>();
-
     @Column(name="paragraph",length = 10240)
     public String paragraph;
 
-    public Topic(TopicTypeEnum topicTypeEnum, Set<Item> items, Long userId, String name) {
+    public Topic(TopicTypeEnum topicTypeEnum, Set<Item> items, Long skillTypeId, Long userId, String name) {
         this.topicTypeEnum = topicTypeEnum;
         this.items = items;
+        this.skillTypeId = skillTypeId;
         this.userId = userId;
         this.name = name;
     }
 
-    public Topic(TopicTypeEnum topicTypeEnum, String paragraph, Long userId, String name) {
+    public Topic(TopicTypeEnum topicTypeEnum, String paragraph,Long skillTypeId, Long userId, String name) {
         this.topicTypeEnum = topicTypeEnum;
         this.paragraph = paragraph;
+        this.skillTypeId = skillTypeId;
         this.userId = userId;
         this.name = name;
     }

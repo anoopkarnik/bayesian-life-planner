@@ -44,12 +44,13 @@ public class TopicController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public Set<TopicResponse> getAllTopic(HttpServletRequest request) {
+    public Set<TopicResponse> getAllTopic(HttpServletRequest request,@RequestParam("skillTypeName") String skillTypeName) {
         String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
         Long userId = userProfileRepository.findByName(username).get().getId();
-        Set<TopicResponse> topicList = topicService.getAllTopics(userId);
+        Set<TopicResponse> topicList = topicService.getAllTopics(userId,skillTypeName);
         return topicList;
     }
+
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

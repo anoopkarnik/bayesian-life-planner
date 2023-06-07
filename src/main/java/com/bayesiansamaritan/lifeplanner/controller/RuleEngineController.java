@@ -7,6 +7,7 @@ import com.bayesiansamaritan.lifeplanner.model.Rule.RuleSet;
 import com.bayesiansamaritan.lifeplanner.repository.Rule.*;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Rule.*;
+import com.bayesiansamaritan.lifeplanner.request.Skill.TopicModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.*;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.RuleEngineService;
@@ -161,30 +162,22 @@ public class RuleEngineController {
     }
     @PatchMapping("/criteriaSet")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void modifyParams(HttpServletRequest request, @RequestBody CriteriaSetModifyRequest criteriaSetModifyRequest)
+    public void modifyParams(@RequestBody CriteriaSetModifyRequest criteriaSetModifyRequest)
     {
-        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
-        Long userId = userProfileRepository.findByName(username).get().getId();
-        criteriaSetModifyRequest.setUserId(userId);
-        ruleEngineService.modifyCriteriaSet(criteriaSetModifyRequest);
+        criteriaSetRepository.modifyParams(criteriaSetModifyRequest.getId(),criteriaSetModifyRequest.getName());
     }
+
     @PatchMapping("/rule")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void modifyParams(HttpServletRequest request, @RequestBody RulesModifyRequest ruleModifyRequest)
+    public void modifyParams(@RequestBody RulesModifyRequest ruleModifyRequest)
     {
-        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
-        Long userId = userProfileRepository.findByName(username).get().getId();
-        ruleModifyRequest.setUserId(userId);
-        ruleEngineService.modifyRule(ruleModifyRequest);
+        ruleRepository.modifyParams(ruleModifyRequest.getId(),ruleModifyRequest.getName());
     }
     @PatchMapping("/ruleSet")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void modifyParams(HttpServletRequest request, @RequestBody RuleSetModifyRequest ruleSetModifyRequest)
+    public void modifyParams(@RequestBody RuleSetModifyRequest ruleSetModifyRequest)
     {
-        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
-        Long userId = userProfileRepository.findByName(username).get().getId();
-        ruleSetModifyRequest.setUserId(userId);
-        ruleEngineService.modifyRuleSet(ruleSetModifyRequest);
+        ruleSetRepository.modifyParams(ruleSetModifyRequest.getId(),ruleSetModifyRequest.getName());
     }
 
     @GetMapping("/types")
@@ -222,4 +215,43 @@ public class RuleEngineController {
         Float workPercentage = ruleEngineService.getWorkPercentage(userId,goalId);
         return workPercentage;
     };
+
+    @PatchMapping("/removeCriteria")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void deleteCriteria(@RequestBody RemoveCriteriaRequest request)
+    {
+        ruleEngineService.deleteCriteriaInCriteriaSet(request.getCriteriaSetId(),request.getCriteriaId());
+    }
+    @PatchMapping("/removeCriteriaSet")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void deleteCriteriaSet(@RequestBody RemoveCriteriaSetRequest request)
+    {
+        ruleEngineService.deleteCriteriaSetInRule(request.getRuleId(),request.getCriteriaSetId());
+    }
+    @PatchMapping("/removeRule")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void deleteCriteria(@RequestBody RemoveRuleRequest request)
+    {
+        ruleEngineService.deleteRuleInRuleSet(request.getRuleSetId(),request.getRuleId());
+    }
+
+    @PatchMapping("/addCriteria")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void addCriteria(@RequestBody RemoveCriteriaRequest request)
+    {
+        ruleEngineService.addCriteriaInCriteriaSet(request.getCriteriaSetId(),request.getCriteriaId());
+    }
+    @PatchMapping("/addCriteriaSet")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void addCriteriaSet(@RequestBody RemoveCriteriaSetRequest request)
+    {
+        ruleEngineService.addCriteriaSetInRule(request.getRuleId(),request.getCriteriaSetId());
+    }
+    @PatchMapping("/addRule")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void addCriteria(@RequestBody RemoveRuleRequest request)
+    {
+        ruleEngineService.addRuleInRuleSet(request.getRuleSetId(),request.getRuleId());
+    }
+
 }

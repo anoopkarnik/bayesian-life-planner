@@ -9,6 +9,7 @@ import com.bayesiansamaritan.lifeplanner.model.Goal.Goal;
 import com.bayesiansamaritan.lifeplanner.model.Habit.Habit;
 import com.bayesiansamaritan.lifeplanner.model.Habit.HabitTransaction;
 import com.bayesiansamaritan.lifeplanner.model.Habit.HabitType;
+import com.bayesiansamaritan.lifeplanner.model.Item;
 import com.bayesiansamaritan.lifeplanner.model.Rule.*;
 import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
 import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
@@ -17,6 +18,7 @@ import com.bayesiansamaritan.lifeplanner.model.Stats.StatsTransaction;
 import com.bayesiansamaritan.lifeplanner.model.Stats.StatsType;
 import com.bayesiansamaritan.lifeplanner.model.Task.Task;
 import com.bayesiansamaritan.lifeplanner.model.Task.TaskType;
+import com.bayesiansamaritan.lifeplanner.model.Topic;
 import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitRepository;
 import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTransactionRepository;
 import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTypeRepository;
@@ -176,54 +178,6 @@ public class RuleEngineServiceImpl implements RuleEngineService {
         ruleSet.setName(ruleSetRequest.getName());
         ruleSet.setUserId(ruleSetRequest.getUserId());
         ruleSetRepository.save(ruleSet);
-    }
-
-    @Override
-    public void modifyCriteriaSet(CriteriaSetModifyRequest criteriaSetModifyRequest){
-        Optional<CriteriaSet> criteriaSet = criteriaSetRepository.findById(criteriaSetModifyRequest.getId());
-        criteriaSetRepository.deleteById(criteriaSet.get().getId());
-        CriteriaSet criteriaSet1 = new CriteriaSet();
-        criteriaSet1.setUserId(criteriaSetModifyRequest.getUserId());
-        criteriaSet1.setName(criteriaSetModifyRequest.getName());
-        Set<Criteria> criteriaList = new HashSet<>();
-        for (Long criteriaId : criteriaSetModifyRequest.getCriteriaIds()){
-            Optional<Criteria> criteria = criteriaRepository.findById(criteriaId);
-            criteriaList.add(criteria.get());
-        }
-        criteriaSet1.setCriteriaList(criteriaList);
-        criteriaSetRepository.save(criteriaSet1);
-    }
-
-    @Override
-    public void modifyRule(RulesModifyRequest ruleModifyRequest){
-        Optional<Rule> rule = ruleRepository.findById(ruleModifyRequest.getId());
-        ruleRepository.deleteById(ruleModifyRequest.getId());
-        Rule rule1 = new Rule();
-        rule1.setUserId(ruleModifyRequest.getUserId());
-        rule1.setName(ruleModifyRequest.getName());
-        Set<CriteriaSet> criteriaSets = new HashSet<>();
-        for (Long criteriaSetId : ruleModifyRequest.getCriteriaSetIds()){
-            Optional<CriteriaSet> criteriaSet  = criteriaSetRepository.findById(criteriaSetId);
-            criteriaSets.add(criteriaSet.get());
-        }
-        rule1.setCriteriaSetList(criteriaSets);
-        ruleRepository.save(rule1);
-    }
-
-    @Override
-    public void modifyRuleSet(RuleSetModifyRequest ruleSetModifyRequest){
-        Optional<RuleSet> ruleSet = ruleSetRepository.findById(ruleSetModifyRequest.getId());
-        ruleSetRepository.deleteById(ruleSet.get().getId());
-        RuleSet ruleSet1 = new RuleSet();
-        ruleSet1.setUserId(ruleSetModifyRequest.getUserId());
-        ruleSet1.setName(ruleSetModifyRequest.getName());
-        Set<Rule> ruleList = new HashSet<>();
-        for (Long ruleId : ruleSetModifyRequest.getRuleIds()){
-            Optional<Rule> rule = ruleRepository.findById(ruleId);
-            ruleList.add(rule.get());
-        }
-        ruleSet1.setRules(ruleList);
-        ruleSetRepository.save(ruleSet1);
     }
 
     @Override
@@ -569,4 +523,52 @@ public class RuleEngineServiceImpl implements RuleEngineService {
         }
         return 0F;
     };
+
+    @Override
+    public void deleteCriteriaInCriteriaSet(Long criteriaSetId, Long criteriaId){
+        Criteria criteria = criteriaRepository.findById(criteriaId).get();
+        CriteriaSet criteriaSet = criteriaSetRepository.findById(criteriaSetId).get();
+        criteriaSet.getCriteriaList().remove(criteria);
+        criteriaSetRepository.save(criteriaSet);
+    }
+    @Override
+    public void deleteCriteriaSetInRule(Long ruleId, Long criteriaSetId){
+        CriteriaSet criteriaSet = criteriaSetRepository.findById(criteriaSetId).get();
+        Rule rule = ruleRepository.findById(ruleId).get();
+        rule.getCriteriaSetList().remove(criteriaSet);
+        ruleRepository.save(rule);
+
+    }
+
+    @Override
+    public void deleteRuleInRuleSet(Long ruleSetId, Long ruleId){
+        Rule rule = ruleRepository.findById(ruleId).get();
+        RuleSet ruleSet = ruleSetRepository.findById(ruleSetId).get();
+        ruleSet.getRules().remove(rule);
+        ruleSetRepository.save(ruleSet);
+    }
+
+    @Override
+    public void addCriteriaInCriteriaSet(Long criteriaSetId, Long criteriaId){
+        Criteria criteria = criteriaRepository.findById(criteriaId).get();
+        CriteriaSet criteriaSet = criteriaSetRepository.findById(criteriaSetId).get();
+        criteriaSet.getCriteriaList().add(criteria);
+        criteriaSetRepository.save(criteriaSet);
+    }
+    @Override
+    public void addCriteriaSetInRule(Long ruleId, Long criteriaSetId){
+        CriteriaSet criteriaSet = criteriaSetRepository.findById(criteriaSetId).get();
+        Rule rule = ruleRepository.findById(ruleId).get();
+        rule.getCriteriaSetList().add(criteriaSet);
+        ruleRepository.save(rule);
+
+    }
+
+    @Override
+    public void addRuleInRuleSet(Long ruleSetId, Long ruleId){
+        Rule rule = ruleRepository.findById(ruleId).get();
+        RuleSet ruleSet = ruleSetRepository.findById(ruleSetId).get();
+        ruleSet.getRules().add(rule);
+        ruleSetRepository.save(ruleSet);
+    }
 }

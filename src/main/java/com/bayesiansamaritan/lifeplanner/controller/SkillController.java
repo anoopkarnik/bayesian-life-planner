@@ -2,14 +2,11 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 
 import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
-import com.bayesiansamaritan.lifeplanner.model.Topic;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
-import com.bayesiansamaritan.lifeplanner.request.Skill.SkillCreateChildRequest;
-import com.bayesiansamaritan.lifeplanner.request.Skill.SkillCreateRootRequest;
-import com.bayesiansamaritan.lifeplanner.request.Skill.SkillModifyRequest;
-import com.bayesiansamaritan.lifeplanner.request.Skill.TopicCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.Skill.*;
 import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
+import com.bayesiansamaritan.lifeplanner.response.TopicResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.SkillService;
 import com.bayesiansamaritan.lifeplanner.service.TopicService;
@@ -22,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -57,6 +55,21 @@ public class SkillController {
             }
 
             return new ResponseEntity<>(skill, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public ResponseEntity<Set<TopicResponse>> getTopic(@PathVariable("id") Long skillId) {
+        try {
+            Set<TopicResponse> topicResponses = skillService.getTopicsFromSkills(skillId);
+            if (topicResponses.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(topicResponses, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -100,6 +113,20 @@ public class SkillController {
         skillRepository.modifyParams(skillModifyRequest.getId(),skillModifyRequest.getName(),skillModifyRequest.getStartDate(),
                 skillModifyRequest.getDescription(),skillModifyRequest.getActive(),skillModifyRequest.getHidden(),skillModifyRequest.getCompleted(),
                 skillModifyRequest.getTimeTaken());
+    }
+
+    @PatchMapping("/updateTopic")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void updateItem( @RequestBody SkillAddTopicRequest skillAddTopicRequest)
+    {
+        skillService.addTopic(skillAddTopicRequest.getSkillId(),skillAddTopicRequest.getTopicId());
+    }
+
+    @PatchMapping("/deleteTopic")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void deleteItem(@RequestBody SkillAddTopicRequest skillAddTopicRequest)
+    {
+        skillService.removeTopic(skillAddTopicRequest.getSkillId(),skillAddTopicRequest.getTopicId());
     }
 
     @PutMapping("/complete")
