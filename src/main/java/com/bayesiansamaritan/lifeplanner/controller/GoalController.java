@@ -2,11 +2,13 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 
 import com.bayesiansamaritan.lifeplanner.model.Goal.Goal;
+import com.bayesiansamaritan.lifeplanner.model.Goal.GoalType;
 import com.bayesiansamaritan.lifeplanner.model.Rule.Criteria;
 import com.bayesiansamaritan.lifeplanner.model.Rule.CriteriaSet;
 import com.bayesiansamaritan.lifeplanner.model.Rule.Rule;
 import com.bayesiansamaritan.lifeplanner.model.Rule.RuleSet;
 import com.bayesiansamaritan.lifeplanner.repository.Goal.GoalRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Goal.GoalTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Rule.CriteriaRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Rule.CriteriaSetRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Rule.RuleRepository;
@@ -41,6 +43,8 @@ public class GoalController {
 
     @Autowired
     private GoalRepository goalRepository;
+    @Autowired
+    private GoalTypeRepository goalTypeRepository;
 
     @Autowired
     private GoalService goalService;
@@ -60,6 +64,18 @@ public class GoalController {
     DateUtils dateUtils;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public GoalResponse getGoal(@PathVariable("id") Long id) {
+        Goal goal = goalRepository.findById(id).get();
+        GoalType goalType = goalTypeRepository.findById(goal.getGoalTypeId()).get();
+        GoalResponse goalResponse = new GoalResponse(goal.getId(),goal.getCreatedAt(),goal.getUpdatedAt(),
+                goal.getName(),goal.getDueDate(),goalType.getName(),goal.getDescription(), goal.getCompletedPercentage(),
+                goal.getWorkPercentage(),goal.getStartDate(),
+                goal.getTimeTaken(),goal.getActive(),goal.getHidden(),goal.getCompleted());
+        return goalResponse;
+    }
 
 
     @GetMapping

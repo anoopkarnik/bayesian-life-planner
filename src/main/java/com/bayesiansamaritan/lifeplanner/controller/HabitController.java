@@ -1,8 +1,19 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 
+import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
 import com.bayesiansamaritan.lifeplanner.model.Habit.Habit;
+import com.bayesiansamaritan.lifeplanner.model.Habit.HabitType;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Daily;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Monthly;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Weekly;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Yearly;
 import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Habit.HabitTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.DailyRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.MonthlyRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.WeeklyRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.YearlyRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Habit.HabitCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.Habit.HabitCreateRootRequest;
@@ -20,6 +31,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,17 +42,62 @@ import java.util.List;
 public class HabitController {
     @Autowired
     private HabitRepository habitRepository;
+    @Autowired
+    private HabitTypeRepository habitTypeRepository;
 
     @Autowired
     HabitService habitService;
+
     @Autowired
     private UserProfileRepository userProfileRepository;
     @Autowired
     JwtUtils jwtUtils;
     @Autowired
     DateUtils dateUtils;
+    @Autowired
+    DailyRepository dailyRepository;
+    @Autowired
+    WeeklyRepository weeklyRepository;
+    @Autowired
+    MonthlyRepository monthlyRepository;
+    @Autowired
+    YearlyRepository yearlyRepository;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public HabitResponse getHabit(@PathVariable("id") Long id) {
+        Habit habit = habitRepository.findById(id).get();
+        HabitType habitType = habitTypeRepository.findById(habit.getHabitTypeId()).get();
+        Long every = null;
+        List<String> daysOfWeek = new ArrayList<>();
+        if (habit.getScheduleType().equals("daily")) {
+            Daily daily = dailyRepository.findByReferenceId("habit/" + habit.getId());
+            every = daily.getEvery();
+        }
+        else if(habit.getScheduleType().equals("monthly")){
+            Monthly monthly = monthlyRepository.findByReferenceId("habit/"+habit.getId());
+            every = monthly.getEvery();
+        }
+        else if(habit.getScheduleType().equals("yearly")){
+            Yearly yearly = yearlyRepository.findByReferenceId("habit/"+habit.getId());
+            every = yearly.getEvery();
+        }
+        else if(habit.getScheduleType().equals("weekly")){
+            Weekly weekly = weeklyRepository.findByReferenceId("habit/"+habit.getId());
+            every = weekly.getEvery();
+            for (DayOfWeek dayOfWeek:weekly.getDaysOfWeek()){
+                daysOfWeek.add(dayOfWeek.toString());
+            }
+        }
+        HabitResponse habitResponse = new HabitResponse(habit.getId(),habit.getCreatedAt(),habit.getUpdatedAt(),
+                habit.getName(),habit.getScheduleType(),habit.getTimeTaken(),habit.getStartDate(),
+                habit.getDueDate(),habitType.getName(),habit.getDescription(),habit.getStreak(),habit.getTotalTimes(),
+                habit.getActive(),habit.getHidden(),habit.getCompleted(),habit.getTimeOfDay(),every,daysOfWeek);
+        return habitResponse;
+    }
+
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

@@ -1,6 +1,7 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 import com.bayesiansamaritan.lifeplanner.enums.CriteriaEnum;
+import com.bayesiansamaritan.lifeplanner.model.Rule.Criteria;
 import com.bayesiansamaritan.lifeplanner.model.Rule.CriteriaSet;
 import com.bayesiansamaritan.lifeplanner.model.Rule.Rule;
 import com.bayesiansamaritan.lifeplanner.model.Rule.RuleSet;
@@ -17,7 +18,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -41,6 +45,48 @@ public class RuleEngineController {
 
     @Autowired
     private RuleEngineService ruleEngineService;
+
+    @GetMapping("/criteria/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public CriteriaResponse getCriteria(@PathVariable("id") Long id) {
+        Criteria criteria = criteriaRepository.findById(id).get();
+        CriteriaResponse criteriaResponse = new CriteriaResponse(criteria.getId(),criteria.getCreatedAt(),
+                criteria.getUpdatedAt(),criteria.getName(),criteria.getCondition(),criteria.getCategory(),
+                criteria.getCriteriaType(),criteria.getActive(),criteria.getValue(),criteria.getCategoryName(),
+                criteria.getWeightage());
+        return criteriaResponse;
+    };
+
+    @GetMapping("/criteriaSet/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public CriteriaSetResponse getCriteriaSet(@PathVariable("id") Long id) {
+        CriteriaSet criteriaSet = criteriaSetRepository.findById(id).get();
+        List<CriteriaResponse> criteriaResponseSet = new ArrayList<>();
+        CriteriaSetResponse criteriaSetResponse = new CriteriaSetResponse(criteriaSet.getId(),criteriaSet.getCreatedAt(),
+                criteriaSet.getUpdatedAt(),criteriaSet.getName(),criteriaResponseSet);
+        return criteriaSetResponse;
+    };
+
+    @GetMapping("/rule/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public RulesResponse getRule(@PathVariable("id") Long id) {
+        Rule rule = ruleRepository.findById(id).get();
+        List<CriteriaSetResponse> criteriaSetResponses = new ArrayList<>();
+        RulesResponse ruleResponse = new RulesResponse(rule.getId(),rule.getCreatedAt(),
+                rule.getUpdatedAt(),rule.getName(),criteriaSetResponses);
+        return ruleResponse;
+    };
+
+    @GetMapping("/ruleSet/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public RuleSetResponse getRuleSet(@PathVariable("id") Long id) {
+        RuleSet ruleSet = ruleSetRepository.findById(id).get();
+        List<RulesResponse> ruleResponseSet = new ArrayList<>();
+        RuleSetResponse ruleSetResponse = new RuleSetResponse(ruleSet.getId(),ruleSet.getCreatedAt(),
+                ruleSet.getUpdatedAt(),ruleSet.getName(),ruleResponseSet);
+        return ruleSetResponse;
+    };
+
 
     @GetMapping("/criteria")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

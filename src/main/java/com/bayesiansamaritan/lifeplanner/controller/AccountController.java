@@ -1,10 +1,16 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
+import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabit;
+import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
 import com.bayesiansamaritan.lifeplanner.model.Financial.Account;
+import com.bayesiansamaritan.lifeplanner.model.Financial.AccountType;
+import com.bayesiansamaritan.lifeplanner.repository.Financial.AccountRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Financial.AccountTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Financial.AccountRequest;
 import com.bayesiansamaritan.lifeplanner.response.AccountBalanceResponse;
 import com.bayesiansamaritan.lifeplanner.response.AccountResponse;
+import com.bayesiansamaritan.lifeplanner.response.BadHabitResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.AccountService;
 import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
@@ -27,6 +33,10 @@ public class AccountController {
 	@Autowired
 	AccountService accountService;
 	@Autowired
+	AccountTypeRepository accountTypeRepository;
+	@Autowired
+	AccountRepository accountRepository;
+	@Autowired
 	private UserProfileRepository userProfileRepository;
 	@Autowired
 	JwtUtils jwtUtils;
@@ -35,7 +45,18 @@ public class AccountController {
 	static final String HEADER_STRING = "Authorization";
 	static final String TOKEN_PREFIX = "Bearer";
 
-
+	@GetMapping("/{id}")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public AccountResponse getAccount(@PathVariable("id") Long id) {
+		Account account = accountRepository.findById(id).get();
+		AccountType accountType = accountTypeRepository.findById(account.getAccountTypeId()).get();
+		AccountResponse accountResponse = new AccountResponse(account.getId(),account.getCreatedAt(),
+				account.getUpdatedAt(),account.getName(),account.getStartDate(),accountType.getName(),
+				account.getBalance(),account.getLiquidity(),account.getFreeLiquidity(),account.getDescription(),
+				account.getActive(),account.getHidden(),account.getCompleted(),account.getUserId(),
+				account.getNomineeName(),account.getMaturityDate(),account.getStockCode(),account.getSchemeCode());
+		return accountResponse;
+	}
 
 	@PostMapping
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

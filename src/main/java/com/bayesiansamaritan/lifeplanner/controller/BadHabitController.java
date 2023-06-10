@@ -2,7 +2,9 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 
 import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabit;
+import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
 import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitRepository;
+import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.BadHabit.BadHabitCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.BadHabit.BadHabitCreateRootRequest;
@@ -27,6 +29,8 @@ import java.util.List;
 public class BadHabitController {
     @Autowired
     private BadHabitRepository habitRepository;
+    @Autowired
+    private BadHabitTypeRepository badHabitTypeRepository;
 
     @Autowired
     BadHabitService habitService;
@@ -36,6 +40,18 @@ public class BadHabitController {
     JwtUtils jwtUtils;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public BadHabitResponse getBadHabit(@PathVariable("id") Long id) {
+        BadHabit badHabit = habitRepository.findById(id).get();
+        BadHabitType badHabitType = badHabitTypeRepository.findById(badHabit.getBadHabitTypeId()).get();
+        BadHabitResponse badHabitResponse = new BadHabitResponse(badHabit.getId(),badHabit.getCreatedAt(),
+                badHabit.getUpdatedAt(),badHabit.getName(),badHabit.getStartDate(),badHabitType.getName(),
+                badHabit.getTotalTimes(),badHabit.getDescription(),badHabit.getActive(),badHabit.getHidden(),
+                badHabit.getCompleted());
+        return badHabitResponse;
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

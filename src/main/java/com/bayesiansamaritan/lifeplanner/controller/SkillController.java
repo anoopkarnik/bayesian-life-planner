@@ -2,7 +2,9 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 
 import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
+import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Skill.*;
 import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
@@ -29,6 +31,8 @@ public class SkillController {
 
     @Autowired
     private SkillRepository skillRepository;
+    @Autowired
+    private SkillTypeRepository skillTypeRepository;
 
     @Autowired
     private SkillService skillService;
@@ -41,6 +45,17 @@ public class SkillController {
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
 
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public SkillResponse getSkill(@PathVariable("id") Long skillId) {
+        Skill skill = skillRepository.findById(skillId).get();
+        SkillType skillType = skillTypeRepository.findById(skill.getSkillTypeId()).get();
+        SkillResponse skillResponse = new SkillResponse(skill.getId(),skill.getCreatedAt(),skill.getUpdatedAt(),
+                skill.getName(),skill.getTimeTaken(),skillType.getName(),skill.getDescription(),skill.getActive(),
+                skill.getHidden(),skill.getCompleted());
+        return skillResponse;
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
@@ -60,7 +75,7 @@ public class SkillController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/topic")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<Set<TopicResponse>> getTopic(@PathVariable("id") Long skillId) {
         try {

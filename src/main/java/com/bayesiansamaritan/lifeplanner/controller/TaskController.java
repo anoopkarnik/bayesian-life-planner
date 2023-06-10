@@ -1,8 +1,19 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 
+import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Daily;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Monthly;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Weekly;
+import com.bayesiansamaritan.lifeplanner.model.Scheduler.Yearly;
 import com.bayesiansamaritan.lifeplanner.model.Task.Task;
+import com.bayesiansamaritan.lifeplanner.model.Task.TaskType;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.DailyRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.MonthlyRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.WeeklyRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Scheduler.YearlyRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Task.TaskRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Task.TaskTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Habit.HabitScheduleRequest;
 import com.bayesiansamaritan.lifeplanner.request.Task.TaskCreateChildRequest;
@@ -20,6 +31,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +42,16 @@ import java.util.List;
 public class TaskController {
     @Autowired
     private TaskRepository taskRepository;
+    @Autowired
+    private TaskTypeRepository taskTypeRepository;
+    @Autowired
+    private DailyRepository dailyRepository;
+    @Autowired
+    private WeeklyRepository weeklyRepository;
+    @Autowired
+    private MonthlyRepository monthlyRepository;
+    @Autowired
+    private YearlyRepository yearlyRepository;
 
     @Autowired
     TaskService taskService;
@@ -41,6 +63,38 @@ public class TaskController {
     DateUtils dateUtils;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public TaskResponse getTask(@PathVariable("id") Long taskId) {
+        Task task = taskRepository.findById(taskId).get();
+        TaskType taskType = taskTypeRepository.findById(taskId).get();
+        Long every = null;
+        List<String> daysOfWeek = new ArrayList<>();
+        if (task.getScheduleType().equals("daily")) {
+            Daily daily = dailyRepository.findByReferenceId("task/" + task.getId());
+            every = daily.getEvery();
+        }
+        else if(task.getScheduleType().equals("monthly")){
+            Monthly monthly = monthlyRepository.findByReferenceId("task/"+task.getId());
+            every = monthly.getEvery();
+        }
+        else if(task.getScheduleType().equals("yearly")){
+            Yearly yearly = yearlyRepository.findByReferenceId("task/"+task.getId());
+            every = yearly.getEvery();
+        }
+        else if(task.getScheduleType().equals("weekly")){
+            Weekly weekly = weeklyRepository.findByReferenceId("task/"+task.getId());
+            every = weekly.getEvery();
+            for (DayOfWeek dayOfWeek:weekly.getDaysOfWeek()){
+                daysOfWeek.add(dayOfWeek.toString());
+            }
+        }
+        TaskResponse taskResponse = new TaskResponse(task.getId(),task.getCreatedAt(),task.getUpdatedAt(),task.getName(),task.getScheduleType(),task.getTimeTaken(),
+                task.getStartDate(),task.getDueDate(),taskType.getName(),task.getDescription(),task.getActive(),task.getHidden(),task.getCompleted(),every,daysOfWeek);
+        return taskResponse;
+
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

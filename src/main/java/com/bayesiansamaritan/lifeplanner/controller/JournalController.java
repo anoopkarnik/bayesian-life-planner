@@ -2,7 +2,9 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 
 import com.bayesiansamaritan.lifeplanner.model.Journal.Journal;
+import com.bayesiansamaritan.lifeplanner.model.Journal.JournalType;
 import com.bayesiansamaritan.lifeplanner.repository.Journal.JournalRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Journal.JournalTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Journal.JournalCreateRequest;
 import com.bayesiansamaritan.lifeplanner.request.Journal.JournalModifyRequest;
@@ -30,11 +32,24 @@ public class JournalController {
     @Autowired
     private JournalService journalService;
     @Autowired
+    private JournalTypeRepository journalTypeRepository;
+    @Autowired
     private UserProfileRepository userProfileRepository;
     @Autowired
     JwtUtils jwtUtils;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public JournalResponse getJournal(@PathVariable("id") Long id) {
+        Journal journal = journalRepository.findById(id).get();
+        JournalType journalType = journalTypeRepository.findById(journal.getJournalTypeId()).get();
+        JournalResponse journalResponse = new JournalResponse(journal.getId(),journal.getCreatedAt(),
+                journal.getUpdatedAt(),journal.getName(),journalType.getName(),journal.getText(),journal.getActive(),
+                journal.getHidden(),journal.getCompleted());
+        return journalResponse;
+    }
 
 
     @GetMapping

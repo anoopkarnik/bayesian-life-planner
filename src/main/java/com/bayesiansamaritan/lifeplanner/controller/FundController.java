@@ -1,10 +1,13 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 import com.bayesiansamaritan.lifeplanner.model.Financial.Fund;
+import com.bayesiansamaritan.lifeplanner.model.Goal.Goal;
+import com.bayesiansamaritan.lifeplanner.model.Goal.GoalType;
 import com.bayesiansamaritan.lifeplanner.repository.Financial.FundRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.response.FundResponse;
 import com.bayesiansamaritan.lifeplanner.response.FundSummaryResponse;
+import com.bayesiansamaritan.lifeplanner.response.GoalResponse;
 import com.bayesiansamaritan.lifeplanner.response.TransactionResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.AccountService;
@@ -34,6 +37,7 @@ public class FundController {
 
 	@Autowired
 	FundService fundService;
+
 	@Autowired
 	private UserProfileRepository userProfileRepository;
 	@Autowired
@@ -42,6 +46,16 @@ public class FundController {
 	DateUtils dateUtils;
 	static final String HEADER_STRING = "Authorization";
 	static final String TOKEN_PREFIX = "Bearer";
+
+	@GetMapping("/{id}")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public FundResponse getFund(@PathVariable("id") Long id) {
+		Fund fund = fundRepository.findById(id).get();
+		FundResponse fundResponse = new FundResponse(fund.getId(),fund.getCreatedAt(),fund.getUpdatedAt(),
+				fund.getName(),fund.getStartDate(),fund.getDescription(),fund.getActive(),fund.getHidden(),
+				fund.getCompleted(),fund.getUserId(),fund.getAmountAllocated(),fund.getAmountNeeded());
+		return fundResponse;
+	}
 
 	@PostMapping
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

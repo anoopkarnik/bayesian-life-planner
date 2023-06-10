@@ -1,16 +1,13 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
-import com.bayesiansamaritan.lifeplanner.model.Financial.BudgetPlan;
-import com.bayesiansamaritan.lifeplanner.model.Financial.Income;
-import com.bayesiansamaritan.lifeplanner.model.Financial.MonthlyBudget;
-import com.bayesiansamaritan.lifeplanner.repository.Financial.BudgetPlanRepository;
-import com.bayesiansamaritan.lifeplanner.repository.Financial.IncomeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.Financial.MonthlyBudgetRepository;
+import com.bayesiansamaritan.lifeplanner.model.Financial.*;
+import com.bayesiansamaritan.lifeplanner.repository.Financial.*;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Financial.BudgetPlanRequest;
 import com.bayesiansamaritan.lifeplanner.request.Financial.MonthlyBudgetRequest;
 import com.bayesiansamaritan.lifeplanner.response.BudgetPlanResponse;
 import com.bayesiansamaritan.lifeplanner.response.BudgetResponse;
+import com.bayesiansamaritan.lifeplanner.response.FundResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.BudgetService;
 import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
@@ -22,6 +19,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Date;
 import java.util.List;
 
 
@@ -33,9 +35,17 @@ public class BudgetController {
 	@Autowired
 	private MonthlyBudgetRepository monthlyBudgetRepository;
 	@Autowired
+	private CategoryTypeRepository categoryTypeRepository;
+	@Autowired
+	private SubCategoryTypeRepository subCategoryTypeRepository;
+	@Autowired
+	private ExpenseTypeRepository expenseTypeRepository;
+	@Autowired
 	private IncomeRepository incomeRepository;
 	@Autowired
 	private BudgetPlanRepository budgetPlanRepository;
+	@Autowired
+	private TransactionsRepository transactionsRepository;
 	@Autowired
 	BudgetService budgetService;
 	@Autowired
@@ -47,7 +57,29 @@ public class BudgetController {
 	static final String HEADER_STRING = "Authorization";
 	static final String TOKEN_PREFIX = "Bearer";
 
-
+	@GetMapping("/{id}")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	public BudgetResponse getBudget(@PathVariable("id") Long id) throws ParseException {
+		MonthlyBudget monthlyBudget = monthlyBudgetRepository.findById(id).get();
+		CategoryType categoryType = categoryTypeRepository.findById(monthlyBudget.getCategoryTypeId()).get();
+		SubCategoryType subCategoryType = subCategoryTypeRepository.findById(monthlyBudget.getSubCategoryTypeId()).get();
+		ExpenseType expenseType = expenseTypeRepository.findById(monthlyBudget.getExpenseTypeId()).get();
+		LocalDate todayDate = LocalDate.now();
+		Date startDate =  new SimpleDateFormat("yyyy-MM-dd").parse(todayDate.with(TemporalAdjusters.firstDayOfMonth()).toString());
+		Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(todayDate.with(TemporalAdjusters.firstDayOfNextMonth()).toString());
+		List<Transactions> transactions = transactionsRepository.findBySome(monthlyBudget.getUserId(),monthlyBudget.getExpenseTypeId()
+				,monthlyBudget.getCategoryTypeId(),monthlyBudget.getSubCategoryTypeId(),startDate,endDate);
+		Long amountSpent = 0L;
+		for (Transactions transaction:transactions){
+			amountSpent+=transaction.getCost();
+		}
+		BudgetResponse budgetResponse = new BudgetResponse(monthlyBudget.getId(),monthlyBudget.getCreatedAt(),
+				monthlyBudget.getUpdatedAt(),monthlyBudget.getName(),monthlyBudget.getStartDate(), categoryType.getName(),
+				expenseType.getName(),subCategoryType.getName(),monthlyBudget.getDescription(),monthlyBudget.getActive(),
+				monthlyBudget.getHidden(),monthlyBudget.getCompleted(),monthlyBudget.getCost(),monthlyBudget.getUserId(),
+				monthlyBudget.getCost(),amountSpent);
+		return budgetResponse;
+	}
 
 	@PostMapping("/monthly")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

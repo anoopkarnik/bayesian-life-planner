@@ -3,8 +3,10 @@ package com.bayesiansamaritan.lifeplanner.controller;
 
 import com.bayesiansamaritan.lifeplanner.model.Stats.Stats;
 import com.bayesiansamaritan.lifeplanner.model.Stats.StatsTransaction;
+import com.bayesiansamaritan.lifeplanner.model.Stats.StatsType;
 import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsTransactionRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Stats.StatsTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Stats.StatsCreateChildRequest;
 import com.bayesiansamaritan.lifeplanner.request.Stats.StatsCreateRootRequest;
@@ -33,6 +35,8 @@ public class StatsController {
     private StatsTransactionRepository statsTransactionRepository;
     @Autowired
     private StatsRepository statsRepository;
+    @Autowired
+    private StatsTypeRepository statsTypeRepository;
 
     @Autowired
     private StatsService statsService;
@@ -43,6 +47,15 @@ public class StatsController {
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public StatsResponse getStat(@PathVariable("id") Long statId) {
+        Stats stats = statsRepository.findById(statId).get();
+        StatsType statsType = statsTypeRepository.findById(statId).get();
+        StatsResponse statsResponse = new StatsResponse(stats.getId(),stats.getCreatedAt(),stats.getUpdatedAt(),stats.getName(),statsType.getName(),stats.getValue(),
+                stats.getDescription(),stats.getActive(),stats.getHidden(),stats.getCompleted());
+        return statsResponse;
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

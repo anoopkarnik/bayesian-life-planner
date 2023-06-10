@@ -1,12 +1,16 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 
+import com.bayesiansamaritan.lifeplanner.model.Item;
 import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
+import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
 import com.bayesiansamaritan.lifeplanner.model.Topic;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillTypeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.TopicRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Skill.*;
+import com.bayesiansamaritan.lifeplanner.response.ItemResponse;
 import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
 import com.bayesiansamaritan.lifeplanner.response.TopicResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
@@ -20,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -35,11 +40,29 @@ public class TopicController {
     private TopicService topicService;
     @Autowired
     private TopicRepository topicRepository;
+    @Autowired
+    private SkillTypeRepository skillTypeRepository;
 
     @Autowired
     JwtUtils jwtUtils;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
+
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public TopicResponse getTopic(@PathVariable("id") Long topicId) {
+        Topic topic = topicRepository.findById(topicId).get();
+        SkillType skillType = skillTypeRepository.findById(topic.getSkillTypeId()).get();
+        Set<ItemResponse> itemResponses = new HashSet<>();
+        for (Item item: topic.getItems()){
+            ItemResponse itemResponse = new ItemResponse(item.getId(), item.getCreatedAt(),item.getUpdatedAt(), item.getText());
+            itemResponses.add(itemResponse);
+        }
+        TopicResponse topicResponse = new TopicResponse(topic.getId(),topic.getCreatedAt(),topic.getUpdatedAt(),topic.getName(),topic.getTopicTypeEnum(),
+                topic.getParagraph(),skillType.getName(),itemResponses);
+        return topicResponse;
+    }
 
 
     @GetMapping
