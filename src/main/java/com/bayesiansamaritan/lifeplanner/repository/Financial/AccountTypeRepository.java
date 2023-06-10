@@ -24,7 +24,7 @@ public interface AccountTypeRepository extends JpaRepository<AccountType, Long> 
     @Query("update AccountType set name = :name,updated_at=now() where id=:id")
     public void modifyName(@Param("id") Long id, @Param("name") String name);
 
-    @Query(value = "Select t from AccountType t where t.userId=:userId order by t.count desc")
+    @Query(value = "Select t from AccountType t where t.userId=:userId order by t.name")
     List<AccountType> findByUserId(@Param("userId") Long userId);
 
     @Transactional

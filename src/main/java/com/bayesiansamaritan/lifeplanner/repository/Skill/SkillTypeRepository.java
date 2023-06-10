@@ -18,7 +18,7 @@ public interface SkillTypeRepository extends JpaRepository<SkillType, Long> {
     SkillType findByNameAndUserId(String name,Long userId);
     Optional<SkillType> findById(Long Id);
 
-    @Query(value = "Select h from SkillType h where userId=:userId order by h.count desc")
+    @Query(value = "Select h from SkillType h where userId=:userId order by h.name")
     List<SkillType> findByUserId(@Param("userId") Long userId);
 
     @Transactional

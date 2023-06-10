@@ -22,7 +22,7 @@ public interface CategoryTypeRepository extends JpaRepository<CategoryType, Long
   @Query("update CategoryType set name = :name,updated_at=now() where id=:id")
   public void modifyName(@Param("id") Long id, @Param("name") String name);
 
-  @Query(value = "Select t from CategoryType t where t.userId=:userId order by t.count desc")
+  @Query(value = "Select t from CategoryType t where t.userId=:userId order by t.name")
   List<CategoryType> findByUserId(@Param("userId") Long userId);
 
   @Transactional

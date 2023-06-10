@@ -18,7 +18,7 @@ public interface GoalTypeRepository extends JpaRepository<GoalType, Long> {
     GoalType findByNameAndUserId(String name,Long userId);
     Optional<GoalType> findById(Long Id);
 
-    @Query(value = "Select h from GoalType h where userId=:userId order by h.count desc")
+    @Query(value = "Select h from GoalType h where userId=:userId order by h.name")
     List<GoalType> findByUserId(@Param("userId") Long userId);
 
     @Transactional

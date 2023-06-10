@@ -23,7 +23,7 @@ public interface ExpenseTypeRepository extends JpaRepository<ExpenseType, Long> 
   @Query("update ExpenseType set name = :name,updated_at=now() where id=:id")
   public void modifyName(@Param("id") Long id, @Param("name") String name);
 
-  @Query(value = "Select t from ExpenseType t where t.userId=:userId order by t.count desc")
+  @Query(value = "Select t from ExpenseType t where t.userId=:userId order by t.name")
   List<ExpenseType> findByUserId(@Param("userId") Long userId);
 
   @Transactional

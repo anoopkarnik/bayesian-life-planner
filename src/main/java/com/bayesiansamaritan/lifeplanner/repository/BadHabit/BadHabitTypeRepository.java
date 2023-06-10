@@ -19,7 +19,7 @@ public interface BadHabitTypeRepository extends JpaRepository<BadHabitType, Long
     BadHabitType findByNameAndUserId(String name,Long userId);
     Optional<BadHabitType> findById(Long Id);
 
-    @Query(value = "Select h from BadHabitType h where userId=:userId order by h.count desc")
+    @Query(value = "Select h from BadHabitType h where userId=:userId order by h.name")
     List<BadHabitType> findByUserId(@Param("userId") Long userId);
 
     @Transactional

@@ -18,7 +18,7 @@ public interface TaskTypeRepository extends JpaRepository<TaskType, Long> {
     TaskType findByNameAndUserId(String name,Long userId);
     Optional<TaskType> findById(Long Id);
 
-    @Query(value = "Select t from TaskType t where t.userId=:userId order by t.count desc")
+    @Query(value = "Select t from TaskType t where t.userId=:userId order by t.name")
     List<TaskType> findByUserId(@Param("userId") Long userId);
 
     @Transactional

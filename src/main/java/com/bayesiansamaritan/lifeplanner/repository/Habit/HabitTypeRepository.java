@@ -18,7 +18,7 @@ public interface HabitTypeRepository extends JpaRepository<HabitType, Long> {
     HabitType findByNameAndUserId(String name,Long userId);
     Optional<HabitType> findById(Long Id);
 
-    @Query(value = "Select h from HabitType h where userId=:userId order by h.count desc")
+    @Query(value = "Select h from HabitType h where userId=:userId order by h.name")
     List<HabitType> findByUserId(@Param("userId") Long userId);
 
     @Transactional

@@ -18,7 +18,7 @@ public interface StatsTypeRepository extends JpaRepository<StatsType, Long> {
     StatsType findByNameAndUserId(String name,Long userId);
     Optional<StatsType> findById(Long Id);
 
-    @Query(value = "Select h from StatsType h where userId=:userId order by h.count desc")
+    @Query(value = "Select h from StatsType h where userId=:userId order by h.name")
     List<StatsType> findByUserId(@Param("userId") Long userId);
 
     @Transactional

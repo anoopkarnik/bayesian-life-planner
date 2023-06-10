@@ -22,7 +22,7 @@ public interface SubCategoryTypeRepository extends JpaRepository<SubCategoryType
   @Query("update SubCategoryType set name = :name,updated_at=now() where id=:id")
   public void modifyName(@Param("id") Long id, @Param("name") String name);
 
-  @Query(value = "Select t from SubCategoryType t where t.userId=:userId order by t.count desc")
+  @Query(value = "Select t from SubCategoryType t where t.userId=:userId order by t.name")
   List<SubCategoryType> findByUserId(@Param("userId") Long userId);
 
   @Transactional

@@ -18,7 +18,7 @@ public interface JournalTypeRepository extends JpaRepository<JournalType, Long> 
     JournalType findByNameAndUserId(String name,Long userId);
     Optional<JournalType> findById(Long Id);
 
-    @Query(value = "Select h from JournalType h where userId=:userId order by h.count desc")
+    @Query(value = "Select h from JournalType h where userId=:userId order by h.name")
     List<JournalType> findByUserId(@Param("userId") Long userId);
 
     @Transactional
