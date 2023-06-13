@@ -22,7 +22,7 @@ import com.bayesiansamaritan.lifeplanner.request.Task.TaskModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.TaskResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.TaskService;
-import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
+import com.bayesiansamaritan.lifeplanner.utils.HabitDateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,7 +60,7 @@ public class TaskController {
     @Autowired
     JwtUtils jwtUtils;
     @Autowired
-    DateUtils dateUtils;
+    HabitDateUtils habitDateUtils;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
 
@@ -211,7 +211,7 @@ public class TaskController {
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public void modifyParams(@RequestBody TaskModifyRequest taskModifyRequest)
     {
-        Date newDueDate = dateUtils.getEndOfDay(taskModifyRequest.getDueDate());
+        Date newDueDate = habitDateUtils.getEndOfDay(taskModifyRequest.getDueDate());
         taskRepository.modifyParams(taskModifyRequest.getId(),taskModifyRequest.getName(),taskModifyRequest.getStartDate(),taskModifyRequest.getDescription(),
                 taskModifyRequest.getActive(),taskModifyRequest.getHidden(),taskModifyRequest.getCompleted(),taskModifyRequest.getTimeTaken(),
                 newDueDate);

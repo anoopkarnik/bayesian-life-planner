@@ -18,18 +18,12 @@ import java.util.Optional;
 public interface HabitRepository extends JpaRepository<Habit, Long> {
 
 
-   @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.habitTypeId=:habitTypeId  and t.startDate<=now() and t.parentId=0 order by cast(t.dueDate as date) asc,t.timeOfDay asc")
-   List<Habit> findRootHabitByUserIdAndActiveAndHabitTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
-                                                 @Param("habitTypeId") Long habitTypeId);
+   @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.habitTypeId=:habitTypeId  and t.startDate<=now() and :currentDate>=t.dueDate order by t.timeOfDay asc")
+   List<Habit> findHabitByUserIdAndActiveAndHabitTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
+                                                 @Param("habitTypeId") Long habitTypeId, @Param("currentDate") Date currentDate);
 
-   @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.habitTypeId=:habitTypeId  and t.startDate<=now() order by cast(t.dueDate as date) asc,t.timeOfDay asc")
-   List<Habit> findAllHabitByUserIdAndActiveAndHabitTypeId(@Param("userId") Long userId, @Param("active") Boolean active,
-                                                            @Param("habitTypeId") Long habitTypeId);
-
-
-   @Query("Select t from Habit t where t.userId=:userId and t.active=:active and t.startDate<=now() and t.parentId=:parentHabitId order by cast(t.dueDate as date) asc,t.timeOfDay asc")
-   Optional<List<Habit>> findChildHabitsByUserIdAndActiveAndParentHabitId(@Param("userId") Long userId, @Param("active") Boolean active,
-                                                                   @Param("parentHabitId") Long parentHabitId);
+   @Query("Select t from Habit t where t.userId=:userId and t.habitTypeId=:habitTypeId order by t.timeOfDay asc")
+   List<Habit> findHabitByUserIdAndHabitTypeId(@Param("userId") Long userId, @Param("habitTypeId") Long habitTypeId);
 
    Habit findByUserIdAndId(@Param("userId") Long userId, @Param("id") Long id);
 

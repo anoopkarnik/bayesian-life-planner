@@ -43,6 +43,7 @@ import com.bayesiansamaritan.lifeplanner.request.Rule.*;
 import com.bayesiansamaritan.lifeplanner.response.*;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.*;
+import com.bayesiansamaritan.lifeplanner.utils.ModelToResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -119,6 +120,8 @@ public class RuleEngineServiceImpl implements RuleEngineService {
     private BudgetService budgetService;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private ModelToResponse modelToResponse;
 
 
     @Override
@@ -270,7 +273,9 @@ public class RuleEngineServiceImpl implements RuleEngineService {
             }
         }
         else if(type.equals("HABIT")){
-            List<HabitResponse> list = habitService.getAllHabitsAndSubHabits(userId,true,name);
+            HabitType habitType = habitTypeRepository.findByNameAndUserId(name,userId);
+            List<Habit> habits = habitRepository.findHabitByUserIdAndHabitTypeId(userId,habitType.getId());
+            List<HabitResponse> list = modelToResponse.habitsModelsToResponses(habits,habitType);
             for (HabitResponse type1 : list){
                 NamesResponse namesResponse = new NamesResponse(type1.getId(),type1.getName());
                 namesResponses.add(namesResponse);

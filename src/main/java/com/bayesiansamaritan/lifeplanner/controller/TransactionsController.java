@@ -7,11 +7,10 @@ import com.bayesiansamaritan.lifeplanner.repository.Financial.IncomeRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Financial.TransactionsListRequest;
 import com.bayesiansamaritan.lifeplanner.request.Financial.TransactionsRequest;
-import com.bayesiansamaritan.lifeplanner.request.Task.TaskModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.TransactionResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.TransactionsService;
-import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
+import com.bayesiansamaritan.lifeplanner.utils.HabitDateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 import java.util.List;
 
 
@@ -42,7 +40,7 @@ public class TransactionsController {
 	@Autowired
 	JwtUtils jwtUtils;
 	@Autowired
-	DateUtils dateUtils;
+    HabitDateUtils habitDateUtils;
 	static final String HEADER_STRING = "Authorization";
 	static final String TOKEN_PREFIX = "Bearer";
 

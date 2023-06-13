@@ -7,10 +7,9 @@ import com.bayesiansamaritan.lifeplanner.request.Financial.BudgetPlanRequest;
 import com.bayesiansamaritan.lifeplanner.request.Financial.MonthlyBudgetRequest;
 import com.bayesiansamaritan.lifeplanner.response.BudgetPlanResponse;
 import com.bayesiansamaritan.lifeplanner.response.BudgetResponse;
-import com.bayesiansamaritan.lifeplanner.response.FundResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.BudgetService;
-import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
+import com.bayesiansamaritan.lifeplanner.utils.HabitDateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,7 +52,7 @@ public class BudgetController {
 	@Autowired
 	JwtUtils jwtUtils;
 	@Autowired
-	DateUtils dateUtils;
+    HabitDateUtils habitDateUtils;
 	static final String HEADER_STRING = "Authorization";
 	static final String TOKEN_PREFIX = "Bearer";
 

@@ -22,7 +22,7 @@ import com.bayesiansamaritan.lifeplanner.response.GoalResponse;
 import com.bayesiansamaritan.lifeplanner.response.RuleEngineResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.GoalService;
-import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
+import com.bayesiansamaritan.lifeplanner.utils.HabitDateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -61,7 +61,7 @@ public class GoalController {
     @Autowired
     JwtUtils jwtUtils;
     @Autowired
-    DateUtils dateUtils;
+    HabitDateUtils habitDateUtils;
     static final String HEADER_STRING = "Authorization";
     static final String TOKEN_PREFIX = "Bearer";
 
@@ -198,7 +198,7 @@ public class GoalController {
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public void modifyParams(@RequestBody GoalModifyRequest goalModifyRequest)
     {
-        Date newDueDate = dateUtils.getEndOfDay(goalModifyRequest.getDueDate());
+        Date newDueDate = habitDateUtils.getEndOfDay(goalModifyRequest.getDueDate());
         goalRepository.modifyParams(goalModifyRequest.getId(),goalModifyRequest.getName(),goalModifyRequest.getStartDate(),goalModifyRequest.getDescription(),
                 goalModifyRequest.getActive(),goalModifyRequest.getHidden(),goalModifyRequest.getCompleted(),newDueDate,
                 goalModifyRequest.getTimeTaken());

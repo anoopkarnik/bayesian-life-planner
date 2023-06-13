@@ -24,7 +24,6 @@ public class HabitResponse {
     private Long streak;
     private Long totalTimes;
     private String description;
-    private List<HabitResponse> habitResponses;
     private Boolean active;
     private Boolean hidden;
     private Boolean completed;

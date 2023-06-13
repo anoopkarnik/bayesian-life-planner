@@ -1,18 +1,14 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
 import com.bayesiansamaritan.lifeplanner.model.Financial.Fund;
-import com.bayesiansamaritan.lifeplanner.model.Goal.Goal;
-import com.bayesiansamaritan.lifeplanner.model.Goal.GoalType;
 import com.bayesiansamaritan.lifeplanner.repository.Financial.FundRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.response.FundResponse;
 import com.bayesiansamaritan.lifeplanner.response.FundSummaryResponse;
-import com.bayesiansamaritan.lifeplanner.response.GoalResponse;
-import com.bayesiansamaritan.lifeplanner.response.TransactionResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.AccountService;
 import com.bayesiansamaritan.lifeplanner.service.FundService;
-import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
+import com.bayesiansamaritan.lifeplanner.utils.HabitDateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,7 +39,7 @@ public class FundController {
 	@Autowired
 	JwtUtils jwtUtils;
 	@Autowired
-	DateUtils dateUtils;
+    HabitDateUtils habitDateUtils;
 	static final String HEADER_STRING = "Authorization";
 	static final String TOKEN_PREFIX = "Bearer";
 

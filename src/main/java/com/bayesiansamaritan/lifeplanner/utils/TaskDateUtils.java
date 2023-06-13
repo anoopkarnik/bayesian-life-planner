@@ -15,13 +15,12 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.Year;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
 @Service
-public class DateUtils {
+public class TaskDateUtils {
 
     @Autowired
     private DailyRepository dailyRepository;

@@ -16,16 +16,15 @@ import com.bayesiansamaritan.lifeplanner.repository.Scheduler.WeeklyRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Scheduler.YearlyRepository;
 import com.bayesiansamaritan.lifeplanner.response.HabitResponse;
 import com.bayesiansamaritan.lifeplanner.service.HabitService;
-import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
+import com.bayesiansamaritan.lifeplanner.utils.HabitDateUtils;
+import com.bayesiansamaritan.lifeplanner.utils.ModelToResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bayesiansamaritan.lifeplanner.enums.DayOfWeek;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class HabitServiceImpl implements HabitService {
@@ -50,189 +49,28 @@ public class HabitServiceImpl implements HabitService {
     private HabitTransactionRepository habitTransactionRepository;
 
     @Autowired
-    private DateUtils dateUtils;
+    private HabitDateUtils habitDateUtils;
+    @Autowired
+    private ModelToResponse modelToResponse;
 
     @Override
-    public List<HabitResponse> getAllHabits(Long userId, Boolean active, String habitTypeName){
+    public List<HabitResponse> getAllHabits(Long userId, Boolean active, String habitTypeName,Date currentDate){
 
         HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
-        List<Habit> habits = habitRepository.findRootHabitByUserIdAndActiveAndHabitTypeId(userId,active,habitType.getId());
-        List<HabitResponse> habitResponses = new ArrayList<>();
-        for (Habit habit: habits){
-            Long every = null;
-            List<String> daysOfWeek = new ArrayList<>();
-            if (habit.getScheduleType().equals("daily")) {
-                Daily daily = dailyRepository.findByReferenceId("habit/" + habit.getId());
-                every = daily.getEvery();
-            }
-            else if(habit.getScheduleType().equals("monthly")){
-                Monthly monthly = monthlyRepository.findByReferenceId("habit/"+habit.getId());
-                every = monthly.getEvery();
-            }
-            else if(habit.getScheduleType().equals("yearly")){
-                Yearly yearly = yearlyRepository.findByReferenceId("habit/"+habit.getId());
-                every = yearly.getEvery();
-            }
-            else if(habit.getScheduleType().equals("weekly")){
-                Weekly weekly = weeklyRepository.findByReferenceId("habit/"+habit.getId());
-                every = weekly.getEvery();
-                for (DayOfWeek dayOfWeek:weekly.getDaysOfWeek()){
-                    daysOfWeek.add(dayOfWeek.toString());
-                }
-            }
-            Long streak;
-            if (dateUtils.keepStreak(habit.getId(),habit.getScheduleType(),habit.getDueDate())){
-                streak = habit.getStreak();
-            }
-            else{
-                streak = 0L;
-            }
-            Optional<List<Habit>> childHabits1 =  habitRepository.findChildHabitsByUserIdAndActiveAndParentHabitId(userId,active,habit.getId());
-            HabitResponse habitResponse = new HabitResponse(habit.getId(),habit.getCreatedAt(),
-                    habit.getUpdatedAt(),habit.getName(),habit.getScheduleType(),habit.getTimeTaken(),habit.getStartDate(),
-                    habit.getDueDate(),habitType.getName(),habit.getDescription(),streak,habit.getTotalTimes(),
-                    habit.getActive(),habit.getHidden(),habit.getCompleted(),habit.getTimeOfDay(),every,daysOfWeek);
-            List<HabitResponse> childHabitResponses1 = new ArrayList<>();
-            if (childHabits1.get().size()>0){
-                for(Habit childHabit1 : childHabits1.get()) {
-                    Long childEvery = null;
-                    List<String> childDaysOfWeek = new ArrayList<>();
-                    if (childHabit1.getScheduleType().equals("daily")) {
-                        Daily daily = dailyRepository.findByReferenceId("habit/" + childHabit1.getId());
-                        childEvery= daily.getEvery();
-                    }
-                    else if(childHabit1.getScheduleType().equals("monthly")){
-                        Monthly monthly = monthlyRepository.findByReferenceId("habit/"+childHabit1.getId());
-                        childEvery= monthly.getEvery();
-                    }
-                    else if(childHabit1.getScheduleType().equals("yearly")){
-                        Yearly yearly = yearlyRepository.findByReferenceId("habit/"+childHabit1.getId());
-                        childEvery = yearly.getEvery();
-                    }
-                    else if(childHabit1.getScheduleType().equals("weekly")){
-                        Weekly weekly = weeklyRepository.findByReferenceId("habit/"+childHabit1.getId());
-                        childEvery = weekly.getEvery();
-                        for (DayOfWeek dayOfWeek:weekly.getDaysOfWeek()){
-                            daysOfWeek.add(dayOfWeek.toString());
-                        }
-                    }
-                    Long childStreak;
-                    if (dateUtils.keepStreak(childHabit1.getId(),childHabit1.getScheduleType(),childHabit1.getDueDate())){
-                        childStreak = childHabit1.getStreak();
-                    }
-                    else{
-                        childStreak = 0L;
-                    }
-                    Optional<HabitType> childHabitType1 = habitTypeRepository.findById(childHabit1.getHabitTypeId());
-                    HabitResponse childHabitResponse1 = new HabitResponse(childHabit1.getId(),childHabit1.getCreatedAt(),
-                            childHabit1.getUpdatedAt(),childHabit1.getName(),childHabit1.getScheduleType(),childHabit1.getTimeTaken(),
-                            childHabit1.getStartDate(),childHabit1.getDueDate(),childHabitType1.get().getName(),
-                            childHabit1.getDescription(),childStreak,childHabit1.getTotalTimes(),
-                            childHabit1.getActive(),childHabit1.getHidden(),childHabit1.getCompleted(),habit.getTimeOfDay(),childEvery,childDaysOfWeek);
-                    childHabitResponses1.add(childHabitResponse1);
-                }
-                habitResponse.setHabitResponses(childHabitResponses1);
-            }
-            else{
-                habitResponse.setHabitResponses(childHabitResponses1);
-            }
-            habitResponses.add(habitResponse);
-        }
+        List<Habit> habits = habitRepository.findHabitByUserIdAndActiveAndHabitTypeId(userId,active,habitType.getId(),currentDate);
+        List<HabitResponse> habitResponses = modelToResponse.habitsModelsToResponses(habits,habitType);
         return habitResponses;
     };
 
-    @Override
-    public List<HabitResponse> getAllHabitsAndSubHabits(Long userId, Boolean active, String habitTypeName){
 
-        HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
-        List<Habit> habits = habitRepository.findRootHabitByUserIdAndActiveAndHabitTypeId(userId,active,habitType.getId());
-        List<HabitResponse> habitResponses = new ArrayList<>();
-        for (Habit habit: habits) {
-            Long every = null;
-            List<String> daysOfWeek = new ArrayList<>();
-            if (habit.getScheduleType().equals("daily")) {
-                Daily daily = dailyRepository.findByReferenceId("habit/" + habit.getId());
-                every = daily.getEvery();
-            }
-            else if(habit.getScheduleType().equals("monthly")){
-                Monthly monthly = monthlyRepository.findByReferenceId("habit/"+habit.getId());
-                every = monthly.getEvery();
-            }
-            else if(habit.getScheduleType().equals("yearly")){
-                Yearly yearly = yearlyRepository.findByReferenceId("habit/"+habit.getId());
-                every = yearly.getEvery();
-            }
-            else if(habit.getScheduleType().equals("weekly")){
-                Weekly weekly = weeklyRepository.findByReferenceId("habit/"+habit.getId());
-                every = weekly.getEvery();
-                for (DayOfWeek dayOfWeek:weekly.getDaysOfWeek()){
-                    daysOfWeek.add(dayOfWeek.toString());
-                }
-            }
-            Long streak;
-            if (dateUtils.keepStreak(habit.getId(),habit.getScheduleType(),habit.getDueDate())){
-                streak = habit.getStreak();
-            }
-            else{
-                streak = 0L;
-            }
-            Optional<List<Habit>> childHabits1 = habitRepository.findChildHabitsByUserIdAndActiveAndParentHabitId(userId, active, habit.getId());
-            HabitResponse habitResponse = new HabitResponse(habit.getId(), habit.getCreatedAt(),
-                    habit.getUpdatedAt(), habit.getName(), habit.getScheduleType(), habit.getTimeTaken(), habit.getStartDate(),
-                    habit.getDueDate(), habitType.getName(), habit.getDescription(),streak, habit.getTotalTimes(),
-                    habit.getActive(), habit.getHidden(), habit.getCompleted(), habit.getTimeOfDay(), every, daysOfWeek);
-            if (childHabits1.get().size() > 0) {
-                for (Habit childHabit1 : childHabits1.get()) {
-                    Long childEvery = null;
-                    List<String> childDaysOfWeek = new ArrayList<>();
-                    if (childHabit1.getScheduleType().equals("daily")) {
-                        Daily daily = dailyRepository.findByReferenceId("habit/" + childHabit1.getId());
-                        childEvery= daily.getEvery();
-                    }
-                    else if(childHabit1.getScheduleType().equals("monthly")){
-                        Monthly monthly = monthlyRepository.findByReferenceId("habit/"+childHabit1.getId());
-                        childEvery= monthly.getEvery();
-                    }
-                    else if(childHabit1.getScheduleType().equals("yearly")){
-                        Yearly yearly = yearlyRepository.findByReferenceId("habit/"+childHabit1.getId());
-                        childEvery = yearly.getEvery();
-                    }
-                    else if(childHabit1.getScheduleType().equals("weekly")){
-                        Weekly weekly = weeklyRepository.findByReferenceId("habit/"+childHabit1.getId());
-                        childEvery = weekly.getEvery();
-                        for (DayOfWeek dayOfWeek:weekly.getDaysOfWeek()){
-                            daysOfWeek.add(dayOfWeek.toString());
-                        }
-                    }
-                    Long childStreak;
-                    if (dateUtils.keepStreak(childHabit1.getId(),childHabit1.getScheduleType(),childHabit1.getDueDate())){
-                        childStreak = childHabit1.getStreak();
-                    }
-                    else{
-                        childStreak = 0L;
-                    }
-                    Optional<HabitType> childHabitType1 = habitTypeRepository.findById(childHabit1.getHabitTypeId());
-                    HabitResponse childHabitResponse1 = new HabitResponse(childHabit1.getId(), childHabit1.getCreatedAt(),
-                            childHabit1.getUpdatedAt(), childHabit1.getName(), childHabit1.getScheduleType(), childHabit1.getTimeTaken(),
-                            childHabit1.getStartDate(), childHabit1.getDueDate(), childHabitType1.get().getName(),
-                            childHabit1.getDescription(), childStreak, childHabit1.getTotalTimes(),
-                            childHabit1.getActive(), childHabit1.getHidden(), childHabit1.getCompleted(), childHabit1.getTimeOfDay(),childEvery,childDaysOfWeek);
-                    habitResponses.add(childHabitResponse1);
-                }
-
-            }
-            habitResponses.add(habitResponse);
-        }
-        return habitResponses;
-    };
 
     @Override
-    public Habit createDailyRootHabit(Long userId, String name,Date startDate,  Long timeOfDay, Date dueDate, Long every, String scheduleType,
+    public Habit createDailyHabit(Long userId, String name,Date startDate,  Long timeOfDay, Date dueDate, Long every, String scheduleType,
                                   String habitTypeName, Boolean active){
         HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
         Long streak = 0L;
         Long totalTimes = 0L;
-        Date newDueDate = dateUtils.getEndOfDay(dueDate);
+        Date newDueDate = habitDateUtils.getEndOfDay(dueDate);
         Habit habit = habitRepository.save(new Habit(name, timeOfDay, startDate, newDueDate, habitType.getId(), active, userId, streak,
                 totalTimes,scheduleType));
         Daily daily = dailyRepository.save(new Daily(every,"habit/"+habit.getId()));
@@ -240,26 +78,12 @@ public class HabitServiceImpl implements HabitService {
     };
 
     @Override
-    public Habit createDailyChildHabit(Long userId, String name,Date startDate,  Long timeOfDay, Date dueDate, Long every, String scheduleType,
-                                  String habitTypeName,String parentName, Boolean active){
-        HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
-        Habit oldHabit = habitRepository.findByUserIdAndName(userId,parentName);
-        Long streak = 0L;
-        Long totalTimes = 0L;
-        Date newDueDate = dateUtils.getEndOfDay(dueDate);
-        Habit habit = habitRepository.save(new Habit(name, timeOfDay, startDate, newDueDate, habitType.getId(), active, userId, streak,
-                totalTimes,scheduleType, oldHabit.getId()));
-        Daily daily = dailyRepository.save(new Daily(every,"habit/"+habit.getId()));
-        return habit;
-    };
-
-    @Override
-    public Habit createWeeklyRootHabit(Long userId, String name, Date startDate, Long timeOfDay, Date dueDate, Long every, String scheduleType,
+    public Habit createWeeklyHabit(Long userId, String name, Date startDate, Long timeOfDay, Date dueDate, Long every, String scheduleType,
                                    String habitTypeName, List<DayOfWeek> daysOfWeek, Boolean active){
         HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
         Long streak = 0L;
         Long totalTimes = 0L;
-        Date newDueDate = dateUtils.getEndOfDay(dueDate);
+        Date newDueDate = habitDateUtils.getEndOfDay(dueDate);
         Habit habit = habitRepository.save(new Habit(name, timeOfDay, startDate, newDueDate, habitType.getId(), active, userId, streak,
                 totalTimes,scheduleType));
         Weekly weekly = weeklyRepository.save(new Weekly(every,"habit/"+habit.getId(),daysOfWeek));
@@ -267,27 +91,12 @@ public class HabitServiceImpl implements HabitService {
     };
 
     @Override
-    public Habit createWeeklyChildHabit(Long userId, String name, Date startDate, Long timeOfDay, Date dueDate, Long every, String scheduleType,
-                                   String habitTypeName, List<DayOfWeek> daysOfWeek,String parentName, Boolean active){
-        HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
-        Habit oldHabit = habitRepository.findByUserIdAndName(userId,parentName);
-        Long streak = 0L;
-        Long totalTimes = 0L;
-        Date newDueDate = dateUtils.getEndOfDay(dueDate);
-        Habit habit = habitRepository.save(new Habit(name, timeOfDay, startDate, newDueDate, habitType.getId(), active, userId, streak,
-                totalTimes,scheduleType, oldHabit.getId()));
-        Weekly weekly = weeklyRepository.save(new Weekly(every,"habit/"+habit.getId(),daysOfWeek));
-        return habit;
-    };
-
-
-    @Override
-    public Habit createMonthlyRootHabit(Long userId, String name,Date startDate,  Long timeOfDay, Date dueDate, Long every, String scheduleType,
+    public Habit createMonthlyHabit(Long userId, String name,Date startDate,  Long timeOfDay, Date dueDate, Long every, String scheduleType,
                                   String habitTypeName, Boolean active){
         HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
         Long streak = 0L;
         Long totalTimes = 0L;
-        Date newDueDate = dateUtils.getEndOfDay(dueDate);
+        Date newDueDate = habitDateUtils.getEndOfDay(dueDate);
         Habit habit = habitRepository.save(new Habit(name, timeOfDay, startDate, newDueDate, habitType.getId(), active, userId, streak,
                 totalTimes,scheduleType));
         Monthly monthly = monthlyRepository.save(new Monthly(every,"habit/"+habit.getId()));
@@ -295,26 +104,12 @@ public class HabitServiceImpl implements HabitService {
     };
 
     @Override
-    public Habit createMonthlyChildHabit(Long userId, String name,Date startDate,  Long timeOfDay, Date dueDate, Long every, String scheduleType,
-                                    String habitTypeName,String parentName, Boolean active){
-        HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
-        Habit oldHabit = habitRepository.findByUserIdAndName(userId,parentName);
-        Long streak = 0L;
-        Long totalTimes = 0L;
-        Date newDueDate = dateUtils.getEndOfDay(dueDate);
-        Habit habit = habitRepository.save(new Habit(name, timeOfDay, startDate, newDueDate, habitType.getId(), active, userId, streak,
-                totalTimes,scheduleType, oldHabit.getId()));
-        Monthly monthly = monthlyRepository.save(new Monthly(every,"habit/"+habit.getId()));
-        return habit;
-    };
-
-    @Override
-    public Habit createYearlyRootHabit(Long userId, String name,Date startDate,  Long timeOfDay, Date dueDate, Long every, String scheduleType,
+    public Habit createYearlyHabit(Long userId, String name,Date startDate,  Long timeOfDay, Date dueDate, Long every, String scheduleType,
                                   String habitTypeName, Boolean active){
         HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
         Long streak = 0L;
         Long totalTimes = 0L;
-        Date newDueDate = dateUtils.getEndOfDay(dueDate);
+        Date newDueDate = habitDateUtils.getEndOfDay(dueDate);
         Habit habit = habitRepository.save(new Habit(name, timeOfDay, startDate, newDueDate, habitType.getId(), active, userId, streak,
                 totalTimes,scheduleType));
         Yearly yearly = yearlyRepository.save(new Yearly(every,"habit/"+habit.getId()));
@@ -322,21 +117,7 @@ public class HabitServiceImpl implements HabitService {
     };
 
     @Override
-    public Habit createYearlyChildHabit(Long userId, String name,Date startDate,  Long timeOfDay, Date dueDate, Long every, String scheduleType,
-                                   String habitTypeName,String parentName, Boolean active){
-        HabitType habitType = habitTypeRepository.findByNameAndUserId(habitTypeName,userId);
-        Habit oldHabit = habitRepository.findByUserIdAndName(userId,parentName);
-        Long streak = 0L;
-        Long totalTimes = 0L;
-        Date newDueDate = dateUtils.getEndOfDay(dueDate);
-        Habit habit = habitRepository.save(new Habit(name, timeOfDay, startDate, newDueDate, habitType.getId(), active, userId, streak,
-                totalTimes,scheduleType,oldHabit.getId()));
-        Yearly yearly = yearlyRepository.save(new Yearly(every,"habit/"+habit.getId()));
-        return habit;
-    };
-
-    @Override
-    public Habit completeHabit(Long userId, Long id, String habitCompletionType){
+    public Habit completeHabit(Long userId, Long id, String habitCompletionType, Date currentDate){
         Habit oldHabit = habitRepository.findByUserIdAndId(userId,id);
         String scheduleTypeName = oldHabit .getScheduleType();
         Date dueDate = oldHabit.getDueDate();
@@ -344,22 +125,22 @@ public class HabitServiceImpl implements HabitService {
         if (habitCompletionType.equals("Complete")){
             habitRepository.completeHabit(oldHabit.getId());
             habit = habitRepository.findByUserIdAndId(userId,id);
-            habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),dueDate,
+            habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),currentDate,
                     habit.getHabitTypeId(),userId,habit.getStreak(),habit.getTotalTimes(),habit.getScheduleType(),habit.getId(),habit.getTimeOfDay(),habitCompletionType));
         }
         else if (habitCompletionType.equals("Atomic")){
             habit = habitRepository.findByUserIdAndId(userId,id);
-            habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),dueDate,
+            habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),currentDate,
                     habit.getHabitTypeId(),userId,habit.getStreak(),habit.getTotalTimes(),habit.getScheduleType(),habit.getId(),habit.getTimeOfDay(),habitCompletionType));
         }
         else if (habitCompletionType.equals("Condition")){
             habit = habitRepository.findByUserIdAndId(userId,id);
-            habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),dueDate,
+            habitTransactionRepository.save(new HabitTransaction(habit.getName(),habit.getTimeTaken(),habit.getStartDate(),currentDate,
                     habit.getHabitTypeId(),userId,habit.getStreak(),habit.getTotalTimes(),habit.getScheduleType(),habit.getId(),habit.getTimeOfDay(),habitCompletionType));
         }
 
         String referenceId = "habit/"+habit.getId();
-        Date nextDueDate = dateUtils.getNextDueDate(dueDate,scheduleTypeName,referenceId);
+        Date nextDueDate = habitDateUtils.getNextDueDate(dueDate,scheduleTypeName,referenceId,currentDate);
         habitRepository.modifyDueDate(habit.getId(),nextDueDate);
         return habit;
     };

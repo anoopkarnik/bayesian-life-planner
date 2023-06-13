@@ -1,7 +1,5 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
-import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabit;
-import com.bayesiansamaritan.lifeplanner.model.BadHabit.BadHabitType;
 import com.bayesiansamaritan.lifeplanner.model.Financial.Account;
 import com.bayesiansamaritan.lifeplanner.model.Financial.AccountType;
 import com.bayesiansamaritan.lifeplanner.repository.Financial.AccountRepository;
@@ -10,10 +8,9 @@ import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Financial.AccountRequest;
 import com.bayesiansamaritan.lifeplanner.response.AccountBalanceResponse;
 import com.bayesiansamaritan.lifeplanner.response.AccountResponse;
-import com.bayesiansamaritan.lifeplanner.response.BadHabitResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.AccountService;
-import com.bayesiansamaritan.lifeplanner.utils.DateUtils;
+import com.bayesiansamaritan.lifeplanner.utils.HabitDateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,7 +38,7 @@ public class AccountController {
 	@Autowired
 	JwtUtils jwtUtils;
 	@Autowired
-	DateUtils dateUtils;
+    HabitDateUtils habitDateUtils;
 	static final String HEADER_STRING = "Authorization";
 	static final String TOKEN_PREFIX = "Bearer";
 

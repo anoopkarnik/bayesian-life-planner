@@ -84,10 +84,6 @@ public class CommonsServiceImpl implements CommonsService {
     public List<HabitType> findHabitTypeByUserId(Long userId){
 
         List<HabitType> habitTypes = habitTypeRepository.findByUserId(userId);
-        for(HabitType habitType:habitTypes){
-            List<Habit> habits = habitRepository.findRootHabitByUserIdAndActiveAndHabitTypeId(userId,true,habitType.getId());
-            habitTypeRepository.updateCount(habitType.getId(), (long) habits.size());
-        }
         return habitTypeRepository.findByUserId(userId);
     };
 

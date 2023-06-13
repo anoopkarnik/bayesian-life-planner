@@ -41,8 +41,6 @@ public class Habit extends Base2Model {
     @Column(name="schedule_type")
     private String scheduleType;
 
-    @Column(name="parent_id")
-    private long parentId=0L;
     @Column(name="time_of_day")
     private Long timeOfDay;
 
@@ -59,20 +57,5 @@ public class Habit extends Base2Model {
         this.timeOfDay = timeOfDay;
         this.scheduleType = scheduleType;
         this.totalTimes = totalTimes;
-    }
-
-    public Habit(String name,  Long timeOfDay, Date startDate, Date dueDate, Long habitTypeId, Boolean active, Long userId,
-                 Long streak,Long totalTimes, String scheduleType, Long parentId) {
-        this.name = name;
-        this.startDate = startDate;
-        this.dueDate = dueDate;
-        this.habitTypeId = habitTypeId;
-        this.active = active;
-        this.userId = userId;
-        this.streak = streak;
-        this.timeOfDay = timeOfDay;
-        this.totalTimes = totalTimes;
-        this.scheduleType = scheduleType;
-        this.parentId = parentId;
     }
 }
