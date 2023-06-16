@@ -1,16 +1,15 @@
 package com.bayesiansamaritan.lifeplanner.service.impl;
 
-import com.bayesiansamaritan.lifeplanner.enums.TopicTypeEnum;
-import com.bayesiansamaritan.lifeplanner.model.Item;
-import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
 import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
-import com.bayesiansamaritan.lifeplanner.model.Topic;
-import com.bayesiansamaritan.lifeplanner.repository.Skill.ItemRepository;
-import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
-import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillTypeRepository;
-import com.bayesiansamaritan.lifeplanner.repository.Skill.TopicRepository;
-import com.bayesiansamaritan.lifeplanner.request.Skill.TopicCreateRequest;
-import com.bayesiansamaritan.lifeplanner.response.ItemResponse;
+import com.bayesiansamaritan.lifeplanner.model.Topic.Link;
+import com.bayesiansamaritan.lifeplanner.model.Topic.SubTopic;
+import com.bayesiansamaritan.lifeplanner.model.Topic.Topic;
+import com.bayesiansamaritan.lifeplanner.repository.Skill.*;
+import com.bayesiansamaritan.lifeplanner.request.Topic.LinkCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.Topic.SubTopicCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.Topic.TopicCreateRequest;
+import com.bayesiansamaritan.lifeplanner.response.LinkResponse;
+import com.bayesiansamaritan.lifeplanner.response.SubTopicResponse;
 import com.bayesiansamaritan.lifeplanner.response.TopicResponse;
 import com.bayesiansamaritan.lifeplanner.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,10 @@ public class TopicServiceImpl implements TopicService {
     @Autowired
     TopicRepository topicRepository;
     @Autowired
-    ItemRepository itemRepository;
+    LinkRepository linkRepository;
+
+    @Autowired
+    SubTopicRepository subTopicRepository;
     @Autowired
     SkillTypeRepository skillTypeRepository;
     @Autowired
@@ -38,12 +40,19 @@ public class TopicServiceImpl implements TopicService {
         List<Topic> topicList = topicRepository.findTopicByUserIdAndSkillTypeId(userId,skillType.getId());
         Set<TopicResponse> topicResponses = new HashSet<>();
         for (Topic topic : topicList){
-            Set<ItemResponse> itemResponses = new HashSet<>();
-            for (Item item :topic.getItems()){
-                itemResponses.add(new ItemResponse(item.getId(),item.getCreatedAt(),item.getUpdatedAt(),item.getText()));
+            Set<LinkResponse> linkResponses = new HashSet<>();
+            Set<SubTopicResponse> subTopicResponses = new HashSet<>();
+            for (Link link : topic.getLinks()){
+                linkResponses.add(new LinkResponse(link.getId(),link.getCreatedAt(),
+                        link.getUpdatedAt(),link.getName(),link.getUrl(),link.getManualSummary(),
+                        link.getAiSummary(),link.getTranscript()));
             }
-            topicResponses.add(new TopicResponse(topic.getId(),topic.getCreatedAt(),topic.getUpdatedAt(),topic.getName(),topic.getTopicTypeEnum(),topic.getParagraph(),
-                    skillTypeName,itemResponses));
+            for (SubTopic subTopic: topic.getSubTopics()){
+                subTopicResponses.add(new SubTopicResponse(subTopic.getId(),subTopic.getCreatedAt(),
+                        subTopic.getUpdatedAt(),subTopic.getName(),subTopic.getText()));
+            }
+            topicResponses.add(new TopicResponse(topic.getId(),topic.getCreatedAt(),topic.getUpdatedAt(),topic.getName(),
+                    skillTypeName, topic.getSummary(),topic.getDescription(),linkResponses,subTopicResponses));
         }
         return topicResponses;
 
@@ -51,60 +60,46 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public Topic createTopic(Long userId, TopicCreateRequest topicCreateRequest){
-
-        Topic topic = new Topic();
         SkillType skillType = skillTypeRepository.findByNameAndUserId(topicCreateRequest.getSkillTypeName(),userId);
-        if(topicCreateRequest.getTopicTypeEnum().equals(TopicTypeEnum.TOPIC_PARAGRAPH)){
-            topic = topicRepository.save(new Topic(topicCreateRequest.getTopicTypeEnum(),topicCreateRequest.getParagraph(),
-                    skillType.getId(),userId,topicCreateRequest.getName()));
-        }
-        else if(topicCreateRequest.getTopicTypeEnum().equals(TopicTypeEnum.TOPIC_LIST) ){
-            Set<Item> items = new HashSet<>();
-
-            for (String item : topicCreateRequest.getItems()){
-                Item savedItem = new Item(item);
-                items.add(savedItem);
-            }
-            topic = topicRepository.save(new Topic(topicCreateRequest.getTopicTypeEnum(),items,
-                    skillType.getId(),userId,topicCreateRequest.getName()));
-        }
-        else if(topicCreateRequest.getTopicTypeEnum().equals(TopicTypeEnum.TOPIC_URL) ){
-            Set<Item> items = new HashSet<>();
-
-            for (String item : topicCreateRequest.getItems()){
-                Item savedItem = new Item(item);
-                items.add(savedItem);
-            }
-            topic = topicRepository.save(new Topic(topicCreateRequest.getTopicTypeEnum(),items,
-                    skillType.getId(),userId,topicCreateRequest.getName()));
-        }
+        Topic topic = topicRepository.save(new Topic(skillType.getId(),userId,topicCreateRequest.getName(),
+                topicCreateRequest.getDescription()));
         return topic;
     };
 
     @Override
-    public void updateItemInTopic(Long userId, Long topicId, String itemName){
-        Item item = itemRepository.save(new Item(itemName));
-        Topic topic = topicRepository.findById(topicId).get();
-        topic.getItems().add(item);
+    public void addLinkInTopic(Long userId, LinkCreateRequest linkCreateRequest){
+        Link link = new Link(userId,linkCreateRequest.getName(),linkCreateRequest.getUrl(),
+                linkCreateRequest.getManualSummary(),linkCreateRequest.getAiSummary(),
+                linkCreateRequest.getTranscript());
+        Topic topic = topicRepository.findById(linkCreateRequest.getTopicId()).get();
+        topic.getLinks().add(link);
         topicRepository.save(topic);
     }
 
     @Override
-    public void deleteItemInTopic(Long userId, Long topicId, Long itemId){
-        Item item = itemRepository.findById(itemId).get();
-        Topic topic = topicRepository.findById(topicId).get();
-        topic.getItems().remove(item);
+    public void addSubTopicInTopic(Long userId, SubTopicCreateRequest subTopicCreateRequest){
+        SubTopic subTopic= new SubTopic(userId,subTopicCreateRequest.getName(),
+                subTopicCreateRequest.getText());
+        Topic topic = topicRepository.findById(subTopicCreateRequest.getTopicId()).get();
+        topic.getSubTopics().add(subTopic);
         topicRepository.save(topic);
     }
 
     @Override
-    public void updateParagraphInTopic(Long userId, Long topicId, String paragraph){
-        topicRepository.updateParagraphByTopic(userId,topicId,paragraph);
-
+    public void deleteLinkInTopic(Long userId, Long topicId, Long linkId){
+        Link link = linkRepository.findById(linkId).get();
+        Topic topic = topicRepository.findById(topicId).get();
+        topic.getLinks().remove(link);
+        topicRepository.save(topic);
     }
 
-
-
+    @Override
+    public void deleteSubTopicInTopic(Long userId, Long topicId, Long subTopicId){
+        SubTopic subTopic = subTopicRepository.findById(subTopicId).get();
+        Topic topic = topicRepository.findById(topicId).get();
+        topic.getSubTopics().remove(subTopic);
+        topicRepository.save(topic);
+    }
 }
 
 

@@ -1,12 +1,7 @@
 package com.bayesiansamaritan.lifeplanner.model.Skill;
 
 import com.bayesiansamaritan.lifeplanner.model.Base2Model;
-import com.bayesiansamaritan.lifeplanner.model.Topic;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.EqualsAndHashCode;
+import com.bayesiansamaritan.lifeplanner.model.Topic.Topic;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

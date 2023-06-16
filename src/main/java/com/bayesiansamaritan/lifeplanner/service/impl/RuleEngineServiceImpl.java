@@ -9,7 +9,6 @@ import com.bayesiansamaritan.lifeplanner.model.Goal.Goal;
 import com.bayesiansamaritan.lifeplanner.model.Habit.Habit;
 import com.bayesiansamaritan.lifeplanner.model.Habit.HabitTransaction;
 import com.bayesiansamaritan.lifeplanner.model.Habit.HabitType;
-import com.bayesiansamaritan.lifeplanner.model.Item;
 import com.bayesiansamaritan.lifeplanner.model.Rule.*;
 import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
 import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
@@ -18,7 +17,6 @@ import com.bayesiansamaritan.lifeplanner.model.Stats.StatsTransaction;
 import com.bayesiansamaritan.lifeplanner.model.Stats.StatsType;
 import com.bayesiansamaritan.lifeplanner.model.Task.Task;
 import com.bayesiansamaritan.lifeplanner.model.Task.TaskType;
-import com.bayesiansamaritan.lifeplanner.model.Topic;
 import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitRepository;
 import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTransactionRepository;
 import com.bayesiansamaritan.lifeplanner.repository.BadHabit.BadHabitTypeRepository;
@@ -48,9 +46,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 @Service

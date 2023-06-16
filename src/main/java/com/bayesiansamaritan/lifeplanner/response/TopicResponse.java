@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -18,9 +17,10 @@ public class TopicResponse {
     private Date createdAt;
     private Date updatedAt;
     private String name;
-    private TopicTypeEnum topicTypeEnum;
-    private String paragraph;
     private String skillTypeName;
-    private Set<ItemResponse> itemResponses;
+    private String summary;
+    private String description;
+    private Set<LinkResponse> linkResponses;
+    private Set<SubTopicResponse> subTopicResponses;
 
 }

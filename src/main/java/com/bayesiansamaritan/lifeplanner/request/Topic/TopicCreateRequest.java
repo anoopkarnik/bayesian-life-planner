@@ -1,4 +1,4 @@
-package com.bayesiansamaritan.lifeplanner.request.Skill;
+package com.bayesiansamaritan.lifeplanner.request.Topic;
 
 import com.bayesiansamaritan.lifeplanner.enums.TopicTypeEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,11 +13,8 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TopicCreateRequest {
 
-    private Long id;
     private String name;
-    private TopicTypeEnum topicTypeEnum;
     private String skillTypeName;
-    public List<String> items;
-    public String paragraph;
+    public String description;
 
 }

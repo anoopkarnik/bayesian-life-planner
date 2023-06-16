@@ -1,20 +1,23 @@
 package com.bayesiansamaritan.lifeplanner.controller;
 
-
-import com.bayesiansamaritan.lifeplanner.model.Item;
-import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
 import com.bayesiansamaritan.lifeplanner.model.Skill.SkillType;
-import com.bayesiansamaritan.lifeplanner.model.Topic;
-import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillRepository;
+import com.bayesiansamaritan.lifeplanner.model.Topic.Link;
+import com.bayesiansamaritan.lifeplanner.model.Topic.SubTopic;
+import com.bayesiansamaritan.lifeplanner.model.Topic.Topic;
+import com.bayesiansamaritan.lifeplanner.repository.Skill.LinkRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.SkillTypeRepository;
+import com.bayesiansamaritan.lifeplanner.repository.Skill.SubTopicRepository;
 import com.bayesiansamaritan.lifeplanner.repository.Skill.TopicRepository;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
-import com.bayesiansamaritan.lifeplanner.request.Skill.*;
-import com.bayesiansamaritan.lifeplanner.response.ItemResponse;
-import com.bayesiansamaritan.lifeplanner.response.SkillResponse;
+import com.bayesiansamaritan.lifeplanner.request.Habit.HabitModifyRequest;
+import com.bayesiansamaritan.lifeplanner.request.Topic.LinkCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.Topic.SubTopicCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.Topic.TopicCreateRequest;
+import com.bayesiansamaritan.lifeplanner.request.Topic.TopicModifyRequest;
+import com.bayesiansamaritan.lifeplanner.response.LinkResponse;
+import com.bayesiansamaritan.lifeplanner.response.SubTopicResponse;
 import com.bayesiansamaritan.lifeplanner.response.TopicResponse;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
-import com.bayesiansamaritan.lifeplanner.service.SkillService;
 import com.bayesiansamaritan.lifeplanner.service.TopicService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +27,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -41,6 +44,10 @@ public class TopicController {
     @Autowired
     private TopicRepository topicRepository;
     @Autowired
+    private SubTopicRepository subTopicRepository;
+    @Autowired
+    private LinkRepository linkRepository;
+    @Autowired
     private SkillTypeRepository skillTypeRepository;
 
     @Autowired
@@ -54,13 +61,19 @@ public class TopicController {
     public TopicResponse getTopic(@PathVariable("id") Long topicId) {
         Topic topic = topicRepository.findById(topicId).get();
         SkillType skillType = skillTypeRepository.findById(topic.getSkillTypeId()).get();
-        Set<ItemResponse> itemResponses = new HashSet<>();
-        for (Item item: topic.getItems()){
-            ItemResponse itemResponse = new ItemResponse(item.getId(), item.getCreatedAt(),item.getUpdatedAt(), item.getText());
-            itemResponses.add(itemResponse);
+        Set<LinkResponse> linkResponses = new HashSet<>();
+        Set<SubTopicResponse> subTopicResponses = new HashSet<>();
+        for (Link link : topic.getLinks()){
+            linkResponses.add(new LinkResponse(link.getId(),link.getCreatedAt(),
+                    link.getUpdatedAt(),link.getName(),link.getUrl(),link.getManualSummary(),
+                    link.getAiSummary(),link.getTranscript()));
         }
-        TopicResponse topicResponse = new TopicResponse(topic.getId(),topic.getCreatedAt(),topic.getUpdatedAt(),topic.getName(),topic.getTopicTypeEnum(),
-                topic.getParagraph(),skillType.getName(),itemResponses);
+        for (SubTopic subTopic: topic.getSubTopics()){
+            subTopicResponses.add(new SubTopicResponse(subTopic.getId(),subTopic.getCreatedAt(),
+                    subTopic.getUpdatedAt(),subTopic.getName(),subTopic.getText()));
+        }
+        TopicResponse topicResponse = new TopicResponse(topic.getId(),topic.getCreatedAt(),topic.getUpdatedAt(),topic.getName(),
+                skillType.getName(), topic.getSummary(),topic.getDescription(),linkResponses,subTopicResponses);
         return topicResponse;
     }
 
@@ -88,38 +101,68 @@ public class TopicController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
-    @PatchMapping("/updateItem")
+    @PatchMapping("/addLink")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void updateItem(HttpServletRequest request, @RequestBody TopicModifyRequest topicModifyRequest)
+    public void addLink(HttpServletRequest request, @RequestBody LinkCreateRequest linkCreateRequest)
     {
         String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
         Long userId = userProfileRepository.findByName(username).get().getId();
-        topicService.updateItemInTopic(userId,topicModifyRequest.getId(), topicModifyRequest.getItemName());
+        topicService.addLinkInTopic(userId,linkCreateRequest);
     }
 
-    @PatchMapping("/deleteItem")
+    @PatchMapping("/addSubTopic")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void deleteItem(HttpServletRequest request, @RequestBody TopicModifyRequest topicModifyRequest)
+    public void addSubTopic(HttpServletRequest request, @RequestBody SubTopicCreateRequest subTopicCreateRequest)
     {
         String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
         Long userId = userProfileRepository.findByName(username).get().getId();
-        topicService.deleteItemInTopic(userId,topicModifyRequest.getId(),topicModifyRequest.getItemId());
+        topicService.addSubTopicInTopic(userId,subTopicCreateRequest);
     }
 
-    @PatchMapping("/updateParagraph")
+    @PatchMapping("/deleteLink")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public void updateParagraph(HttpServletRequest request, @RequestBody TopicCreateRequest topicCreateRequest)
+    public void deleteLink(HttpServletRequest request, @RequestBody LinkCreateRequest linkCreateRequest)
     {
         String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
         Long userId = userProfileRepository.findByName(username).get().getId();
-        topicService.updateParagraphInTopic(userId,topicCreateRequest.getId(),topicCreateRequest.getParagraph());
+        topicService.deleteLinkInTopic(userId,linkCreateRequest.getTopicId(),linkCreateRequest.getId());
+    }
+
+    @PatchMapping("/deleteSubTopic")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void deleteTopic(HttpServletRequest request, @RequestBody SubTopicCreateRequest subTopicCreateRequest)
+    {
+        String username = jwtUtils.getUserNameFromJwtToken(request.getHeader(HEADER_STRING).replace(TOKEN_PREFIX,""));
+        Long userId = userProfileRepository.findByName(username).get().getId();
+        topicService.deleteSubTopicInTopic(userId,subTopicCreateRequest.getTopicId(),subTopicCreateRequest.getId());
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public void deleteTransactions(@PathVariable("id") Long id){
         topicRepository.deleteById(id);
+    }
+
+    @PatchMapping("/modifyParams")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void modifyParams(@RequestBody TopicModifyRequest topicModifyRequest)
+    {
+        topicRepository.modifyParams(topicModifyRequest.getId(),topicModifyRequest.getName(),topicModifyRequest.getSummary(),
+                topicModifyRequest.getDescription());
+    }
+
+    @PatchMapping("/subTopic/modifyParams")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void modifyParams(@RequestBody SubTopicCreateRequest subTopicCreateRequest)
+    {
+        subTopicRepository.modifyParams(subTopicCreateRequest.getId(), subTopicCreateRequest.getName(),subTopicCreateRequest.getText());
+    }
+
+    @PatchMapping("/link/modifyParams")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public void modifyParams(@RequestBody LinkCreateRequest linkCreateRequest)
+    {
+        linkRepository.modifyParams(linkCreateRequest.getId(), linkCreateRequest.getName(),linkCreateRequest.getUrl(),
+                linkCreateRequest.getManualSummary());
     }
 }

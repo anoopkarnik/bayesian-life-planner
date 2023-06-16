@@ -1,6 +1,5 @@
 package com.bayesiansamaritan.lifeplanner.response;
 
-import com.bayesiansamaritan.lifeplanner.enums.TopicTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,10 +9,15 @@ import java.util.Date;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ItemResponse {
+public class LinkResponse {
 
     private Long id;
     private Date createdAt;
     private Date updatedAt;
-    private String text;
+    private String name;
+    private String url;
+    private String manualSummary;
+    private String aiSummary;
+    private String transcript;
+
 }

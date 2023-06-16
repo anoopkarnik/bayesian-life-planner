@@ -1,8 +1,6 @@
 package com.bayesiansamaritan.lifeplanner.repository.Skill;
 
-import com.bayesiansamaritan.lifeplanner.model.Item;
-import com.bayesiansamaritan.lifeplanner.model.Skill.Skill;
-import com.bayesiansamaritan.lifeplanner.model.Topic;
+import com.bayesiansamaritan.lifeplanner.model.Topic.Topic;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 
@@ -27,14 +24,8 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
 
     @Transactional
     @Modifying
-    @Query("update Topic t set t.items=:items where t.userId=:userId and t.id=:topicId")
-    public void updateItemByTopic(@Param("userId") Long userId,@Param("topicId") Long topicId, @Param("items") Set<Item> items);
-
-    @Transactional
-    @Modifying
-    @Query("update Topic t set t.paragraph=:paragraph where t.userId=:userId and t.id=:topicId")
-    public void updateParagraphByTopic(@Param("userId") Long userId,@Param("topicId") Long topicId, String paragraph);
-
+    @Query("update Topic set name=:name, summary=:summary,description=:description,updated_at=now() where id=:id")
+    public void modifyParams(@Param("id") Long id, @Param("name") String name, @Param("summary") String summary, @Param("description") String description);
 
 }
 

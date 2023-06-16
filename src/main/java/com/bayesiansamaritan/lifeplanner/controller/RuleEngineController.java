@@ -8,7 +8,6 @@ import com.bayesiansamaritan.lifeplanner.model.Rule.RuleSet;
 import com.bayesiansamaritan.lifeplanner.repository.Rule.*;
 import com.bayesiansamaritan.lifeplanner.repository.User.UserProfileRepository;
 import com.bayesiansamaritan.lifeplanner.request.Rule.*;
-import com.bayesiansamaritan.lifeplanner.request.Skill.TopicModifyRequest;
 import com.bayesiansamaritan.lifeplanner.response.*;
 import com.bayesiansamaritan.lifeplanner.security.jwt.JwtUtils;
 import com.bayesiansamaritan.lifeplanner.service.RuleEngineService;
@@ -19,9 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
